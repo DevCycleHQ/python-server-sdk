@@ -1,5 +1,5 @@
 from __future__ import print_function
-from devcycle_python_sdk import Configuration, DVCClient
+from devcycle_python_sdk import Configuration, DVCClient, UserData, Event
 from devcycle_python_sdk.rest import ApiException
 def main():
 
@@ -10,14 +10,15 @@ def main():
     # create an instance of the API class
     dvc = DVCClient(configuration)
 
-    user = {
-        'user_id': 'test'
-    }
-    event = {
-        "type": "customEvent",
-        "customType": "your_event_type_here",
-        "target": "somevariable.key"
-    }
+    user = UserData(
+        user_id='test',
+        email='yo@yo.ca',
+        country='CA'
+    )
+    event = Event(
+        type="customEvent",
+        target="somevariable.key"
+    )
 
     try:
         # Get all features by key for user data

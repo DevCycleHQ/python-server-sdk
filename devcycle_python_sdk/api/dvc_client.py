@@ -16,10 +16,9 @@ import re  # noqa: F401
 
 # python 2 and python 3 compatibility library
 import six
-import sys
-import os
 
 from devcycle_python_sdk.api_client import ApiClient
+from devcycle_python_sdk.models import UserData, Event
 
 
 class DVCClient(object):
@@ -32,48 +31,36 @@ class DVCClient(object):
     def __init__(self, configuration=None):
         api_client = ApiClient(configuration)
         self.api_client = api_client
-        version_file = open(os.path.join('devcycle_python_sdk', 'VERSION.txt'))
-        VERSION = version_file.read().strip()
-        self.default_user_data = {
-            'platform': 'Python',
-            'platform_version': sys.version[:5],
-            'sdk_type':' server',
-            'sdk_version': VERSION
 
-        }
-
-    def merge_user_and_default_data(self, user):
-        new_user = user.copy()   # start with keys and values of x
-        new_user.update(self.default_user_data)    # modifies z with keys and values of y
-        return new_user
-
-    def all_features(self, body, **kwargs):  # noqa: E501
+    def all_features(self, user, **kwargs):  # noqa: E501
         """Get all features by key for user data  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_features(body, async_req=True)
+        >>> thread = api.all_features(user, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param UserData body: (required)
+        :param UserData user: (required)
         :return: dict(str, Feature)
                  If the method is called asynchronously,
                  returns the request thread.
         """
+        if not isinstance(user, UserData):
+            raise TypeError("user argument must be an instance of UserData for all_features")
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.get_features_with_http_info(body, **kwargs)  # noqa: E501
+            return self.all_features_with_http_info(user, **kwargs)  # noqa: E501
         else:
-            (data) = self.get_features_with_http_info(body, **kwargs)  # noqa: E501
+            (data) = self.all_features_with_http_info(user, **kwargs)  # noqa: E501
             return data
 
-    def get_features_with_http_info(self, body, **kwargs):  # noqa: E501
+    def all_features_with_http_info(self, body, **kwargs):  # noqa: E501
         """Get all features by key for user data  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_features_with_http_info(body, async_req=True)
+        >>> thread = api.all_features_with_http_info(body, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
@@ -94,14 +81,14 @@ class DVCClient(object):
             if key not in all_params:
                 raise TypeError(
                     "Got an unexpected keyword argument '%s'"
-                    " to method get_features" % key
+                    " to method all_features" % key
                 )
             params[key] = val
         del params['kwargs']
         # verify the required parameter 'body' is set
         if ('body' not in params or
                 params['body'] is None):
-            raise ValueError("Missing the required parameter `body` when calling `get_features`")  # noqa: E501
+            raise ValueError("Missing the required parameter `body` when calling `all_features`")  # noqa: E501
 
         collection_formats = {}
 
@@ -116,7 +103,7 @@ class DVCClient(object):
 
         body_params = None
         if 'body' in params:
-            body_params = self.merge_user_and_default_data( params['body'] )
+            body_params = params['body']
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.select_header_accept(
             ['application/json'])  # noqa: E501
@@ -144,35 +131,37 @@ class DVCClient(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
-    def variable(self, body, key, default_value, **kwargs):  # noqa: E501
+    def variable(self, user, key, default_value, **kwargs):  # noqa: E501
         """Get variable by key for user data  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_variable_by_key(body, key, async_req=True)
+        >>> thread = api.variable(user, key, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param UserData body: (required)
+        :param UserData user: (required)
         :param str key: Variable key (required)
         :param any default_value
         :return: Variable
                  If the method is called asynchronously,
                  returns the request thread.
         """
+        if not isinstance(user, UserData):
+            raise TypeError("user argument must be an instance of UserData for variable")
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.get_variable_by_key_with_http_info(body, key, default_value, **kwargs)  # noqa: E501
+            return self.variable_with_http_info(user, key, default_value, **kwargs)  # noqa: E501
         else:
-            (data) = self.get_variable_by_key_with_http_info(body, key, default_value, **kwargs)  # noqa: E501
+            (data) = self.variable_with_http_info(user, key, default_value, **kwargs)  # noqa: E501
             return data
 
-    def get_variable_by_key_with_http_info(self, body, key, default_value, **kwargs):  # noqa: E501
+    def variable_with_http_info(self, body, key, default_value, **kwargs):  # noqa: E501
         """Get variable by key for user data  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_variable_by_key_with_http_info(body, key, async_req=True)
+        >>> thread = api.variable_with_http_info(body, key, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
@@ -194,23 +183,23 @@ class DVCClient(object):
             if key not in all_params:
                 raise TypeError(
                     "Got an unexpected keyword argument '%s'"
-                    " to method get_variable_by_key" % key
+                    " to method variable" % key
                 )
             params[key] = val
         del params['kwargs']
         # verify the required parameter 'body' is set
         if ('body' not in params or
                 params['body'] is None):
-            raise ValueError("Missing the required parameter `body` when calling `get_variable_by_key`")  # noqa: E501
+            raise ValueError("Missing the required parameter `body` when calling `variable`")  # noqa: E501
         # verify the required parameter 'key' is set
         if ('key' not in params or
                 params['key'] is None):
-            raise ValueError("Missing the required parameter `key` when calling `get_variable_by_key`")  # noqa: E501
+            raise ValueError("Missing the required parameter `key` when calling `variable`")  # noqa: E501
 
         # verify the required parameter 'key' is set
         if ('default_value' not in params or
                 params['default_value'] is None):
-            raise ValueError("Missing the required parameter `default_value` when calling `get_variable_by_key`")  # noqa: E501
+            raise ValueError("Missing the required parameter `default_value` when calling `variable`")  # noqa: E501
         collection_formats = {}
 
         path_params = {}
@@ -226,7 +215,7 @@ class DVCClient(object):
 
         body_params = None
         if 'body' in params:
-            body_params = self.merge_user_and_default_data( params['body'] )        # HTTP header `Accept`
+            body_params = params['body']       # HTTP header `Accept`
         header_params['Accept'] = self.api_client.select_header_accept(
             ['application/json'])  # noqa: E501
 
@@ -264,33 +253,35 @@ class DVCClient(object):
                 'value': default_value,
                 'key': variable_key
             }
-    def all_variables(self, body, **kwargs):  # noqa: E501
+    def all_variables(self, user, **kwargs):  # noqa: E501
         """Get all variables by key for user data  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_variables(body, async_req=True)
+        >>> thread = api.all_variables(user, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
-        :param UserData body: (required)
+        :param UserData user: (required)
         :return: dict(str, Variable)
                  If the method is called asynchronously,
                  returns the request thread.
         """
+        if not isinstance(user, UserData):
+            raise TypeError("user argument must be an instance of UserData for all_variables")
         kwargs['_return_http_data_only'] = True
         if kwargs.get('async_req'):
-            return self.get_variables_with_http_info(body, **kwargs)  # noqa: E501
+            return self.all_variables_with_http_info(user, **kwargs)  # noqa: E501
         else:
-            (data) = self.get_variables_with_http_info(body, **kwargs)  # noqa: E501
+            (data) = self.all_variables_with_http_info(user, **kwargs)  # noqa: E501
             return data
 
-    def get_variables_with_http_info(self, body, **kwargs):  # noqa: E501
+    def all_variables_with_http_info(self, body, **kwargs):  # noqa: E501
         """Get all variables by key for user data  # noqa: E501
 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
-        >>> thread = api.get_variables_with_http_info(body, async_req=True)
+        >>> thread = api.all_variables_with_http_info(body, async_req=True)
         >>> result = thread.get()
 
         :param async_req bool
@@ -311,14 +302,14 @@ class DVCClient(object):
             if key not in all_params:
                 raise TypeError(
                     "Got an unexpected keyword argument '%s'"
-                    " to method get_variables" % key
+                    " to method all_variables" % key
                 )
             params[key] = val
         del params['kwargs']
         # verify the required parameter 'body' is set
         if ('body' not in params or
                 params['body'] is None):
-            raise ValueError("Missing the required parameter `body` when calling `get_variables`")  # noqa: E501
+            raise ValueError("Missing the required parameter `body` when calling `all_variables`")  # noqa: E501
 
         collection_formats = {}
 
@@ -333,7 +324,7 @@ class DVCClient(object):
 
         body_params = None
         if 'body' in params:
-            body_params = self.merge_user_and_default_data( params['body'] )        # HTTP header `Accept`
+            body_params = params['body']       # HTTP header `Accept`
         header_params['Accept'] = self.api_client.select_header_accept(
             ['application/json'])  # noqa: E501
 
@@ -375,6 +366,11 @@ class DVCClient(object):
                  If the method is called asynchronously,
                  returns the request thread.
         """
+        if not isinstance(user, UserData):
+            raise TypeError("user argument must be an instance of UserData for track")
+
+        if not isinstance(event, Event):
+            raise TypeError("event argument must be an instance of Event for track")
         body = {
             "user": user,
             "events": [event]
@@ -434,8 +430,7 @@ class DVCClient(object):
 
         body_params = {}
         if 'body' in params:
-            print(params['body']['user'])
-            user_param = self.merge_user_and_default_data( params['body']['user'] )        # HTTP header `Accept`
+            user_param = body_params = params['body']['user']      # HTTP header `Accept`
             body_params = {
                 'user': user_param,
                 'events': params['body']['events']
