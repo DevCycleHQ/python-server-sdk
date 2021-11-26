@@ -27,7 +27,7 @@ import devcycle_python_sdk
 
 ```python
     from __future__ import print_function
-    from devcycle_python_sdk import Configuration, DevcycleApi
+    from devcycle_python_sdk import Configuration, DVCClient
     from devcycle_python_sdk.rest import ApiException
     configuration = Configuration()
     configuration.api_key['Authorization'] = 'your_server_key_here'
@@ -35,9 +35,11 @@ import devcycle_python_sdk
      # create an instance of the API class
      dvc = DVCClient(configuration)
     
-    user = {
-        'user_id': 'test'
-    }
+     user = UserData(
+        user_id='test',
+        email='example@example.ca',
+        country='CA'
+    )
 ```
 
 ## Getting All Features
@@ -47,7 +49,7 @@ import devcycle_python_sdk
         api_response = dvc.all_features(user)
         print(api_response)
     except ApiException as e:
-        print("Exception when calling DevcycleApi->all_features: %s\n" % e)
+        print("Exception when calling DVCClient->all_features: %s\n" % e)
     
 ```
 
@@ -61,30 +63,29 @@ To get values from your Variables, `get_variables()` is used to fetch variable v
         api_response = dvc.variable(user, key, 'default-value')
         print(api_response)
     except ApiException as e:
-         print("Exception when calling DevcycleApi->variable: %s\n" % e)
+         print("Exception when calling DVCClient->variable: %s\n" % e)
     
     try:
         # Get all variables for user data
         api_response = dvc.all_variables(user)
         print(api_response)
     except ApiException as e:
-        print("Exception when calling DevcycleApi->all_variables: %s\n" % e)
+        print("Exception when calling DVCClient->all_variables: %s\n" % e)
     
 ```
 
 ## Track Event
 To POST custom event for a user
 ```python
-    event = {
-        "type": "customEvent",
-        "customType": "your_event_type_here",
-        "target": "somevariable.key"
-    }
-   
+
+    event = Event(
+        type="customEvent",
+        target="somevariable.key"
+    )
     try:
         # Post events to DevCycle for user
         api_response = dvc.track(user, event)
         print(api_response)
     except ApiException as e:
-        print("Exception when calling DevcycleApi->track: %s\n" % e)
+        print("Exception when calling DVCClient->track: %s\n" % e)
 ```
