@@ -18,7 +18,7 @@ import re  # noqa: F401
 import six
 
 from devcycle_python_sdk.api_client import ApiClient
-from devcycle_python_sdk.models import UserData, Event
+from devcycle_python_sdk.models import UserData, Event, Variable
 
 
 class DVCClient(object):
@@ -242,17 +242,12 @@ class DVCClient(object):
                 _request_timeout=params.get('_request_timeout'),
                 collection_formats=collection_formats)
             if not response:
-                return {
-                    'value': default_value,
-                    'key': variable_key
-                }
+                return Variable(value=default_value, is_defaulted=True, key=variable_key)
             else:
                 return response
         except:
-            return {
-                'value': default_value,
-                'key': variable_key
-            }
+            return Variable(value=default_value, is_defaulted=True, key=variable_key)
+
     def all_variables(self, user, **kwargs):  # noqa: E501
         """Get all variables by key for user data  # noqa: E501
 

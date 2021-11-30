@@ -1,5 +1,5 @@
 from __future__ import print_function
-from devcycle_python_sdk import Configuration, DVCClient, UserData, Event
+from devcycle_python_sdk import Configuration, DVCClient, UserData, Event, Variable
 from devcycle_python_sdk.rest import ApiException
 def main():
 
@@ -15,6 +15,9 @@ def main():
         email='yo@yo.ca',
         country='CA'
     )
+    variable = Variable(value='test', is_defaulted=True, key='test')
+    print('test varia')
+    print(variable)
     event = Event(
         type="customEvent",
         target="somevariable.key"
@@ -33,6 +36,17 @@ def main():
         # Get variable by key for user data
         api_response = dvc.variable(user, key, 'default-value')
         print(api_response)
+        if not api_response.is_defaulted:
+            print('NOT DEFAULTED')
+    except ApiException as e:
+        print("Exception when calling DevcycleApi->varaible: %s\n" % e)
+
+    try:
+        # Get variable by key for user data
+        api_response_default = dvc.variable(user, 'elliot-etakjhsd', 'default-value')
+        if api_response_default.is_defaulted:
+            print(api_response_default)
+            print('DEFAULTED')
     except ApiException as e:
         print("Exception when calling DevcycleApi->varaible: %s\n" % e)
 
