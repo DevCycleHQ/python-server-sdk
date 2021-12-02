@@ -13,7 +13,7 @@
 from setuptools import setup, find_packages  # noqa: H301
 import os
 
-NAME = "devcycle-sdk"
+NAME = "devcycle-python-server-sdk"
 version_file = open(os.path.join('devcycle_python_sdk', 'VERSION.txt'))
 VERSION = version_file.read().strip()
 # To install the library, run the following
@@ -30,7 +30,7 @@ setup(
     version=VERSION,
     description="DevCycle Bucketing API",
     author_email="",
-    url="https://github.com/taplytics/devcycle-python-sdk",
+    url="https://github.com/devcycleHQ/python-server-sdk",
     download_url="https://github.com/taplytics/devcycle-python-sdk/archive/refs/tags/0.0.0-alpha-1.tar.gz",
     keywords=["DevCycle"],
     install_requires=REQUIRES,
