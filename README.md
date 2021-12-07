@@ -50,25 +50,33 @@ import devcycle_python_sdk
     
 ```
 
-### Grabbing Variable Values
-To get values from your Variables, `get_variables()` is used to fetch variable values using the identifier `key` coupled with a default value. The default value can be of type string, boolean, number, or object.
+### Get and Use Variable by Key
+To get values from your Variables, `all_variables()` is used to fetch variable values using the identifier `key` coupled with a default value. The default value can be of type string, boolean, number, or object.
+
+```python
+    key = 'key-test' # str | Variable key
+
+    try:
+        # Get variable by key for user data
+        variable = dvc.variable(user, key, 'default-value')
+        print("Variable value is: ", variable.value)
+    except ApiException as e:
+         print("Exception when calling DVCClient->variable: %s\n" % e)
+
+```
+
+### Getting All Variables
+To get values from your Variables, `all_variables()` is used to fetch variable values using the identifier `key` coupled with a default value. The default value can be of type string, boolean, number, or object.
+
 ```python
     key = 'key-test' # str | Variable key
     
     try:
-        # Get variable by key for user data
-        api_response = dvc.variable(user, key, 'default-value')
-        print(api_response)
-    except ApiException as e:
-         print("Exception when calling DVCClient->variable: %s\n" % e)
-    
-    try:
         # Get all variables for user data
-        api_response = dvc.all_variables(user)
-        print(api_response)
+        variables = dvc.all_variables(user)
+        print(variables)
     except ApiException as e:
         print("Exception when calling DVCClient->all_variables: %s\n" % e)
-    
 ```
 
 ### Track Event
