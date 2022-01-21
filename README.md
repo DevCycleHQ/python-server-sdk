@@ -14,9 +14,9 @@ Python 2.7 and 3.4+
 ### Installation & Usage
 
 ```sh
-pip install devcycle-sdk
+pip install devcycle-python-server-sdk
 ```
-(you may need to run `pip` with root permission: `sudo pip install devcycle-sdk`)
+(you may need to run `pip` with root permission: `sudo pip install devcycle-python-server-sdk`)
 
 Then import the package:
 ```python
@@ -27,7 +27,7 @@ import devcycle_python_sdk
 
 ```python
     from __future__ import print_function
-    from devcycle_python_sdk import Configuration, DVCClient
+    from devcycle_python_sdk import Configuration, DVCClient, UserData, Event
     from devcycle_python_sdk.rest import ApiException
     configuration = Configuration()
     configuration.api_key['Authorization'] = 'your_server_key_here'
