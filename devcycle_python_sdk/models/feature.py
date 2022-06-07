@@ -32,6 +32,8 @@ class Feature(object):
         'key': 'str',
         'type': 'str',
         'variation': 'str',
+        'variationKey': 'str',
+        'variationName': 'str',
         'eval_reason': 'str'
     }
 
@@ -40,21 +42,28 @@ class Feature(object):
         'key': 'key',
         'type': 'type',
         'variation': '_variation',
+        'variationKey': 'variationKey',
+        'variationName': 'variationName',
         'eval_reason': 'evalReason'
     }
 
-    def __init__(self, id=None, key=None, type=None, variation=None, eval_reason=None):  # noqa: E501
+    def __init__(self, id=None, key=None, type=None, variation=None, variationKey=None, variationName=None, eval_reason=None):  # noqa: E501
         """Feature - a model defined in Swagger"""  # noqa: E501
+        print("Feature.__init__",  variation, variationKey, variationName)
         self._id = None
         self._key = None
         self._type = None
         self._variation = None
+        self._variationKey = None
+        self._variationName = None
         self._eval_reason = None
         self.discriminator = None
         self.id = id
         self.key = key
         self.type = type
         self.variation = variation
+        self.variationKey = variationKey
+        self.variationName = variationName
         if eval_reason is not None:
             self.eval_reason = eval_reason
 
@@ -141,28 +150,79 @@ class Feature(object):
 
     @property
     def variation(self):
-        """Gets the variation of this Feature.  # noqa: E501
+        """Gets the variation ID of this Feature.  # noqa: E501
 
-        Bucketed feature variation  # noqa: E501
+        Bucketed feature variation ID # noqa: E501
 
-        :return: The variation of this Feature.  # noqa: E501
+        :return: The variation ID of this Feature.  # noqa: E501
         :rtype: str
         """
         return self._variation
 
     @variation.setter
     def variation(self, variation):
-        """Sets the variation of this Feature.
+        """Sets the variation ID of this Feature.
 
-        Bucketed feature variation  # noqa: E501
+        Bucketed feature variation ID # noqa: E501
 
-        :param variation: The variation of this Feature.  # noqa: E501
+        :param variation: The variation ID of this Feature.  # noqa: E501
         :type: str
         """
         if variation is None:
             raise ValueError("Invalid value for `variation`, must not be `None`")  # noqa: E501
 
         self._variation = variation
+
+    @property
+    def variationKey(self):
+        """Gets the variation key of this Feature.
+
+        Bucketed feature variation key   # noqa: E501
+
+        :return: The variation key of this Feature.  # noqa: E501
+        :rtype: str
+        """
+        return self._variationKey
+
+    @variationKey.setter
+    def variationKey(self, variationKey):
+        """Sets the variation key of this Feature.
+
+        Bucketed feature variation key
+
+        :param variationKey: The variation key of this Feature.  # noqa: E501
+        :type: str
+        """
+        if variationKey is None:
+            raise ValueError("Invalid value for `variationKey`, must not be `None`")  # noqa: E501
+
+        self._variationKey = variationKey
+
+    
+    @property
+    def variationName(self):
+        """Gets the variation name of this Feature.
+
+        Bucketed feature variation name   # noqa: E501
+
+        :return: The variation name of this Feature.  # noqa: E501
+        :rtype: str
+        """
+        return self._variationName
+
+    @variationName.setter
+    def variationName(self, variationName):
+        """Sets the variation name of this Feature.
+
+        Bucketed feature variation name
+
+        :param variationName: The variation name of this Feature.  # noqa: E501
+        :type: str
+        """
+        if variationName is None:
+            raise ValueError("Invalid value for `variationName`, must not be `None`")  # noqa: E501
+
+        self._variationName = variationName
 
     @property
     def eval_reason(self):
