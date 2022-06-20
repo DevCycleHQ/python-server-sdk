@@ -16,6 +16,7 @@ from __future__ import absolute_import
 
 # import apis into sdk package
 from devcycle_python_sdk.api.dvc_client import DVCClient
+from devcycle_python_sdk.dvc_options import DVCOptions
 # import ApiClient
 from devcycle_python_sdk.api_client import ApiClient
 from devcycle_python_sdk.configuration import Configuration

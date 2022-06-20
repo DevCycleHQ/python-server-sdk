@@ -1,14 +1,14 @@
 from __future__ import print_function
-from devcycle_python_sdk import Configuration, DVCClient, UserData, Event, Variable
+from devcycle_python_sdk import Configuration, DVCClient, DVCOptions, UserData, Event, Variable
 from devcycle_python_sdk.rest import ApiException
 def main():
 
     configuration = Configuration()
-    configuration.api_key['Authorization'] = 'server-1bf0c139-6861-41e1-8d2d-ea0416045f99'
-
+    configuration.api_key['Authorization'] = 'YOUR SERVER KEY HERE'
+    options = DVCOptions(enableEdgeDB=True)
 
     # create an instance of the API class
-    dvc = DVCClient(configuration)
+    dvc = DVCClient(configuration, options)
 
     user = UserData(
         user_id='test',

@@ -40,3 +40,11 @@ import devcycle_python_sdk
 ## Usage
 
 To find usage documentation, visit our [docs](https://docs.devcycle.com/docs/sdk/server-side-sdks/python#usage).
+
+## Development
+
+To run the example app against the local version of the API for testing and development, run:
+```sh
+pip install .
+```
+from the top level of the repo (same level as setup.py). Then run the example app as normal. Reinstall every time a change is made.
