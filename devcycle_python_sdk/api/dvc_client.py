@@ -428,6 +428,8 @@ class DVCClient(object):
         path_params = {}
 
         query_params = []
+        if (self.options.enableEdgeDB):
+            query_params.append(('enableEdgeDB', 'true'))
 
         header_params = {}
 
