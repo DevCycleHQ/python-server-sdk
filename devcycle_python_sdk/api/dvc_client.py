@@ -137,6 +137,17 @@ class DVCClient(object):
             _request_timeout=params.get('_request_timeout'),
             collection_formats=collection_formats)
 
+
+    def variableValue(self, user, key, default_value, **kwargs):
+        """Get variable value by key for user data  # noqa: E501
+
+        :param UserData user: (required)
+        :param str key: Variable key (required)
+        :param any default_value
+        :return: any variable value
+        """
+        return self.variable(user, key, default_value, **kwargs).value
+
     def variable(self, user, key, default_value, **kwargs):  # noqa: E501
         """Get variable by key for user data  # noqa: E501
 
