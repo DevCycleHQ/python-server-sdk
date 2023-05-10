@@ -36,6 +36,8 @@ import devcycle_python_sdk
         email='example@example.ca',
         country='CA'
     )
+
+    value = dvc.variableValue(user, 'feature-key', 'default-value')
 ```
 
 ## Usage

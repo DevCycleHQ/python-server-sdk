@@ -1,10 +1,10 @@
 from __future__ import print_function
 from devcycle_python_sdk import Configuration, DVCClient, DVCOptions, UserData, Event, Variable
 from devcycle_python_sdk.rest import ApiException
-def main():
 
+def main():
     configuration = Configuration()
-    configuration.api_key['Authorization'] = 'YOUR SERVER KEY HERE'
+    configuration.api_key['Authorization'] = '<DVC_SERVER_SDK_KEY>'
     options = DVCOptions(enableEdgeDB=True)
 
     # create an instance of the API class
@@ -15,9 +15,6 @@ def main():
         email='yo@yo.ca',
         country='CA'
     )
-    variable = Variable(value='test', is_defaulted=True, key='test')
-    print('test varia')
-    print(variable)
     event = Event(
         type="customEvent",
         target="somevariable.key"
@@ -31,6 +28,13 @@ def main():
         print("Exception when calling DevcycleApi->all_features: %s\n" % e)
 
     key = 'elliot-test' # str | Variable key
+
+    try:
+        # Get variable value by key for user data
+        value = dvc.variableValue(user, key, 'default-value')
+        print(value)
+    except ApiException as e:
+        print("Exception when calling DevcycleApi->varaible: %s\n" % e)
 
     try:
         # Get variable by key for user data
