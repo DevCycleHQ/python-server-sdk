@@ -3,6 +3,11 @@ from devcycle_python_sdk import Configuration, DVCClient, DVCOptions, UserData, 
 from devcycle_python_sdk.rest import ApiException
 
 def main():
+    """
+    Sample generic usage of the Python SDK.
+    For a Django specific sample app, please see https://github.com/DevCycleHQ/python-django-example-app/
+
+    """
     configuration = Configuration()
     configuration.api_key['Authorization'] = '<DVC_SERVER_SDK_KEY>'
     options = DVCOptions(enableEdgeDB=True)
