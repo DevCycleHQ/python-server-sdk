@@ -36,7 +36,7 @@ def main():
 
     try:
         # Get variable value by key for user data
-        value = dvc.variableValue(user, key, 'default-value')
+        value = dvc.variable_value(user, key, 'default-value')
         print(value)
     except ApiException as e:
         print("Exception when calling DevcycleApi->varaible: %s\n" % e)

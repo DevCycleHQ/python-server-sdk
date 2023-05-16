@@ -138,7 +138,7 @@ class DVCClient(object):
             collection_formats=collection_formats)
 
 
-    def variableValue(self, user, key, default_value, **kwargs):
+    def variable_value(self, user, key, default_value, **kwargs):
         """Get variable value by key for user data  # noqa: E501
 
         :param UserData user: (required)
