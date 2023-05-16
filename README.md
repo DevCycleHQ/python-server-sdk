@@ -37,7 +37,7 @@ import devcycle_python_sdk
         country='CA'
     )
 
-    value = dvc.variableValue(user, 'feature-key', 'default-value')
+    value = dvc.variable_value(user, 'feature-key', 'default-value')
 ```
 
 ## Usage
