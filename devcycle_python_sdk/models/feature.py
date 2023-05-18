@@ -49,7 +49,6 @@ class Feature(object):
 
     def __init__(self, id=None, key=None, type=None, variation=None, variationKey=None, variationName=None, eval_reason=None):  # noqa: E501
         """Feature - a model defined in Swagger"""  # noqa: E501
-        print("Feature.__init__",  variation, variationKey, variationName)
         self._id = None
         self._key = None
         self._type = None

@@ -14,9 +14,6 @@ from __future__ import absolute_import
 
 import unittest
 
-import devcycle_python_sdk
-from devcycle_python_sdk.models.inline_response200 import InlineResponse200  # noqa: E501
-from devcycle_python_sdk.rest import ApiException
 
 
 class TestInlineResponse200(unittest.TestCase):
