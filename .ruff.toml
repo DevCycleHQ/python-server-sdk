@@ -1,0 +1,11 @@
+# https://beta.ruff.rs/docs/rules/
+select = [
+	"F", # PyFlakes
+	"E", # pycodestyle error
+	#"W", # pycodestyle warning
+	#"N", # pep8-naming
+	"T20", # flake8-print
+]
+ignore = [
+	"E501", # line too long
+]

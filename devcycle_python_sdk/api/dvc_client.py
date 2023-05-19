@@ -265,7 +265,7 @@ class DVCClient(object):
                 return Variable(value=default_value, is_defaulted=True, key=variable_key)
             else:
                 return response
-        except:
+        except Exception:
             return Variable(value=default_value, is_defaulted=True, key=variable_key)
 
     def all_variables(self, user, **kwargs):  # noqa: E501

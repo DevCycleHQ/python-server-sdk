@@ -14,16 +14,13 @@ from __future__ import absolute_import
 
 import unittest
 
-import devcycle_python_sdk
-from devcycle_python_sdk.api.devcycle_api import DevcycleApi  # noqa: E501
-from devcycle_python_sdk.rest import ApiException
 
 
 class TestDevcycleApi(unittest.TestCase):
     """DevcycleApi unit test stubs"""
 
     def setUp(self):
-        self.api = DevcycleApi()  # noqa: E501
+        pass
 
     def tearDown(self):
         pass

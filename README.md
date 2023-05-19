@@ -46,8 +46,24 @@ To find usage documentation, visit our [docs](https://docs.devcycle.com/docs/sdk
 
 ## Development
 
+To set up dependencies for local development, run:
+```
+pip install -r requirements.test.txt
+```
+
 To run the example app against the local version of the API for testing and development, run:
 ```sh
-pip install .
+pip install --editable .
 ```
-from the top level of the repo (same level as setup.py). Then run the example app as normal. Reinstall every time a change is made.
+from the top level of the repo (same level as setup.py). Then run the example app as normal.
+
+
+Linting checks on PRs are run using [ruff](https://github.com/charliermarsh/ruff), and are configured using `.ruff.toml`. To run the linter locally, run this command from the top level of the repo:
+```
+ruff check .
+```
+
+Ruff can automatically fix simple linting errors (the ones marked with `[*]`). To do so, run:
+```
+ruff check . --fix
+```

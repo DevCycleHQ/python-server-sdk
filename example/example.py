@@ -1,6 +1,13 @@
-from __future__ import print_function
-from devcycle_python_sdk import Configuration, DVCClient, DVCOptions, UserData, Event, Variable
+import logging
+import os
+
+from devcycle_python_sdk import Configuration, DVCClient, DVCOptions, UserData, Event
 from devcycle_python_sdk.rest import ApiException
+
+VARIABLE_KEY = "test-boolean-variable"
+
+logger = logging.getLogger(__name__)
+
 
 def main():
     """
@@ -8,70 +15,57 @@ def main():
     For a Django specific sample app, please see https://github.com/DevCycleHQ/python-django-example-app/
 
     """
+    logging.basicConfig(level="INFO", format="%(levelname)s: %(message)s")
+
     configuration = Configuration()
-    configuration.api_key['Authorization'] = '<DVC_SERVER_SDK_KEY>'
+
+    try:
+        configuration.api_key["Authorization"] = os.environ["DVC_SERVER_SDK_KEY"]
+    except KeyError:
+        logger.error(
+            "Set the DVC_SERVER_SDK_KEY environment variable to your development server SDK key"
+        )
+        exit(1)
+
     options = DVCOptions(enableEdgeDB=True)
 
     # create an instance of the API class
     dvc = DVCClient(configuration, options)
 
-    user = UserData(
-        user_id='test',
-        email='yo@yo.ca',
-        country='CA'
-    )
-    event = Event(
-        type="customEvent",
-        target="somevariable.key"
-    )
+    user = UserData(user_id="test", email="yo@yo.ca", country="CA")
+    event = Event(type="customEvent", target="somevariable.key")
 
-    try:
-        # Get all features by key for user data
-        api_response = dvc.all_features(user)
-        print(api_response)
-    except ApiException as e:
-        print("Exception when calling DevcycleApi->all_features: %s\n" % e)
+    # Use variable_value to access the value of a variable directly
+    if dvc.variable_value(user, VARIABLE_KEY, False):
+        logger.info(f"Variable {VARIABLE_KEY} is enabled")
+    else:
+        logger.info(f"Variable {VARIABLE_KEY} is not enabled")
 
-    key = 'elliot-test' # str | Variable key
-
-    try:
-        # Get variable value by key for user data
-        value = dvc.variable_value(user, key, 'default-value')
-        print(value)
-    except ApiException as e:
-        print("Exception when calling DevcycleApi->varaible: %s\n" % e)
-
-    try:
-        # Get variable by key for user data
-        api_response = dvc.variable(user, key, 'default-value')
-        print(api_response)
-        if not api_response.is_defaulted:
-            print('NOT DEFAULTED')
-    except ApiException as e:
-        print("Exception when calling DevcycleApi->varaible: %s\n" % e)
-
-    try:
-        # Get variable by key for user data
-        api_response_default = dvc.variable(user, 'elliot-etakjhsd', 'default-value')
-        if api_response_default.is_defaulted:
-            print(api_response_default)
-            print('DEFAULTED')
-    except ApiException as e:
-        print("Exception when calling DevcycleApi->varaible: %s\n" % e)
+    # DevCycle handles missing or wrongly typed variables by returning the default value
+    # You can check this explicitly by using the variable method
+    variable = dvc.variable(user, VARIABLE_KEY + "-does-not-exist", False)
+    if variable.is_defaulted:
+        logger.info(f"Variable {variable.key} is defaulted to {variable.value}")
 
     try:
         # Get all variables by key for user data
-        api_response = dvc.all_variables(user)
-        print(api_response)
-    except ApiException as e:
-        print("Exception when calling DevcycleApi->all_variables: %s\n" % e)
+        all_variables_response = dvc.all_variables(user)
+        logger.info("All variables:\n%s", all_variables_response)
 
-    try:
+        if VARIABLE_KEY not in all_variables_response:
+            logger.warning(
+                f"Variable {VARIABLE_KEY} does not exist - create it in the dashboard for this example"
+            )
+
+        # Get all features by key for user data
+        all_features_response = dvc.all_features(user)
+        logger.info("All features:\n%s", all_features_response)
+
         # Post events to DevCycle for user
-        api_response = dvc.track(user, event)
-        print(api_response)
+        track_response = dvc.track(user, event)
+        logger.info(track_response)
     except ApiException as e:
-        print("Exception when calling DevcycleApi->track: %s\n" % e)
+        logger.exception("Exception when calling Devcycle API: %s\n" % e)
 
 
 if __name__ == "__main__":

@@ -14,9 +14,6 @@ from __future__ import absolute_import
 
 import unittest
 
-import devcycle_python_sdk
-from devcycle_python_sdk.models.user_data import UserData  # noqa: E501
-from devcycle_python_sdk.rest import ApiException
 
 
 class TestUserData(unittest.TestCase):
