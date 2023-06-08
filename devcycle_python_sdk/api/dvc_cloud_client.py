@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class DVCCloudClient:
+
     def __init__(self, sdk_key: str, options: DVCCloudOptions):
         self._validate_sdk_key(sdk_key)
 
@@ -26,12 +27,32 @@ class DVCCloudClient:
         self.platform_version = sys.version
         self.sdk_version = sdk_version()
 
+    def _add_platform_data_to_user(self, user: UserData) -> UserData:
+        user.platform = self.platform
+        user.platform_version = self.platform_version
+        user.sdk_version = self.sdk_version
+        return user
+
+    def _validate_sdk_key(self, sdk_key: str) -> None:
+        if sdk_key is None or len(sdk_key) == 0:
+            raise ValueError("Missing SDK key! Call build with a valid SDK key")
+
+        if not sdk_key.startswith("server") and not sdk_key.startswith("dvc_server"):
+            raise ValueError("Invalid SDK key provided. Please call build with a valid server SDK key")
+
+    def _validate_user(self, user: UserData) -> None:
+        if user is None:
+            raise ValueError("User cannot be None")
+
+        if user.user_id is None or len(user.user_id) == 0:
+            raise ValueError("userId cannot be empty")
+
     def variable_value(self, user: UserData, key: str, default_value) -> Any:
         return self.variable(user, key, default_value).value
 
     def variable(self, user: UserData, key: str, default_value: Any) -> Variable:
         self._validate_user(user)
-        user = self.add_platform_to_user(user)
+        user = self._add_platform_data_to_user(user)
 
         if not key:
             raise ValueError("Missing parameter: key")
@@ -39,7 +60,7 @@ class DVCCloudClient:
         if not default_value:
             raise ValueError("Missing parameter: defaultValue")
 
-        variable = None
+        variable: Variable = None
         try:
             # do the API call here
             pass
@@ -51,7 +72,7 @@ class DVCCloudClient:
 
     def all_variables(self, user: UserData) -> dict[str, Variable]:
         self._validate_user(user)
-        user = self.add_platform_to_user(user)
+        user = self._add_platform_data_to_user(user)
 
         variable_map: dict[str, Variable] = {}
         try:
@@ -64,7 +85,7 @@ class DVCCloudClient:
 
     def all_features(self, user: UserData) -> dict[str, Feature]:
         self._validate_user(user)
-        user = self.add_platform_to_user(user)
+        user = self._add_platform_data_to_user(user)
 
         feature_map: dict[str, Feature] = {}
         try:
@@ -77,7 +98,7 @@ class DVCCloudClient:
 
     def track(self, user: UserData, user_event: Event) -> None:
         self._validate_user(user)
-        user = self.add_platform_to_user(user)
+        user = self._add_platform_data_to_user(user)
 
         if user_event is None or not user_event.type:
             raise ValueError("Invalid Event")
@@ -89,25 +110,3 @@ class DVCCloudClient:
             pass
         except Exception as e:
             logger.error("Error tracking event: %s", e)
-
-    def add_platform_data_to_user(self, user: UserData) -> UserData:
-        user.platform = self.platform
-        user.platform_version = self.platform_version
-        user.sdk_version = self.sdk_version
-        return user
-
-    @staticmethod
-    def _validate_sdk_key(sdk_key: str) -> None:
-        if sdk_key is None or len(sdk_key) == 0:
-            raise ValueError("Missing SDK key! Call build with a valid SDK key")
-
-        if not sdk_key.startswith("server") and not sdk_key.startswith("dvc_server"):
-            raise ValueError("Invalid SDK key provided. Please call build with a valid server SDK key")
-
-    @staticmethod
-    def _validate_user(user: UserData) -> None:
-        if user is None:
-            raise ValueError("User cannot be None")
-
-        if user.user_id is None or len(user.user_id) == 0:
-            raise ValueError("userId cannot be empty")
