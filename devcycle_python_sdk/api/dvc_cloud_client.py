@@ -8,7 +8,7 @@ from devcycle_python_sdk.models.user_data import UserData
 from devcycle_python_sdk.models.variable import Variable
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.dvc_options import DVCCloudOptions
-from devcycle_python_sdk import util
+from devcycle_python_sdk.util.version import sdk_version
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ class DVCCloudClient:
 
         self.platform = "Cloud"
         self.platform_version = sys.version
-        self.sdk_version = util.sdk_version()
+        self.sdk_version = sdk_version()
 
     def variable_value(self, user: UserData, key: str, default_value) -> Any:
         return self.variable(user, key, default_value).value
@@ -101,7 +101,7 @@ class DVCCloudClient:
         if sdk_key is None or len(sdk_key) == 0:
             raise ValueError("Missing SDK key! Call build with a valid SDK key")
 
-        if not sdk_key.startswith("server") or not sdk_key.startswith("dvc_server"):
+        if not sdk_key.startswith("server") and not sdk_key.startswith("dvc_server"):
             raise ValueError("Invalid SDK key provided. Please call build with a valid server SDK key")
 
     @staticmethod
