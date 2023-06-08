@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from typing import Any
+from typing import Any, Dict
 
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.user_data import UserData
@@ -60,7 +60,6 @@ class DVCCloudClient:
         if not default_value:
             raise ValueError("Missing parameter: defaultValue")
 
-        variable: Variable = None
         try:
             # do the API call here and replace the defaulted value
             return Variable(key=key, value=default_value, is_defaulted=True)

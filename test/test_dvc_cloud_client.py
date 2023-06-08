@@ -2,7 +2,8 @@ import logging
 import unittest
 import uuid
 
-from devcycle_python_sdk import DVCCloudClient, DVCCloudOptions
+from devcycle_python_sdk.api.dvc_cloud_client import DVCCloudClient
+from devcycle_python_sdk.dvc_options import DVCCloudOptions
 
 logger = logging.getLogger(__name__)
 
