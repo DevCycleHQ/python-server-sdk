@@ -23,31 +23,8 @@ class DVCCloudClient:
             self.options = options
 
         self.platform = "Cloud"
-        self.platform = "Cloud"
         self.platform_version = sys.version
         self.sdk_version = util.sdk_version()
-
-    @staticmethod
-    def _validate_sdk_key(sdk_key: str) -> None:
-        if sdk_key is None or len(sdk_key) == 0:
-            raise ValueError("Missing SDK key! Call build with a valid SDK key")
-
-        if not sdk_key.startswith("server") or not sdk_key.startswith("dvc_server"):
-            raise ValueError("Invalid SDK key provided. Please call build with a valid server SDK key")
-
-    @staticmethod
-    def _validate_user(user: UserData) -> None:
-        if user is None:
-            raise ValueError("User cannot be None")
-
-        if user.user_id is None or len(user.user_id) == 0:
-            raise ValueError("userId cannot be empty")
-
-    def add_platform_to_user(self, user: UserData) -> UserData:
-        user.platform = self.platform
-        user.platform_version = self.platform_version
-        user.sdk_version = self.sdk_version
-        return user
 
     def variable_value(self, user: UserData, key: str, default_value) -> Any:
         return self.variable(user, key, default_value).value
@@ -112,3 +89,25 @@ class DVCCloudClient:
             pass
         except Exception as e:
             logger.error("Error tracking event: %s", e)
+
+    def add_platform_data_to_user(self, user: UserData) -> UserData:
+        user.platform = self.platform
+        user.platform_version = self.platform_version
+        user.sdk_version = self.sdk_version
+        return user
+
+    @staticmethod
+    def _validate_sdk_key(sdk_key: str) -> None:
+        if sdk_key is None or len(sdk_key) == 0:
+            raise ValueError("Missing SDK key! Call build with a valid SDK key")
+
+        if not sdk_key.startswith("server") or not sdk_key.startswith("dvc_server"):
+            raise ValueError("Invalid SDK key provided. Please call build with a valid server SDK key")
+
+    @staticmethod
+    def _validate_user(user: UserData) -> None:
+        if user is None:
+            raise ValueError("User cannot be None")
+
+        if user.user_id is None or len(user.user_id) == 0:
+            raise ValueError("userId cannot be empty")
