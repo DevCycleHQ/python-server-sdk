@@ -47,7 +47,7 @@ class DVCCloudClient:
         if user.user_id is None or len(user.user_id) == 0:
             raise ValueError("userId cannot be empty")
 
-    def variable_value(self, user: UserData, key: str, default_value) -> Any:
+    def variable_value(self, user: UserData, key: str, default_value: Any) -> Any:
         return self.variable(user, key, default_value).value
 
     def variable(self, user: UserData, key: str, default_value: Any) -> Variable:
@@ -62,13 +62,12 @@ class DVCCloudClient:
 
         variable: Variable = None
         try:
-            # do the API call here
+            # do the API call here and replace the defaulted value
+            return Variable(key=key, value=default_value, is_defaulted=True)
             pass
         except Exception as e:
             logger.error("Error fetching variable: %s", e)
-            variable = Variable(key=key, value=default_value, is_defaulted=True)
-
-        return variable
+            return Variable(key=key, value=default_value, is_defaulted=True)
 
     def all_variables(self, user: UserData) -> dict[str, Variable]:
         self._validate_user(user)
@@ -84,6 +83,7 @@ class DVCCloudClient:
         return variable_map
 
     def all_features(self, user: UserData) -> dict[str, Feature]:
+
         self._validate_user(user)
         user = self._add_platform_data_to_user(user)
 

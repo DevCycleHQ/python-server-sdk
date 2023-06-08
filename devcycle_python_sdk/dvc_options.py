@@ -1,11 +1,3 @@
-class DVCOptions:
-    def __init__(self, enableEdgeDB=False, eventsAPIURI=None, configCDNURI=None, bucketingAPIURI=None):
-        self.enableEdgeDB = enableEdgeDB
-        self.eventsAPIURI = eventsAPIURI
-        self.configCDNURI = configCDNURI
-        self.bucketingAPIURI = bucketingAPIURI
-
-
 class DVCCloudOptions:
     def __init__(self,
                  enable_edge_db: bool = False,

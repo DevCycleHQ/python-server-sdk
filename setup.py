@@ -23,7 +23,7 @@ VERSION = version_file.read().strip()
 # prerequisite: setuptools
 # http://pypi.python.org/pypi/setuptools
 
-REQUIRES = ["urllib3 >= 1.15", "six >= 1.10", "certifi", "python-dateutil"]
+REQUIRES = ["python-dateutil"]
 
 setup(
     name=NAME,

@@ -1,8 +1,7 @@
 import logging
 import os
 
-from devcycle_python_sdk import Configuration, DVCClient, DVCOptions, UserData, Event
-from devcycle_python_sdk.rest import ApiException
+from devcycle_python_sdk import DVCCloudClient, DVCCloudOptions, UserData, Event, DVCError
 
 VARIABLE_KEY = "test-boolean-variable"
 
@@ -17,20 +16,11 @@ def main():
     """
     logging.basicConfig(level="INFO", format="%(levelname)s: %(message)s")
 
-    configuration = Configuration()
-
-    try:
-        configuration.api_key["Authorization"] = os.environ["DVC_SERVER_SDK_KEY"]
-    except KeyError:
-        logger.error(
-            "Set the DVC_SERVER_SDK_KEY environment variable to your development server SDK key"
-        )
-        exit(1)
-
-    options = DVCOptions(enableEdgeDB=True)
+    options = DVCCloudOptions(enableEdgeDB=True)
 
     # create an instance of the API class
-    dvc = DVCClient(configuration, options)
+    server_sdk_key = os.environ["DVC_SERVER_SDK_KEY"]
+    dvc = DVCCloudClient(server_sdk_key, options)
 
     user = UserData(user_id="test", email="yo@yo.ca", country="CA")
     event = Event(type="customEvent", target="somevariable.key")
@@ -64,7 +54,7 @@ def main():
         # Post events to DevCycle for user
         track_response = dvc.track(user, event)
         logger.info(track_response)
-    except ApiException as e:
+    except DVCError as e:
         logger.exception("Exception when calling Devcycle API: %s\n" % e)
 
 
