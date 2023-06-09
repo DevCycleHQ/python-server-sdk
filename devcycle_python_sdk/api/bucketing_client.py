@@ -7,7 +7,11 @@ from typing import Dict, List, Optional
 
 import requests
 
-from devcycle_python_sdk.exceptions import CloudClientException, NotFoundException, CloudClientUnauthorizedException
+from devcycle_python_sdk.exceptions import (
+    CloudClientException,
+    NotFoundException,
+    CloudClientUnauthorizedException,
+)
 from devcycle_python_sdk.dvc_options import DVCCloudOptions
 from devcycle_python_sdk.models import Variable, UserData, Feature, Event
 
@@ -30,7 +34,7 @@ class BucketingAPIClient:
         return join(self.options.bucketing_API_URI, "v1", *path_args)
 
     def request(self, method: str, url: str, **kwargs) -> dict:
-        retries_remaining = self.options.request_retries
+        retries_remaining = self.options.request_retries + 1
         timeout = self.options.request_timeout
 
         attempts = 1
@@ -40,24 +44,23 @@ class BucketingAPIClient:
                 res: requests.Response = self.session.request(
                     method, url, timeout=timeout, **kwargs
                 )
+
+                if res.status_code == 401:
+                    # Not a retryable error
+                    raise (CloudClientUnauthorizedException("Invalid SDK Key"))
+                elif res.status_code == 404:
+                    # Not a retryable error
+                    raise NotFoundException(url)
+                elif 400 <= res.status_code < 500:
+                    # Not a retryable error
+                    raise CloudClientException(f"Bad request: HTTP {res.status_code}")
+                elif res.status_code >= 500:
+                    # Retryable error
+                    request_error = CloudClientException(
+                        f"Server error: HTTP {res.status_code}"
+                    )
             except requests.exceptions.RequestException as e:
                 request_error = e
-
-            if res.status_code == 401:
-                # Not a retryable error
-                raise (CloudClientUnauthorizedException("Invalid SDK Key"))
-            elif res.status_code == 404:
-                # Not a retryable error
-                raise NotFoundException(url)
-            elif 400 <= res.status_code < 500:
-                # Not a retryable error
-                raise CloudClientException(f"Bad request: HTTP {res.status_code}")
-
-            if res.status_code >= 500:
-                # Retryable error
-                request_error = CloudClientException(
-                    f"Server error: HTTP {res.status_code}"
-                )
 
             if not request_error:
                 break
@@ -81,9 +84,9 @@ class BucketingAPIClient:
         data = self.request("POST", self._url("variables", key), json=user.to_json())
 
         return Variable(
-            _id=str(data.get("_id")),
-            key=str(data.get("key")),
-            type=str(data.get("type")),
+            _id=data.get("_id"),
+            key=data.get("key"),
+            type=data.get("type"),
             value=data.get("value"),
         )
 

@@ -22,15 +22,14 @@ def determine_variable_type(value: Any) -> str:
         raise TypeError(f"Unsupported type: {type(value)}")
 
 
-@dataclass(eq=False, order=False)
+@dataclass(order=False)
 class Variable:
-    _id: str
-    key: str
-    type: str
+    _id: Optional[str]
+    key: Optional[str]
+    type: Optional[str]
     value: Optional[Any] = None
     isDefaulted: bool = False
-
-    # defaultValue: Optional[Any] = None
+    defaultValue: Optional[Any] = None
     # evalReason: Optional[str] = None
 
     def to_json(self):
@@ -43,4 +42,6 @@ class Variable:
     @staticmethod
     def create_default_variable(key: str, default_value: Any) -> "Variable":
         var_type = determine_variable_type(default_value)
-        return Variable(_id="", key=key, type=var_type, value=default_value, isDefaulted=True)
+        return Variable(
+            _id="", key=key, type=var_type, value=default_value, isDefaulted=True
+        )

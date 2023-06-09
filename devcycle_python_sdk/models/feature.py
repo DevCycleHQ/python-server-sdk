@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 
-@dataclass(eq=False, order=False)
+@dataclass(order=False)
 class Feature:
     _id: str
     key: str

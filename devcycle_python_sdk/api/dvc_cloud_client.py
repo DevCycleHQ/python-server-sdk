@@ -3,7 +3,10 @@ import platform
 
 from typing import Any, Dict
 
-from devcycle_python_sdk.exceptions import NotFoundException, CloudClientException, CloudClientUnauthorizedException
+from devcycle_python_sdk.exceptions import (
+    NotFoundException,
+    CloudClientUnauthorizedException,
+)
 from devcycle_python_sdk.models import Event, Feature, UserData, Variable
 from devcycle_python_sdk.dvc_options import DVCCloudOptions
 from devcycle_python_sdk.util.version import sdk_version
@@ -67,7 +70,9 @@ class DVCCloudClient:
             raise ValueError("Missing parameter: defaultValue")
 
         try:
-            return self.bucketing_api.variable(key, user)
+            variable = self.bucketing_api.variable(key, user)
+            variable.defaultValue = default_value
+            return variable
         except CloudClientUnauthorizedException as e:
             logger.warning("DevCycle: SDK key is invalid, unable to make cloud request")
             raise e

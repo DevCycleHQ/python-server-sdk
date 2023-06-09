@@ -11,7 +11,7 @@ from typing import Dict, Optional
 from time import time
 
 
-@dataclass(eq=False, order=False)
+@dataclass(order=False)
 class Event:
     type: str
     target: Optional[str] = None

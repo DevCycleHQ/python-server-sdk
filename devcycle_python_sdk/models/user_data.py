@@ -3,7 +3,7 @@ from time import time
 from typing import Dict, Optional
 
 
-@dataclass(eq=False, order=False)
+@dataclass(order=False)
 class UserData:
     user_id: str
     email: Optional[str] = None

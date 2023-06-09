@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
 
 
-@dataclass(eq=False, order=False)
+@dataclass(order=False)
 class ErrorResponse:
     message: str
     statusCode: Optional[int] = 0
