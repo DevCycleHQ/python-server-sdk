@@ -1,7 +1,7 @@
 import logging
 import os
 
-from devcycle_python_sdk import DVCCloudClient, DVCCloudOptions, UserData, Event, DVCError
+from devcycle_python_sdk import DVCCloudClient, DVCCloudOptions, UserData, Event
 
 VARIABLE_KEY = "test-boolean-variable"
 

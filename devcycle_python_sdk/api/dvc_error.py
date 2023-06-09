@@ -1,2 +1,0 @@
-class DVCError(Exception):
-    pass

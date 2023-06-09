@@ -16,7 +16,6 @@ from __future__ import absolute_import
 
 # import apis into sdk package
 from devcycle_python_sdk.api.dvc_cloud_client import DVCCloudClient
-from devcycle_python_sdk.api.dvc_error import DVCError
 from devcycle_python_sdk.dvc_options import DVCCloudOptions
 from devcycle_python_sdk.api.bucketing_client import BucketingAPIClient
 # import models into sdk package
