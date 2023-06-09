@@ -3,10 +3,7 @@ import sys
 
 from typing import Any, Dict
 
-from devcycle_python_sdk.models.feature import Feature
-from devcycle_python_sdk.models.user_data import UserData
-from devcycle_python_sdk.models.variable import Variable
-from devcycle_python_sdk.models.event import Event
+from devcycle_python_sdk.models import Event, Feature, UserData, Variable
 from devcycle_python_sdk.dvc_options import DVCCloudOptions
 from devcycle_python_sdk.util.version import sdk_version
 
@@ -14,6 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 class DVCCloudClient:
+    options: DVCCloudOptions
+    platform: str
+    platform_version: str
+    sdk_version: str
 
     def __init__(self, sdk_key: str, options: DVCCloudOptions):
         self._validate_sdk_key(sdk_key)
@@ -29,8 +30,8 @@ class DVCCloudClient:
 
     def _add_platform_data_to_user(self, user: UserData) -> UserData:
         user.platform = self.platform
-        user.platform_version = self.platform_version
-        user.sdk_version = self.sdk_version
+        user.platformVersion = self.platform_version
+        user.sdkVersion = self.sdk_version
         return user
 
     def _validate_sdk_key(self, sdk_key: str) -> None:
@@ -38,7 +39,9 @@ class DVCCloudClient:
             raise ValueError("Missing SDK key! Call build with a valid SDK key")
 
         if not sdk_key.startswith("server") and not sdk_key.startswith("dvc_server"):
-            raise ValueError("Invalid SDK key provided. Please call build with a valid server SDK key")
+            raise ValueError(
+                "Invalid SDK key provided. Please call build with a valid server SDK key"
+            )
 
     def _validate_user(self, user: UserData) -> None:
         if user is None:
@@ -68,11 +71,11 @@ class DVCCloudClient:
             logger.error("Error fetching variable: %s", e)
             return Variable(key=key, value=default_value, is_defaulted=True)
 
-    def all_variables(self, user: UserData) -> dict[str, Variable]:
+    def all_variables(self, user: UserData) -> Dict[str, Variable]:
         self._validate_user(user)
         user = self._add_platform_data_to_user(user)
 
-        variable_map: dict[str, Variable] = {}
+        variable_map: Dict[str, Variable] = {}
         try:
             # do the API call here
             pass
@@ -81,12 +84,11 @@ class DVCCloudClient:
 
         return variable_map
 
-    def all_features(self, user: UserData) -> dict[str, Feature]:
-
+    def all_features(self, user: UserData) -> Dict[str, Feature]:
         self._validate_user(user)
         user = self._add_platform_data_to_user(user)
 
-        feature_map: dict[str, Feature] = {}
+        feature_map: Dict[str, Feature] = {}
         try:
             # do the API call here
             pass
@@ -102,7 +104,7 @@ class DVCCloudClient:
         if user_event is None or not user_event.type:
             raise ValueError("Invalid Event")
 
-        events: list[Event] = [user_event]
+        events = [user_event]
 
         try:
             # do the API call here
