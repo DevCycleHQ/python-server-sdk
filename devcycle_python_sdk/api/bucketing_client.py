@@ -3,10 +3,11 @@ import math
 from os.path import join
 import random
 import time
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import requests
 
+from devcycle_python_sdk.exceptions import CloudClientException, NotFoundException
 from devcycle_python_sdk.dvc_options import DVCCloudOptions
 from devcycle_python_sdk.models import Variable, UserData, Feature, Event
 
@@ -34,22 +35,40 @@ class BucketingAPIClient:
 
         attempts = 1
         while retries_remaining > 0:
+            request_error: Optional[Exception] = None
             try:
-                res = self.session.request(method, url, timeout=timeout, **kwargs)
-                res.raise_for_status()
-                break
-            except requests.exceptions.RequestException as e:
-                logger.error(
-                    f"DevCycle cloud bucketing request failed (attempt {attempts}): {e}"
+                res: requests.Response = self.session.request(
+                    method, url, timeout=timeout, **kwargs
                 )
-                retries_remaining -= 1
-                if retries_remaining:
-                    retry_delay = exponential_backoff(attempts)
-                    time.sleep(retry_delay)
-                    attempts += 1
-                    continue
+            except requests.exceptions.RequestException as e:
+                request_error = e
 
-                raise DVCCloudClientException(e)
+            if res.status_code == 404:
+                # Not a retryable error
+                raise NotFoundException(url)
+            elif 400 <= res.status_code < 500:
+                # Not a retryable error
+                raise CloudClientException(f"Bad request: HTTP {res.status_code}")
+
+                # Retryable error
+                request_error = CloudClientException(
+                    f"Server error: HTTP {res.status_code}"
+                )
+
+            if not request_error:
+                break
+
+            logger.error(
+                f"DevCycle cloud bucketing request failed (attempt {attempts}): {request_error}"
+            )
+            retries_remaining -= 1
+            if retries_remaining:
+                retry_delay = exponential_backoff(attempts)
+                time.sleep(retry_delay)
+                attempts += 1
+                continue
+
+            raise CloudClientException(message="Retries exceeded", cause=request_error)
 
         data: dict = res.json()
         return data
@@ -106,11 +125,6 @@ class BucketingAPIClient:
         )
         message = data.get("message", "")
         return message
-
-
-class DVCCloudClientException(Exception):
-    def __init__(self, cause: Exception):
-        self.cause = cause
 
 
 def exponential_backoff(attempt: int) -> float:
