@@ -23,7 +23,7 @@ VERSION = version_file.read().strip()
 # prerequisite: setuptools
 # http://pypi.python.org/pypi/setuptools
 
-REQUIRES = ["python-dateutil"]
+REQUIRES = [line.strip() for line in open("requirements.txt").readlines()]
 
 setup(
     name=NAME,
@@ -35,9 +35,9 @@ setup(
     keywords=["DevCycle"],
     install_requires=REQUIRES,
     packages=find_packages(),
-    package_data={'': ['VERSION.txt']},
+    package_data={"": ["VERSION.txt"]},
     include_package_data=True,
     long_description="""\
     Documents the DevCycle Bucketing API which provides and API interface to User Bucketing and for generated SDKs.  # noqa: E501
-    """
+    """,
 )
