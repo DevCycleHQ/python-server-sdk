@@ -71,8 +71,6 @@ class DVCCloudClient:
 
         try:
             variable = self.bucketing_api.variable(key, user)
-            variable.defaultValue = default_value
-            return variable
         except CloudClientUnauthorizedException as e:
             logger.warning("DevCycle: SDK key is invalid, unable to make cloud request")
             raise e
@@ -86,6 +84,22 @@ class DVCCloudClient:
             return Variable.create_default_variable(
                 key=key, default_value=default_value
             )
+
+        variable.defaultValue = default_value
+
+        # Allow default value to be a subclass of the same type as the variable
+        if not isinstance(default_value, type(variable.value)):
+            logger.warning(
+                "DevCycle: variable %s is type %s, but default value is type %s",
+                key,
+                type(variable.value),
+                type(default_value),
+            )
+            return Variable.create_default_variable(
+                key=key, default_value=default_value
+            )
+
+        return variable
 
     def all_variables(self, user: UserData) -> Dict[str, Variable]:
         self._validate_user(user)
