@@ -4,7 +4,7 @@ Welcome to the the DevCycle Python SDK, initially generated via the [DevCycle Bu
 
 ## Requirements.
 
-Python 2.7 and 3.4+
+* Python 3.7+
 
 ## Installation
 
@@ -21,16 +21,13 @@ import devcycle_python_sdk
 ## Getting Started
 
 ```python
-    from __future__ import print_function
-    from devcycle_python_sdk import Configuration, DVCOptions, DVCClient, UserData, Event
-    from devcycle_python_sdk.rest import ApiException
-    configuration = Configuration()
-    configuration.api_key['Authorization'] = 'your_server_key_here'
-    options = DVCOptions(enableEdgeDB=True)
+    from devcycle_python_sdk import DVCCloudClient, DVCCloudOptions, UserData, Event
+ 
+    options = DVCCloudOptions()
 
-     # create an instance of the API class
-     dvc = DVCClient(configuration, options)
-    
+     # create an instance of the client class
+    dvc = DVCCloudClient('your_server_key_here', options)
+        
      user = UserData(
         user_id='test',
         email='example@example.ca',
@@ -46,6 +43,10 @@ To find usage documentation, visit our [docs](https://docs.devcycle.com/docs/sdk
 
 ## Development
 
+When developing the SDK it is recommended that you have both a 3.7 and 3.11 python interpreter installed in order to verify changes across different versions of python.
+
+### Dependencies
+
 To set up dependencies for local development, run:
 ```
 pip install -r requirements.test.txt
@@ -58,6 +59,8 @@ pip install --editable .
 from the top level of the repo (same level as setup.py). Then run the example app as normal.
 
 
+### Linting
+
 Linting checks on PRs are run using [ruff](https://github.com/charliermarsh/ruff), and are configured using `.ruff.toml`. To run the linter locally, run this command from the top level of the repo:
 ```
 ruff check .
@@ -66,4 +69,11 @@ ruff check .
 Ruff can automatically fix simple linting errors (the ones marked with `[*]`). To do so, run:
 ```
 ruff check . --fix
+```
+
+### Unit Tests
+
+To run the unit tests, run:
+```bash
+python3 -m unittest -v
 ```
