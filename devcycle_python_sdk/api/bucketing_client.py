@@ -7,7 +7,7 @@ from typing import Dict, List, Optional
 
 import requests
 
-from devcycle_python_sdk.exceptions import CloudClientException, NotFoundException
+from devcycle_python_sdk.exceptions import CloudClientException, NotFoundException, CloudClientUnauthorizedException
 from devcycle_python_sdk.dvc_options import DVCCloudOptions
 from devcycle_python_sdk.models import Variable, UserData, Feature, Event
 
@@ -43,7 +43,10 @@ class BucketingAPIClient:
             except requests.exceptions.RequestException as e:
                 request_error = e
 
-            if res.status_code == 404:
+            if res.status_code == 401:
+                # Not a retryable error
+                raise (CloudClientUnauthorizedException("Invalid SDK Key"))
+            elif res.status_code == 404:
                 # Not a retryable error
                 raise NotFoundException(url)
             elif 400 <= res.status_code < 500:

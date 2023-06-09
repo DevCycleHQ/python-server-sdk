@@ -54,7 +54,7 @@ def main():
         # Post events to DevCycle for user
         track_response = dvc.track(user, event)
         logger.info(track_response)
-    except DVCError as e:
+    except Exception as e:
         logger.exception("Exception when calling Devcycle API: %s\n" % e)
 
 

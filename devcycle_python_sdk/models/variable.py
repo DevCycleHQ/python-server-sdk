@@ -28,8 +28,8 @@ class Variable:
     key: str
     type: str
     value: Optional[Any] = None
+    isDefaulted: bool = False
 
-    # isDefaulted: bool = False
     # defaultValue: Optional[Any] = None
     # evalReason: Optional[str] = None
 
@@ -43,5 +43,4 @@ class Variable:
     @staticmethod
     def create_default_variable(key: str, default_value: Any) -> "Variable":
         var_type = determine_variable_type(default_value)
-        # return Variable(_id="", key=key, type=var_type, value=default_value, isDefaulted=True)
-        return Variable(_id="", key=key, type=var_type, value=default_value)
+        return Variable(_id="", key=key, type=var_type, value=default_value, isDefaulted=True)

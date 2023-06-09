@@ -1,9 +1,9 @@
 import logging
-import sys
+import platform
 
 from typing import Any, Dict
 
-from devcycle_python_sdk.exceptions import NotFoundException
+from devcycle_python_sdk.exceptions import NotFoundException, CloudClientException, CloudClientUnauthorizedException
 from devcycle_python_sdk.models import Event, Feature, UserData, Variable
 from devcycle_python_sdk.dvc_options import DVCCloudOptions
 from devcycle_python_sdk.util.version import sdk_version
@@ -26,8 +26,8 @@ class DVCCloudClient:
         else:
             self.options = options
 
-        self.platform = "Cloud"
-        self.platform_version = sys.version
+        self.platform = "Python"
+        self.platform_version = platform.python_version()
         self.sdk_version = sdk_version()
         self.bucketing_api = BucketingAPIClient(sdk_key, self.options)
 
@@ -68,6 +68,9 @@ class DVCCloudClient:
 
         try:
             return self.bucketing_api.variable(key, user)
+        except CloudClientUnauthorizedException as e:
+            logger.warning("DevCycle: SDK key is invalid, unable to make cloud request")
+            raise e
         except NotFoundException:
             logger.warning("DevCycle: variable not found: %s", key)
             return Variable.create_default_variable(
@@ -86,6 +89,9 @@ class DVCCloudClient:
         variable_map: Dict[str, Variable] = {}
         try:
             variable_map = self.bucketing_api.variables(user)
+        except CloudClientUnauthorizedException as e:
+            logger.warning("DevCycle: SDK key is invalid, unable to make cloud request")
+            raise e
         except Exception as e:
             logger.error("Error retrieving all features for a user: %s", e)
 
@@ -98,6 +104,9 @@ class DVCCloudClient:
         feature_map: Dict[str, Feature] = {}
         try:
             feature_map = self.bucketing_api.features(user)
+        except CloudClientUnauthorizedException as e:
+            logger.warning("DevCycle: SDK key is invalid, unable to make cloud request")
+            raise e
         except Exception as e:
             logger.error("Error retrieving all features for a user: %s", e)
 
@@ -113,5 +122,8 @@ class DVCCloudClient:
         events = [user_event]
         try:
             self.bucketing_api.track(user, events)
+        except CloudClientUnauthorizedException as e:
+            logger.warning("DevCycle: SDK key is invalid, unable to make cloud request")
+            raise e
         except Exception as e:
             logger.error("Error tracking event: %s", e)
