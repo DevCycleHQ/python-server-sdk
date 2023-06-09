@@ -103,9 +103,7 @@ class DVCCloudClient:
             raise ValueError("Invalid Event")
 
         events = [user_event]
-
         try:
-            # self.bucketing_api.track(user, events)
-            pass
+            self.bucketing_api.track(user, events)
         except Exception as e:
             logger.error("Error tracking event: %s", e)
