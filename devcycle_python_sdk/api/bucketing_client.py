@@ -50,6 +50,7 @@ class BucketingAPIClient:
                 # Not a retryable error
                 raise CloudClientException(f"Bad request: HTTP {res.status_code}")
 
+            if res.status_code >= 500:
                 # Retryable error
                 request_error = CloudClientException(
                     f"Server error: HTTP {res.status_code}"

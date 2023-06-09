@@ -6,6 +6,9 @@ class CloudClientException(Exception):
         self.message = message
         self.__cause__ = cause
 
+    def __str__(self):
+        return f"CloudClientException: {self.message}"
+
 
 class NotFoundException(Exception):
     def __init__(self, key: str):
