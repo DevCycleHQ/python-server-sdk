@@ -28,9 +28,9 @@ class BucketingAPIClient:
         data: dict = res.json()
 
         return Variable(
-            id=data.get("_id"),
-            key=data.get("key"),
-            type=data.get("type"),
+            _id=str(data.get("_id")),
+            key=str(data.get("key")),
+            type=str(data.get("type")),
             value=data.get("value"),
         )
 
@@ -42,10 +42,10 @@ class BucketingAPIClient:
         result: Dict[str, Variable] = {}
         for key, value in data.items():
             result[key] = Variable(
-                id=value.get("_id"),
-                key=value.get("key"),
-                type=value.get("type"),
-                value=value.get("value"),
+                _id=str(data.get("_id")),
+                key=str(data.get("key")),
+                type=str(data.get("type")),
+                value=data.get("value"),
             )
 
         return result
@@ -58,13 +58,13 @@ class BucketingAPIClient:
         result: Dict[str, Feature] = {}
         for key, value in data.items():
             result[key] = Feature(
-                id=value.get("_id"),
+                _id=value.get("_id"),
                 key=value.get("key"),
                 type=value.get("type"),
-                variation=value.get("_variation"),
+                _variation=value.get("_variation"),
                 variationKey=value.get("variationKey"),
                 variationName=value.get("variationName"),
-                eval_reason=value.get("evalReason"),
+                evalReason=value.get("evalReason"),
             )
 
         return result

@@ -6,6 +6,7 @@ from typing import Any, Dict
 from devcycle_python_sdk.models import Event, Feature, UserData, Variable
 from devcycle_python_sdk.dvc_options import DVCCloudOptions
 from devcycle_python_sdk.util.version import sdk_version
+from devcycle_python_sdk.api.bucketing_client import BucketingAPIClient
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,7 @@ class DVCCloudClient:
         self.platform = "Cloud"
         self.platform_version = sys.version
         self.sdk_version = sdk_version()
+        self.bucketing_api = BucketingAPIClient(sdk_key, self.options)
 
     def _add_platform_data_to_user(self, user: UserData) -> UserData:
         user.platform = self.platform
@@ -60,16 +62,14 @@ class DVCCloudClient:
         if not key:
             raise ValueError("Missing parameter: key")
 
-        if not default_value:
+        if default_value is None:
             raise ValueError("Missing parameter: defaultValue")
 
         try:
-            # do the API call here and replace the defaulted value
-            return Variable(key=key, value=default_value, is_defaulted=True)
-            pass
+            return self.bucketing_api.variable(key, user)
         except Exception as e:
             logger.error("Error fetching variable: %s", e)
-            return Variable(key=key, value=default_value, is_defaulted=True)
+            return Variable.create_default_variable(key=key, default_value=default_value)
 
     def all_variables(self, user: UserData) -> Dict[str, Variable]:
         self._validate_user(user)
@@ -77,8 +77,7 @@ class DVCCloudClient:
 
         variable_map: Dict[str, Variable] = {}
         try:
-            # do the API call here
-            pass
+            variable_map = self.bucketing_api.variables(user)
         except Exception as e:
             logger.error("Error retrieving all features for a user: %s", e)
 
@@ -90,8 +89,7 @@ class DVCCloudClient:
 
         feature_map: Dict[str, Feature] = {}
         try:
-            # do the API call here
-            pass
+            feature_map = self.bucketing_api.features(user)
         except Exception as e:
             logger.error("Error retrieving all features for a user: %s", e)
 
@@ -107,7 +105,7 @@ class DVCCloudClient:
         events = [user_event]
 
         try:
-            # do the API call here
+            # self.bucketing_api.track(user, events)
             pass
         except Exception as e:
             logger.error("Error tracking event: %s", e)

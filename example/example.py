@@ -16,7 +16,7 @@ def main():
     """
     logging.basicConfig(level="INFO", format="%(levelname)s: %(message)s")
 
-    options = DVCCloudOptions(enableEdgeDB=True)
+    options = DVCCloudOptions(enable_edge_db=True)
 
     # create an instance of the API class
     server_sdk_key = os.environ["DVC_SERVER_SDK_KEY"]
@@ -34,7 +34,7 @@ def main():
     # DevCycle handles missing or wrongly typed variables by returning the default value
     # You can check this explicitly by using the variable method
     variable = dvc.variable(user, VARIABLE_KEY + "-does-not-exist", False)
-    if variable.is_defaulted:
+    if variable.isDefaulted:
         logger.info(f"Variable {variable.key} is defaulted to {variable.value}")
 
     try:
