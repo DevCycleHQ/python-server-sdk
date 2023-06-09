@@ -70,10 +70,10 @@ class BucketingAPIClient:
         result: Dict[str, Variable] = {}
         for key, value in data.items():
             result[key] = Variable(
-                _id=str(data.get("_id")),
-                key=str(data.get("key")),
-                type=str(data.get("type")),
-                value=data.get("value"),
+                _id=str(value.get("_id")),
+                key=str(value.get("key")),
+                type=str(value.get("type")),
+                value=value.get("value"),
             )
 
         return result
