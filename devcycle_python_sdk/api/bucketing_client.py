@@ -1,10 +1,10 @@
 from os.path import join
-from typing import Dict
+from typing import Dict, List
 
 import requests
 
 from devcycle_python_sdk.dvc_options import DVCCloudOptions
-from devcycle_python_sdk.models import Variable, UserData, Feature
+from devcycle_python_sdk.models import Variable, UserData, Feature, Event
 
 
 class BucketingAPIClient:
@@ -69,5 +69,14 @@ class BucketingAPIClient:
 
         return result
 
-    def track(self, key: str) -> str:
-        raise NotImplementedError
+    def track(self, user: UserData, events: List[Event]) -> str:
+        res = self.session.post(
+            self._url("track"),
+            json={
+                "user": user.to_json(),
+                "events": [event.to_json() for event in events],
+            },
+        )
+        res.raise_for_status()
+        message = res.json().get("message", "")
+        return message
