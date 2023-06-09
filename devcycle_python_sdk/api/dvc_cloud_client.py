@@ -3,6 +3,7 @@ import sys
 
 from typing import Any, Dict
 
+from devcycle_python_sdk.exceptions import NotFoundException
 from devcycle_python_sdk.models import Event, Feature, UserData, Variable
 from devcycle_python_sdk.dvc_options import DVCCloudOptions
 from devcycle_python_sdk.util.version import sdk_version
@@ -67,9 +68,16 @@ class DVCCloudClient:
 
         try:
             return self.bucketing_api.variable(key, user)
+        except NotFoundException:
+            logger.warning("DevCycle: variable not found: %s", key)
+            return Variable.create_default_variable(
+                key=key, default_value=default_value
+            )
         except Exception as e:
-            logger.error("Error fetching variable: %s", e)
-            return Variable.create_default_variable(key=key, default_value=default_value)
+            logger.error("DevCycle: Error fetching variable: %s", e)
+            return Variable.create_default_variable(
+                key=key, default_value=default_value
+            )
 
     def all_variables(self, user: UserData) -> Dict[str, Variable]:
         self._validate_user(user)
