@@ -22,8 +22,8 @@ class BucketingAPIClient:
     def _url(self, *path_args: str) -> str:
         return join(self.options.bucketing_API_URI, "v1", *path_args)
 
-    def variable(self, key: str, user_data: UserData) -> Variable:
-        res = self.session.post(self._url("variables", key), json=user_data.to_json())
+    def variable(self, key: str, user: UserData) -> Variable:
+        res = self.session.post(self._url("variables", key), json=user.to_json())
         res.raise_for_status()
         data: dict = res.json()
 
@@ -34,11 +34,40 @@ class BucketingAPIClient:
             value=data.get("value"),
         )
 
-    def variables(self) -> Dict[str, Variable]:
-        raise NotImplementedError
+    def variables(self, user: UserData) -> Dict[str, Variable]:
+        res = self.session.post(self._url("variables"), json=user.to_json())
+        res.raise_for_status()
+        data: dict = res.json()
 
-    def features(self) -> Dict[str, Feature]:
-        raise NotImplementedError
+        result: Dict[str, Variable] = {}
+        for key, value in data.items():
+            result[key] = Variable(
+                id=value.get("_id"),
+                key=value.get("key"),
+                type=value.get("type"),
+                value=value.get("value"),
+            )
+
+        return result
+
+    def features(self, user: UserData) -> Dict[str, Feature]:
+        res = self.session.post(self._url("features"), json=user.to_json())
+        res.raise_for_status()
+        data: dict = res.json()
+
+        result: Dict[str, Feature] = {}
+        for key, value in data.items():
+            result[key] = Feature(
+                id=value.get("_id"),
+                key=value.get("key"),
+                type=value.get("type"),
+                variation=value.get("_variation"),
+                variationKey=value.get("variationKey"),
+                variationName=value.get("variationName"),
+                eval_reason=value.get("evalReason"),
+            )
+
+        return result
 
     def track(self, key: str) -> str:
         raise NotImplementedError
