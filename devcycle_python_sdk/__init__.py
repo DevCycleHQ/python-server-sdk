@@ -24,5 +24,4 @@ from devcycle_python_sdk.models.error_response import ErrorResponse
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.user_data import UserData
-from devcycle_python_sdk.models.user_data_and_events_body import UserDataAndEventsBody
 from devcycle_python_sdk.models.variable import Variable
