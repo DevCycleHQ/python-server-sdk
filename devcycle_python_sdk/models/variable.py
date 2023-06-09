@@ -43,5 +43,10 @@ class Variable:
     def create_default_variable(key: str, default_value: Any) -> "Variable":
         var_type = determine_variable_type(default_value)
         return Variable(
-            _id="", key=key, type=var_type, value=default_value, isDefaulted=True
+            _id=None,
+            key=key,
+            type=var_type,
+            value=default_value,
+            defaultValue=default_value,
+            isDefaulted=True,
         )
