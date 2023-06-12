@@ -1,6 +1,8 @@
 # DevCycle Python Server SDK
 
-Welcome to the the DevCycle Python SDK, initially generated via the [DevCycle Bucketing API](https://docs.devcycle.com/bucketing-api/#tag/devcycle).
+The DevCycle Python SDK used for feature management.
+
+This SDK allows your application to interface with the [DevCycle Bucketing API](https://docs.devcycle.com/bucketing-api/#tag/devcycle).
 
 ## Requirements.
 
