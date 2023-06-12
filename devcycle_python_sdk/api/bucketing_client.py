@@ -37,12 +37,16 @@ class BucketingAPIClient:
         retries_remaining = self.options.request_retries + 1
         timeout = self.options.request_timeout
 
+        query_params = {}
+        if self.options.enable_edge_db:
+            query_params["enableEdgeDB"] = "true"
+
         attempts = 1
         while retries_remaining > 0:
             request_error: Optional[Exception] = None
             try:
                 res: requests.Response = self.session.request(
-                    method, url, timeout=timeout, **kwargs
+                    method, url, params=query_params, timeout=timeout, **kwargs
                 )
 
                 if res.status_code == 401:
