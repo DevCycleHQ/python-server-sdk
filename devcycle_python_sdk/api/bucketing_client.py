@@ -8,9 +8,9 @@ from typing import Dict, List, Optional
 import requests
 
 from devcycle_python_sdk.exceptions import (
-    CloudClientException,
-    NotFoundException,
-    CloudClientUnauthorizedException,
+    CloudClientError,
+    NotFoundError,
+    CloudClientUnauthorizedError,
 )
 from devcycle_python_sdk.dvc_options import DVCCloudOptions
 from devcycle_python_sdk.models import Variable, UserData, Feature, Event
@@ -51,16 +51,16 @@ class BucketingAPIClient:
 
                 if res.status_code == 401:
                     # Not a retryable error
-                    raise CloudClientUnauthorizedException("Invalid SDK Key")
+                    raise CloudClientUnauthorizedError("Invalid SDK Key")
                 elif res.status_code == 404:
                     # Not a retryable error
-                    raise NotFoundException(url)
+                    raise NotFoundError(url)
                 elif 400 <= res.status_code < 500:
                     # Not a retryable error
-                    raise CloudClientException(f"Bad request: HTTP {res.status_code}")
+                    raise CloudClientError(f"Bad request: HTTP {res.status_code}")
                 elif res.status_code >= 500:
                     # Retryable error
-                    request_error = CloudClientException(
+                    request_error = CloudClientError(
                         f"Server error: HTTP {res.status_code}"
                     )
             except requests.exceptions.RequestException as e:
@@ -79,7 +79,7 @@ class BucketingAPIClient:
                 attempts += 1
                 continue
 
-            raise CloudClientException(message="Retries exceeded", cause=request_error)
+            raise CloudClientError(message="Retries exceeded", cause=request_error)
 
         data: dict = res.json()
         return data

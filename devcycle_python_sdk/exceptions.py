@@ -1,7 +1,7 @@
 from typing import Optional
 
 
-class CloudClientException(Exception):
+class CloudClientError(Exception):
     def __init__(self, message: str, cause: Optional[Exception] = None):
         self.message = message
         self.__cause__ = cause
@@ -10,12 +10,12 @@ class CloudClientException(Exception):
         return f"CloudClientException: {self.message}"
 
 
-class CloudClientUnauthorizedException(Exception):
+class CloudClientUnauthorizedError(Exception):
     def __init__(self, message: str):
         self.message = message
         super().__init__(message)
 
 
-class NotFoundException(Exception):
+class NotFoundError(Exception):
     def __init__(self, key: str):
         self.key = key

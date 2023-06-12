@@ -1,11 +1,4 @@
-# coding: utf-8
-
-"""
-    DevCycle Bucketing API
-
-    Documents the DevCycle Bucketing API which provides and API interface to User Bucketing and for generated SDKs.  # noqa: E501
-"""
-
+# ruff: noqa: N815
 from dataclasses import dataclass, field
 from typing import Dict, Optional
 from time import time

@@ -1,3 +1,4 @@
+# ruff: noqa: N815
 from dataclasses import dataclass
 from typing import Optional, Any
 

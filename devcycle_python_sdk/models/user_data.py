@@ -1,3 +1,4 @@
+# ruff: noqa: N815
 from dataclasses import dataclass, field
 from time import time
 from typing import Dict, Optional
