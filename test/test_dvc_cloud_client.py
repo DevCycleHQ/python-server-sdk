@@ -1,11 +1,14 @@
 import logging
 import unittest
 import uuid
+
+from time import time
 from unittest.mock import patch
 
-from devcycle_python_sdk import DVCCloudClient, Variable
+from devcycle_python_sdk import DVCCloudClient, Variable, TypeEnum
 from devcycle_python_sdk.dvc_options import DVCCloudOptions
-from devcycle_python_sdk.models.user_data import UserData
+from devcycle_python_sdk.models import UserData, Event
+from devcycle_python_sdk.exceptions import CloudClientUnauthorizedException, NotFoundException
 
 logger = logging.getLogger(__name__)
 
@@ -52,40 +55,185 @@ class DVCCloudClientTest(unittest.TestCase):
         client = DVCCloudClient(sdk_key, option_with_data)
         self.assertIsNotNone(client)
 
-    def test_variable_value_bad_user(self):
+    def test_variable_bad_user(self):
         with self.assertRaises(ValueError):
-            self.test_client.variable_value(None, "strKey", "default_value")
+            self.test_client.variable(None, "strKey", "default_value")
 
         with self.assertRaises(ValueError):
-            self.test_client.variable_value(self.test_user_no_id, "strKey", "default_value")
+            self.test_client.variable(self.test_user_no_id, "strKey", "default_value")
 
         with self.assertRaises(ValueError):
-            self.test_client.variable_value(self.test_user_empty_id, "strKey", "default_value")
+            self.test_client.variable(self.test_user_empty_id, "strKey", "default_value")
+
+    def test_variable_bad_key_and_value(self):
+        with self.assertRaises(ValueError):
+            self.test_client.variable(self.test_user, None, "default_value")
+
+        with self.assertRaises(ValueError):
+            self.test_client.variable(self.test_user, "", "default_value")
+
+            with self.assertRaises(ValueError):
+                self.test_client.variable(self.test_user, "strKey", None)
 
     @patch('devcycle_python_sdk.BucketingAPIClient.variable')
-    def test_variable_value_defaults(self, mock_variable_value_call):
-        mock_variable_value_call.return_value = Variable.create_default_variable("strKey", "default_value")
-        result = self.test_client.variable_value(self.test_user, "strKey", "default_value")
-        self.assertEqual(result, "default_value")
+    def test_variable_exceptions(self, mock_variable_call):
+        # unauthorized - return error
+        mock_variable_call.side_effect = CloudClientUnauthorizedException("No auth")
+        with self.assertRaises(CloudClientUnauthorizedException):
+            self.test_client.variable(self.test_user, "strKey", "default_value")
 
-        mock_variable_value_call.return_value = Variable.create_default_variable("numKey", 42)
-        mock_variable_value_call.return_value = Variable.create_default_variable("numKey", 42)
-        mock_variable_value_call.return_value = Variable.create_default_variable("numKey", 42)
-        result = self.test_client.variable_value(self.test_user, "numKey", 42)
-        self.assertEqual(result, 42)
+        # not found - return default
+        mock_variable_call.reset_mock()
+        mock_variable_call.side_effect = NotFoundException("No auth")
+        result = self.test_client.variable(self.test_user, "strKey", "default_value")
+        self.assertIsNotNone(result)
+        self.assertEqual(result.value, "default_value")
+        self.assertTrue(result.isDefaulted)
 
-        mock_variable_value_call.return_value = Variable.create_default_variable("boolKey", True)
-        result = self.test_client.variable_value(self.test_user, "boolKey", True)
-        self.assertEqual(result, True)
+        # other exception - return default
+        mock_variable_call.reset_mock()
+        mock_variable_call.side_effect = Exception("failed request")
+        result = self.test_client.variable(self.test_user, "strKey", "default_value")
+        self.assertIsNotNone(result)
+        self.assertEqual(result.value, "default_value")
+        self.assertTrue(result.isDefaulted)
 
-        mock_variable_value_call.return_value = Variable.create_default_variable("jsonKey", {"prop1": "value"})
-        result = self.test_client.variable_value(self.test_user, "jsonKey", {"prop1": "value"})
-        self.assertDictEqual(result, {"prop1": "value"})
+    @patch('devcycle_python_sdk.BucketingAPIClient.variable')
+    def test_variable_type_mismatch(self, mock_variable_call):
+        mock_variable_call.return_value = Variable(_id="123", key="strKey", value=999, type=TypeEnum.NUMBER)
 
-        mock_variable_value_call.reset_mock()
-        mock_variable_value_call.side_effect = Exception("Fake HTTP Error")
-        result = self.test_client.variable_value(self.test_user, "strKey", "default_value")
-        self.assertEqual(result, "default_value")
+        result = self.test_client.variable(self.test_user, "strKey", "default_value")
+        self.assertIsNotNone(result)
+        self.assertEqual(result.value, "default_value")
+        self.assertTrue(result.isDefaulted)
+
+    @patch('devcycle_python_sdk.BucketingAPIClient.variable')
+    def test_variable_value_defaults(self, mock_variable_call):
+        mock_variable_call.return_value = Variable.create_default_variable("strKey", "default_value")
+        result = self.test_client.variable(self.test_user, "strKey", "default_value")
+        self.assertEqual(result.value, "default_value")
+        self.assertTrue(result.isDefaulted)
+
+        mock_variable_call.return_value = Variable.create_default_variable("numKey", 42)
+        result = self.test_client.variable(self.test_user, "numKey", 42)
+        self.assertEqual(result.value, 42)
+        self.assertTrue(result.isDefaulted)
+
+        mock_variable_call.return_value = Variable.create_default_variable("boolKey", True)
+        result = self.test_client.variable(self.test_user, "boolKey", True)
+        self.assertEqual(result.value, True)
+        self.assertTrue(result.isDefaulted)
+
+        mock_variable_call.return_value = Variable.create_default_variable("jsonKey", {"prop1": "value"})
+        result = self.test_client.variable(self.test_user, "jsonKey", {"prop1": "value"})
+        self.assertDictEqual(result.value, {"prop1": "value"})
+        self.assertTrue(result.isDefaulted)
+
+        mock_variable_call.reset_mock()
+        mock_variable_call.side_effect = Exception("Fake HTTP Error")
+        result = self.test_client.variable(self.test_user, "strKey", "default_value")
+        self.assertEqual(result.value, "default_value")
+        self.assertTrue(result.isDefaulted)
+
+    @patch('devcycle_python_sdk.BucketingAPIClient.variables')
+    def test_all_variables_bad_user(self, mock_variables_call):
+        with self.assertRaises(ValueError):
+            self.test_client.all_variables(None)
+        mock_variables_call.assert_not_called()
+
+        with self.assertRaises(ValueError):
+            self.test_client.all_variables(self.test_user_no_id)
+        mock_variables_call.assert_not_called()
+
+        with self.assertRaises(ValueError):
+            self.test_client.all_variables(self.test_user_empty_id)
+        mock_variables_call.assert_not_called()
+
+    @patch('devcycle_python_sdk.BucketingAPIClient.variables')
+    def test_all_variables_exceptions(self, mock_variables_call):
+        # unauthorized - return error
+        mock_variables_call.side_effect = CloudClientUnauthorizedException("No auth")
+        with self.assertRaises(CloudClientUnauthorizedException):
+            self.test_client.all_variables(self.test_user)
+
+        # error - return empty
+        mock_variables_call.reset_mock()
+        mock_variables_call.side_effect = Exception("Some error")
+        mock_variables_call.return_value = {}
+        result = self.test_client.all_variables(self.test_user)
+        self.assertDictEqual(result, {})
+
+    @patch('devcycle_python_sdk.BucketingAPIClient.features')
+    def test_all_features_bad_user(self, mock_features_call):
+        with self.assertRaises(ValueError):
+            self.test_client.all_features(None)
+        mock_features_call.assert_not_called()
+
+        with self.assertRaises(ValueError):
+            self.test_client.all_features(self.test_user_no_id)
+        mock_features_call.assert_not_called()
+
+        with self.assertRaises(ValueError):
+            self.test_client.all_features(self.test_user_empty_id)
+        mock_features_call.assert_not_called()
+
+    @patch('devcycle_python_sdk.BucketingAPIClient.features')
+    def test_all_features_exceptions(self, mock_features_call):
+        # unauthorized - return error
+        mock_features_call.side_effect = CloudClientUnauthorizedException("No auth")
+        with self.assertRaises(CloudClientUnauthorizedException):
+            self.test_client.all_features(self.test_user)
+
+        # error - return empty
+        mock_features_call.reset_mock()
+        mock_features_call.side_effect = Exception("Some error")
+        result = self.test_client.all_features(self.test_user)
+        self.assertDictEqual(result, {})
+
+    @patch('devcycle_python_sdk.BucketingAPIClient.track')
+    def test_track_event_bad_user(self, mock_track_call):
+        event = Event(type="user", target="test_target", date=time(), value=42, metaData={"key": "value"})
+
+        with self.assertRaises(ValueError):
+            self.test_client.track(None, event)
+        mock_track_call.assert_not_called()
+
+        with self.assertRaises(ValueError):
+            self.test_client.track(self.test_user_no_id, event)
+        mock_track_call.assert_not_called()
+
+        with self.assertRaises(ValueError):
+            self.test_client.track(self.test_user_empty_id, event)
+        mock_track_call.assert_not_called()
+
+    @patch('devcycle_python_sdk.BucketingAPIClient.track')
+    def test_track_bad_event(self, mock_track_call):
+        with self.assertRaises(ValueError):
+            self.test_client.track(self.test_user, None)
+        mock_track_call.assert_not_called()
+
+        event = Event(type=None, target="test_target", date=time(), value=42, metaData={"key": "value"})
+        with self.assertRaises(ValueError):
+            self.test_client.track(self.test_user, event)
+        mock_track_call.assert_not_called()
+
+        event = Event(type="", target="test_target", date=time(), value=42, metaData={"key": "value"})
+        with self.assertRaises(ValueError):
+            self.test_client.track(self.test_user, event)
+        mock_track_call.assert_not_called()
+
+    @patch('devcycle_python_sdk.BucketingAPIClient.track')
+    def test_track_exceptions(self, mock_track_call):
+        # unauthorized - return error
+        mock_track_call.side_effect = CloudClientUnauthorizedException("No auth")
+        with self.assertRaises(CloudClientUnauthorizedException):
+            self.test_client.track(self.test_user, Event(type="user", target="test_target", date=time(), value=42,
+                                                         metaData={"key": "value"}))
+
+        # other error - shouldn't propagate
+        mock_track_call.side_effect = Exception("Some error")
+        self.test_client.track(self.test_user, Event(type="user", target="test_target", date=time(), value=42,
+                                                     metaData={"key": "value"}))
 
 
 if __name__ == '__main__':
