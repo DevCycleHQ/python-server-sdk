@@ -23,7 +23,8 @@ import devcycle_python_sdk
 ## Getting Started
 
 ```python
-    from devcycle_python_sdk import DVCCloudClient, DVCCloudOptions, UserData
+    from devcycle_python_sdk import DVCCloudClient, DVCCloudOptions
+    from devcycle_python_sdk.models.user_data import UserData
  
     options = DVCCloudOptions()
 
