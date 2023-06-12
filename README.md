@@ -23,12 +23,12 @@ import devcycle_python_sdk
 ## Getting Started
 
 ```python
-    from devcycle_python_sdk import DVCCloudClient, DVCCloudOptions, UserData, Event
+    from devcycle_python_sdk import DVCCloudClient, DVCCloudOptions, UserData
  
     options = DVCCloudOptions()
 
      # create an instance of the client class
-    dvc = DVCCloudClient('your_server_key_here', options)
+    dvc = DVCCloudClient('YOUR_DVC_SERVER_SDK_KEY', options)
         
      user = UserData(
         user_id='test',
@@ -77,5 +77,5 @@ ruff check . --fix
 
 To run the unit tests, run:
 ```bash
-python3 -m unittest -v
+python -m unittest -v
 ```
