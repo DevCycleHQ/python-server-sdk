@@ -28,7 +28,7 @@ class Variable:
     key: Optional[str]
     type: Optional[str]
     value: Optional[Any] = None
-    isDefaulted: bool = False
+    isDefaulted: Optional[bool] = False
     defaultValue: Optional[Any] = None
     # evalReason: Optional[str] = None
 

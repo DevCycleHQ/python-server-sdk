@@ -104,6 +104,7 @@ class BucketingAPIClient:
                 key=str(value.get("key")),
                 type=str(value.get("type")),
                 value=value.get("value"),
+                isDefaulted=None,
             )
 
         return result
