@@ -3,8 +3,9 @@ import responses
 import unittest
 import uuid
 
-from devcycle_python_sdk import BucketingAPIClient, Variable
-from devcycle_python_sdk.dvc_options import DVCCloudOptions
+from devcycle_python_sdk import DVCCloudOptions
+from devcycle_python_sdk.api.bucketing_client import BucketingAPIClient
+from devcycle_python_sdk.models.variable import Variable
 from devcycle_python_sdk.models.user_data import UserData
 
 logger = logging.getLogger(__name__)
@@ -69,6 +70,7 @@ class BucketingClientTest(unittest.TestCase):
                     key="variable-key",
                     type="variable-type",
                     value="hello world",
+                    isDefaulted=None,
                 )
             },
         )

@@ -3,14 +3,17 @@ import platform
 
 from typing import Any, Dict
 
+from devcycle_python_sdk import DVCCloudOptions
+from devcycle_python_sdk.api.bucketing_client import BucketingAPIClient
 from devcycle_python_sdk.exceptions import (
     NotFoundError,
     CloudClientUnauthorizedError,
 )
-from devcycle_python_sdk.models import Event, Feature, UserData, Variable
-from devcycle_python_sdk.dvc_options import DVCCloudOptions
+from devcycle_python_sdk.models.user_data import UserData
+from devcycle_python_sdk.models.event import Event
+from devcycle_python_sdk.models.variable import Variable
+from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.util.version import sdk_version
-from devcycle_python_sdk.api.bucketing_client import BucketingAPIClient
 
 logger = logging.getLogger(__name__)
 

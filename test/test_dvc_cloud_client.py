@@ -5,9 +5,10 @@ import uuid
 from time import time
 from unittest.mock import patch
 
-from devcycle_python_sdk import DVCCloudClient, Variable, TypeEnum
-from devcycle_python_sdk.dvc_options import DVCCloudOptions
-from devcycle_python_sdk.models import UserData, Event
+from devcycle_python_sdk import DVCCloudClient, DVCCloudOptions
+from devcycle_python_sdk.models.user_data import UserData
+from devcycle_python_sdk.models.variable import Variable, TypeEnum
+from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.exceptions import (
     CloudClientUnauthorizedError,
     NotFoundError,
@@ -82,7 +83,7 @@ class DVCCloudClientTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.test_client.variable(self.test_user, "strKey", None)
 
-    @patch("devcycle_python_sdk.BucketingAPIClient.variable")
+    @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.variable")
     def test_variable_exceptions(self, mock_variable_call):
         # unauthorized - return error
         mock_variable_call.side_effect = CloudClientUnauthorizedError("No auth")
@@ -105,7 +106,7 @@ class DVCCloudClientTest(unittest.TestCase):
         self.assertEqual(result.value, "default_value")
         self.assertTrue(result.isDefaulted)
 
-    @patch("devcycle_python_sdk.BucketingAPIClient.variable")
+    @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.variable")
     def test_variable_type_mismatch(self, mock_variable_call):
         mock_variable_call.return_value = Variable(
             _id="123", key="strKey", value=999, type=TypeEnum.NUMBER
@@ -116,7 +117,7 @@ class DVCCloudClientTest(unittest.TestCase):
         self.assertEqual(result.value, "default_value")
         self.assertTrue(result.isDefaulted)
 
-    @patch("devcycle_python_sdk.BucketingAPIClient.variable")
+    @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.variable")
     def test_variable_value_defaults(self, mock_variable_call):
         mock_variable_call.return_value = Variable.create_default_variable(
             "strKey", "default_value"
@@ -152,7 +153,7 @@ class DVCCloudClientTest(unittest.TestCase):
         self.assertEqual(result.value, "default_value")
         self.assertTrue(result.isDefaulted)
 
-    @patch("devcycle_python_sdk.BucketingAPIClient.variables")
+    @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.variables")
     def test_all_variables_bad_user(self, mock_variables_call):
         with self.assertRaises(ValueError):
             self.test_client.all_variables(None)
@@ -166,7 +167,7 @@ class DVCCloudClientTest(unittest.TestCase):
             self.test_client.all_variables(self.test_user_empty_id)
         mock_variables_call.assert_not_called()
 
-    @patch("devcycle_python_sdk.BucketingAPIClient.variables")
+    @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.variables")
     def test_all_variables_exceptions(self, mock_variables_call):
         # unauthorized - return error
         mock_variables_call.side_effect = CloudClientUnauthorizedError("No auth")
@@ -180,7 +181,7 @@ class DVCCloudClientTest(unittest.TestCase):
         result = self.test_client.all_variables(self.test_user)
         self.assertDictEqual(result, {})
 
-    @patch("devcycle_python_sdk.BucketingAPIClient.features")
+    @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.features")
     def test_all_features_bad_user(self, mock_features_call):
         with self.assertRaises(ValueError):
             self.test_client.all_features(None)
@@ -194,7 +195,7 @@ class DVCCloudClientTest(unittest.TestCase):
             self.test_client.all_features(self.test_user_empty_id)
         mock_features_call.assert_not_called()
 
-    @patch("devcycle_python_sdk.BucketingAPIClient.features")
+    @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.features")
     def test_all_features_exceptions(self, mock_features_call):
         # unauthorized - return error
         mock_features_call.side_effect = CloudClientUnauthorizedError("No auth")
@@ -207,7 +208,7 @@ class DVCCloudClientTest(unittest.TestCase):
         result = self.test_client.all_features(self.test_user)
         self.assertDictEqual(result, {})
 
-    @patch("devcycle_python_sdk.BucketingAPIClient.track")
+    @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.track")
     def test_track_event_bad_user(self, mock_track_call):
         event = Event(
             type="user",
@@ -229,7 +230,7 @@ class DVCCloudClientTest(unittest.TestCase):
             self.test_client.track(self.test_user_empty_id, event)
         mock_track_call.assert_not_called()
 
-    @patch("devcycle_python_sdk.BucketingAPIClient.track")
+    @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.track")
     def test_track_bad_event(self, mock_track_call):
         with self.assertRaises(ValueError):
             self.test_client.track(self.test_user, None)
@@ -257,7 +258,7 @@ class DVCCloudClientTest(unittest.TestCase):
             self.test_client.track(self.test_user, event)
         mock_track_call.assert_not_called()
 
-    @patch("devcycle_python_sdk.BucketingAPIClient.track")
+    @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.track")
     def test_track_exceptions(self, mock_track_call):
         # unauthorized - return error
         mock_track_call.side_effect = CloudClientUnauthorizedError("No auth")

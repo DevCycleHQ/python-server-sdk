@@ -13,7 +13,10 @@ from devcycle_python_sdk.exceptions import (
     CloudClientUnauthorizedError,
 )
 from devcycle_python_sdk.dvc_options import DVCCloudOptions
-from devcycle_python_sdk.models import Variable, UserData, Feature, Event
+from devcycle_python_sdk.models.user_data import UserData
+from devcycle_python_sdk.models.event import Event
+from devcycle_python_sdk.models.variable import Variable
+from devcycle_python_sdk.models.feature import Feature
 
 logger = logging.getLogger(__name__)
 
