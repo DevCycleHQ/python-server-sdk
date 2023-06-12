@@ -77,7 +77,9 @@ class BucketingAPIClient:
             )
             retries_remaining -= 1
             if retries_remaining:
-                retry_delay = exponential_backoff(attempts)
+                retry_delay = exponential_backoff(
+                    attempts, self.options.retry_delay / 1000.0
+                )
                 time.sleep(retry_delay)
                 attempts += 1
                 continue
@@ -142,10 +144,10 @@ class BucketingAPIClient:
         return message
 
 
-def exponential_backoff(attempt: int) -> float:
+def exponential_backoff(attempt: int, base_delay: float) -> float:
     """
     Exponential backoff starting with 200ms +- 0...40ms jitter
     """
-    delay = math.pow(2, attempt) * 0.1
-    random_sum = delay * 0.2 * random.random()
+    delay = math.pow(2, attempt) * base_delay / 2.0
+    random_sum = delay * 0.1 * random.random()
     return delay + random_sum
