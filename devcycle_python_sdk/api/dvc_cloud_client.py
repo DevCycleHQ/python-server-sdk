@@ -32,12 +32,14 @@ class DVCCloudClient:
         self.platform = "Python"
         self.platform_version = platform.python_version()
         self.sdk_version = sdk_version()
+        self.sdk_type = "server"
         self.bucketing_api = BucketingAPIClient(sdk_key, self.options)
 
     def _add_platform_data_to_user(self, user: UserData) -> UserData:
         user.platform = self.platform
         user.platformVersion = self.platform_version
         user.sdkVersion = self.sdk_version
+        user.sdkType = self.sdk_type
         return user
 
     def _validate_sdk_key(self, sdk_key: str) -> None:
