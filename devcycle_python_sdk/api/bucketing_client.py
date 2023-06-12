@@ -51,7 +51,7 @@ class BucketingAPIClient:
 
                 if res.status_code == 401:
                     # Not a retryable error
-                    raise (CloudClientUnauthorizedException("Invalid SDK Key"))
+                    raise CloudClientUnauthorizedException("Invalid SDK Key")
                 elif res.status_code == 404:
                     # Not a retryable error
                     raise NotFoundException(url)

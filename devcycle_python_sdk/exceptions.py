@@ -11,8 +11,9 @@ class CloudClientException(Exception):
 
 
 class CloudClientUnauthorizedException(Exception):
-    def __init__(self, message: str, cause: Optional[Exception] = None):
-        super().__init__(message, cause)
+    def __init__(self, message: str):
+        self.message = message
+        super().__init__(message)
 
 
 class NotFoundException(Exception):

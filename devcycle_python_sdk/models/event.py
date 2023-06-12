@@ -13,7 +13,7 @@ from time import time
 
 @dataclass(order=False)
 class Event:
-    type: str
+    type: Optional[str] = None
     target: Optional[str] = None
     date: int = field(default_factory=lambda: int(time()))
     value: Optional[int] = None
