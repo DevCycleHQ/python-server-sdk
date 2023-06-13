@@ -1,4 +1,5 @@
 import logging
+import requests
 import responses
 from responses.registries import OrderedRegistry
 import unittest
@@ -58,6 +59,34 @@ class BucketingClientTest(unittest.TestCase):
                 "https://bucketing-api.devcycle.com/v1/variables/variable-key",
                 status=500,
             )
+        responses.add(
+            responses.POST,
+            "https://bucketing-api.devcycle.com/v1/variables/variable-key",
+            json={
+                "_id": "variable_id",
+                "key": "variable-key",
+                "type": "variable-type",
+                "value": "hello world",
+            },
+        )
+        result = self.test_client.variable("variable-key", self.test_user)
+        self.assertEqual(
+            result,
+            Variable(
+                _id="variable_id",
+                key="variable-key",
+                type="variable-type",
+                value="hello world",
+            ),
+        )
+
+    @responses.activate(registry=OrderedRegistry)
+    def test_variable_retries_network_error(self):
+        responses.add(
+            responses.POST,
+            "https://bucketing-api.devcycle.com/v1/variables/variable-key",
+            body=requests.exceptions.ConnectionError("Network Error"),
+        )
         responses.add(
             responses.POST,
             "https://bucketing-api.devcycle.com/v1/variables/variable-key",
