@@ -24,14 +24,14 @@ import devcycle_python_sdk
 
 ```python
 from devcycle_python_sdk import DevCycleCloudClient, DevCycleCloudOptions
-from devcycle_python_sdk.models.user_data import UserData
+from devcycle_python_sdk.models.user import User
 
 options = DevCycleCloudOptions()
 
 # create an instance of the client class
 dvc = DevCycleCloudClient('YOUR_DVC_SERVER_SDK_KEY', options)
 
-user = UserData(
+user = User(
     user_id='test',
     email='example@example.ca',
     country='CA'

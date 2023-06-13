@@ -5,7 +5,7 @@ from typing import Dict, Optional
 
 
 @dataclass(order=False)
-class UserData:
+class User:
     user_id: str
     email: Optional[str] = None
     name: Optional[str] = None

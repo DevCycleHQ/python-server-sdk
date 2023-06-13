@@ -13,7 +13,7 @@ from devcycle_python_sdk.exceptions import (
     CloudClientUnauthorizedError,
 )
 from devcycle_python_sdk.dvc_options import DevCycleCloudOptions
-from devcycle_python_sdk.models.user_data import UserData
+from devcycle_python_sdk.models.user import User
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.models.variable import Variable
 from devcycle_python_sdk.models.feature import Feature
@@ -89,7 +89,7 @@ class BucketingAPIClient:
         data: dict = res.json()
         return data
 
-    def variable(self, key: str, user: UserData) -> Variable:
+    def variable(self, key: str, user: User) -> Variable:
         data = self.request("POST", self._url("variables", key), json=user.to_json())
 
         return Variable(
@@ -99,7 +99,7 @@ class BucketingAPIClient:
             value=data.get("value"),
         )
 
-    def variables(self, user: UserData) -> Dict[str, Variable]:
+    def variables(self, user: User) -> Dict[str, Variable]:
         data = self.request("POST", self._url("variables"), json=user.to_json())
 
         result: Dict[str, Variable] = {}
@@ -114,7 +114,7 @@ class BucketingAPIClient:
 
         return result
 
-    def features(self, user: UserData) -> Dict[str, Feature]:
+    def features(self, user: User) -> Dict[str, Feature]:
         data = self.request("POST", self._url("features"), json=user.to_json())
 
         result: Dict[str, Feature] = {}
@@ -131,7 +131,7 @@ class BucketingAPIClient:
 
         return result
 
-    def track(self, user: UserData, events: List[Event]) -> str:
+    def track(self, user: User, events: List[Event]) -> str:
         data = self.request(
             "POST",
             self._url("track"),

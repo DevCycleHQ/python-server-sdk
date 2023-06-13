@@ -6,7 +6,7 @@ from time import time
 from unittest.mock import patch
 
 from devcycle_python_sdk import DevCycleCloudClient, DevCycleCloudOptions
-from devcycle_python_sdk.models.user_data import UserData
+from devcycle_python_sdk.models.user import User
 from devcycle_python_sdk.models.variable import Variable, TypeEnum
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.exceptions import (
@@ -22,9 +22,9 @@ class DVCCloudClientTest(unittest.TestCase):
         sdk_key = "dvc_server_" + str(uuid.uuid4())
         options = DevCycleCloudOptions()
         self.test_client = DevCycleCloudClient(sdk_key, options)
-        self.test_user = UserData(user_id="test_user_id")
-        self.test_user_no_id = UserData(user_id=None)
-        self.test_user_empty_id = UserData(user_id="")
+        self.test_user = User(user_id="test_user_id")
+        self.test_user_no_id = User(user_id=None)
+        self.test_user_empty_id = User(user_id="")
 
     def tearDown(self) -> None:
         pass

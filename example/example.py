@@ -2,7 +2,7 @@ import logging
 import os
 
 from devcycle_python_sdk import DevCycleCloudClient, DevCycleCloudOptions
-from devcycle_python_sdk.models.user_data import UserData
+from devcycle_python_sdk.models.user import User
 from devcycle_python_sdk.models.event import Event
 
 VARIABLE_KEY = "test-boolean-variable"
@@ -24,7 +24,7 @@ def main():
     server_sdk_key = os.environ["DVC_SERVER_SDK_KEY"]
     dvc = DevCycleCloudClient(server_sdk_key, options)
 
-    user = UserData(user_id="test", email="yo@yo.ca", country="CA")
+    user = User(user_id="test", email="yo@yo.ca", country="CA")
     event = Event(type="customEvent", target="somevariable.key")
 
     # Use variable_value to access the value of a variable directly
