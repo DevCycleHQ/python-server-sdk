@@ -1,8 +1,9 @@
 import logging
 import os
 
-from devcycle_python_sdk import Configuration, DVCClient, DVCOptions, UserData, Event
-from devcycle_python_sdk.rest import ApiException
+from devcycle_python_sdk import DevCycleCloudClient, DevCycleCloudOptions
+from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.event import Event
 
 VARIABLE_KEY = "test-boolean-variable"
 
@@ -17,22 +18,13 @@ def main():
     """
     logging.basicConfig(level="INFO", format="%(levelname)s: %(message)s")
 
-    configuration = Configuration()
-
-    try:
-        configuration.api_key["Authorization"] = os.environ["DVC_SERVER_SDK_KEY"]
-    except KeyError:
-        logger.error(
-            "Set the DVC_SERVER_SDK_KEY environment variable to your development server SDK key"
-        )
-        exit(1)
-
-    options = DVCOptions(enableEdgeDB=True)
+    options = DevCycleCloudOptions(enable_edge_db=True)
 
     # create an instance of the API class
-    dvc = DVCClient(configuration, options)
+    server_sdk_key = os.environ["DVC_SERVER_SDK_KEY"]
+    dvc = DevCycleCloudClient(server_sdk_key, options)
 
-    user = UserData(user_id="test", email="yo@yo.ca", country="CA")
+    user = User(user_id="test", email="yo@yo.ca", country="CA")
     event = Event(type="customEvent", target="somevariable.key")
 
     # Use variable_value to access the value of a variable directly
@@ -44,7 +36,7 @@ def main():
     # DevCycle handles missing or wrongly typed variables by returning the default value
     # You can check this explicitly by using the variable method
     variable = dvc.variable(user, VARIABLE_KEY + "-does-not-exist", False)
-    if variable.is_defaulted:
+    if variable.isDefaulted:
         logger.info(f"Variable {variable.key} is defaulted to {variable.value}")
 
     try:
@@ -64,7 +56,7 @@ def main():
         # Post events to DevCycle for user
         track_response = dvc.track(user, event)
         logger.info(track_response)
-    except ApiException as e:
+    except Exception as e:
         logger.exception("Exception when calling Devcycle API: %s\n" % e)
 
 

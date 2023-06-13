@@ -1,10 +1,12 @@
 # DevCycle Python Server SDK
 
-Welcome to the the DevCycle Python SDK, initially generated via the [DevCycle Bucketing API](https://docs.devcycle.com/bucketing-api/#tag/devcycle).
+The DevCycle Python SDK used for feature management.
+
+This SDK allows your application to interface with the [DevCycle Bucketing API](https://docs.devcycle.com/bucketing-api/#tag/devcycle).
 
 ## Requirements.
 
-Python 2.7 and 3.4+
+* Python 3.7+
 
 ## Installation
 
@@ -21,23 +23,21 @@ import devcycle_python_sdk
 ## Getting Started
 
 ```python
-    from __future__ import print_function
-    from devcycle_python_sdk import Configuration, DVCOptions, DVCClient, UserData, Event
-    from devcycle_python_sdk.rest import ApiException
-    configuration = Configuration()
-    configuration.api_key['Authorization'] = 'your_server_key_here'
-    options = DVCOptions(enableEdgeDB=True)
+from devcycle_python_sdk import DevCycleCloudClient, DevCycleCloudOptions
+from devcycle_python_sdk.models.user import User
 
-     # create an instance of the API class
-     dvc = DVCClient(configuration, options)
-    
-     user = UserData(
-        user_id='test',
-        email='example@example.ca',
-        country='CA'
-    )
+options = DevCycleCloudOptions()
 
-    value = dvc.variable_value(user, 'feature-key', 'default-value')
+# create an instance of the client class
+dvc = DevCycleCloudClient('YOUR_DVC_SERVER_SDK_KEY', options)
+
+user = User(
+    user_id='test',
+    email='example@example.ca',
+    country='CA'
+)
+
+value = dvc.variable_value(user, 'feature-key', 'default-value')
 ```
 
 ## Usage
@@ -45,6 +45,10 @@ import devcycle_python_sdk
 To find usage documentation, visit our [docs](https://docs.devcycle.com/docs/sdk/server-side-sdks/python#usage).
 
 ## Development
+
+When developing the SDK it is recommended that you have both a 3.7 and 3.11 python interpreter installed in order to verify changes across different versions of python.
+
+### Dependencies
 
 To set up dependencies for local development, run:
 ```
@@ -58,6 +62,8 @@ pip install --editable .
 from the top level of the repo (same level as setup.py). Then run the example app as normal.
 
 
+### Linting
+
 Linting checks on PRs are run using [ruff](https://github.com/charliermarsh/ruff), and are configured using `.ruff.toml`. To run the linter locally, run this command from the top level of the repo:
 ```
 ruff check .
@@ -66,4 +72,11 @@ ruff check .
 Ruff can automatically fix simple linting errors (the ones marked with `[*]`). To do so, run:
 ```
 ruff check . --fix
+```
+
+### Unit Tests
+
+To run the unit tests, run:
+```bash
+python -m unittest -v
 ```
