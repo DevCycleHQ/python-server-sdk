@@ -5,7 +5,7 @@ import uuid
 from time import time
 from unittest.mock import patch
 
-from devcycle_python_sdk import DVCCloudClient, DVCCloudOptions
+from devcycle_python_sdk import DevCycleCloudClient, DevCycleCloudOptions
 from devcycle_python_sdk.models.user_data import UserData
 from devcycle_python_sdk.models.variable import Variable, TypeEnum
 from devcycle_python_sdk.models.event import Event
@@ -20,8 +20,8 @@ logger = logging.getLogger(__name__)
 class DVCCloudClientTest(unittest.TestCase):
     def setUp(self) -> None:
         sdk_key = "dvc_server_" + str(uuid.uuid4())
-        options = DVCCloudOptions()
-        self.test_client = DVCCloudClient(sdk_key, options)
+        options = DevCycleCloudOptions()
+        self.test_client = DevCycleCloudClient(sdk_key, options)
         self.test_user = UserData(user_id="test_user_id")
         self.test_user_no_id = UserData(user_id=None)
         self.test_user_empty_id = UserData(user_id="")
@@ -31,34 +31,34 @@ class DVCCloudClientTest(unittest.TestCase):
 
     def test_create_client_invalid_sdk_key(self):
         with self.assertRaises(ValueError):
-            DVCCloudClient(None, None)
+            DevCycleCloudClient(None, None)
 
         with self.assertRaises(ValueError):
-            DVCCloudClient("", None)
+            DevCycleCloudClient("", None)
 
         with self.assertRaises(ValueError):
-            DVCCloudClient("no prefix in key", None)
+            DevCycleCloudClient("no prefix in key", None)
 
     def test_create_client_diff_sdk_keys(self):
         # ensure no exception is generated
-        client = DVCCloudClient("dvc_server_" + str(uuid.uuid4()), None)
+        client = DevCycleCloudClient("dvc_server_" + str(uuid.uuid4()), None)
         self.assertIsNotNone(client)
-        client = DVCCloudClient("server_" + str(uuid.uuid4()), None)
+        client = DevCycleCloudClient("server_" + str(uuid.uuid4()), None)
         self.assertIsNotNone(client)
 
     def test_create_client_no_options(self):
         sdk_key = "dvc_server_" + str(uuid.uuid4())
-        empty_options = DVCCloudOptions()
-        client = DVCCloudClient(sdk_key, empty_options)
+        empty_options = DevCycleCloudOptions()
+        client = DevCycleCloudClient(sdk_key, empty_options)
         self.assertIsNotNone(client)
 
-        option_with_data = DVCCloudOptions(
+        option_with_data = DevCycleCloudOptions(
             enable_edge_db=False,
             bucketing_api_uri="https://localhost:8080",
             config_cdn_uri="https://localhost:8080",
             events_api_uri="https://localhost:8080",
         )
-        client = DVCCloudClient(sdk_key, option_with_data)
+        client = DevCycleCloudClient(sdk_key, option_with_data)
         self.assertIsNotNone(client)
 
     def test_variable_bad_user(self):

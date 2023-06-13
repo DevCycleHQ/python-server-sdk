@@ -3,7 +3,7 @@ import platform
 
 from typing import Any, Dict
 
-from devcycle_python_sdk import DVCCloudOptions
+from devcycle_python_sdk import DevCycleCloudOptions
 from devcycle_python_sdk.api.bucketing_client import BucketingAPIClient
 from devcycle_python_sdk.exceptions import (
     NotFoundError,
@@ -18,17 +18,17 @@ from devcycle_python_sdk.util.version import sdk_version
 logger = logging.getLogger(__name__)
 
 
-class DVCCloudClient:
-    options: DVCCloudOptions
+class DevCycleCloudClient:
+    options: DevCycleCloudOptions
     platform: str
     platform_version: str
     sdk_version: str
 
-    def __init__(self, sdk_key: str, options: DVCCloudOptions):
+    def __init__(self, sdk_key: str, options: DevCycleCloudOptions):
         self._validate_sdk_key(sdk_key)
 
         if options is None:
-            self.options = DVCCloudOptions()
+            self.options = DevCycleCloudOptions()
         else:
             self.options = options
 

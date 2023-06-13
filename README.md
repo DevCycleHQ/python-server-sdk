@@ -23,21 +23,21 @@ import devcycle_python_sdk
 ## Getting Started
 
 ```python
-    from devcycle_python_sdk import DVCCloudClient, DVCCloudOptions
-    from devcycle_python_sdk.models.user_data import UserData
- 
-    options = DVCCloudOptions()
+from devcycle_python_sdk import DevCycleCloudClient, DevCycleCloudOptions
+from devcycle_python_sdk.models.user_data import UserData
 
-     # create an instance of the client class
-    dvc = DVCCloudClient('YOUR_DVC_SERVER_SDK_KEY', options)
-        
-     user = UserData(
-        user_id='test',
-        email='example@example.ca',
-        country='CA'
-    )
+options = DevCycleCloudOptions()
 
-    value = dvc.variable_value(user, 'feature-key', 'default-value')
+# create an instance of the client class
+dvc = DevCycleCloudClient('YOUR_DVC_SERVER_SDK_KEY', options)
+
+user = UserData(
+    user_id='test',
+    email='example@example.ca',
+    country='CA'
+)
+
+value = dvc.variable_value(user, 'feature-key', 'default-value')
 ```
 
 ## Usage

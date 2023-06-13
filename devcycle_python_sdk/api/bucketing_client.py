@@ -12,7 +12,7 @@ from devcycle_python_sdk.exceptions import (
     NotFoundError,
     CloudClientUnauthorizedError,
 )
-from devcycle_python_sdk.dvc_options import DVCCloudOptions
+from devcycle_python_sdk.dvc_options import DevCycleCloudOptions
 from devcycle_python_sdk.models.user_data import UserData
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.models.variable import Variable
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class BucketingAPIClient:
-    def __init__(self, sdk_key: str, options: DVCCloudOptions):
+    def __init__(self, sdk_key: str, options: DevCycleCloudOptions):
         self.sdk_key = sdk_key
         self.options = options
         self.session = requests.Session()

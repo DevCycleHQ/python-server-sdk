@@ -1,7 +1,7 @@
 import logging
 import os
 
-from devcycle_python_sdk import DVCCloudClient, DVCCloudOptions
+from devcycle_python_sdk import DevCycleCloudClient, DevCycleCloudOptions
 from devcycle_python_sdk.models.user_data import UserData
 from devcycle_python_sdk.models.event import Event
 
@@ -18,11 +18,11 @@ def main():
     """
     logging.basicConfig(level="INFO", format="%(levelname)s: %(message)s")
 
-    options = DVCCloudOptions(enable_edge_db=True)
+    options = DevCycleCloudOptions(enable_edge_db=True)
 
     # create an instance of the API class
     server_sdk_key = os.environ["DVC_SERVER_SDK_KEY"]
-    dvc = DVCCloudClient(server_sdk_key, options)
+    dvc = DevCycleCloudClient(server_sdk_key, options)
 
     user = UserData(user_id="test", email="yo@yo.ca", country="CA")
     event = Event(type="customEvent", target="somevariable.key")
