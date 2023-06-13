@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class VersionTest(unittest.TestCase):
     def test_sdk_version(self):
-        expected_version = "1.2.2"
+        expected_version = "2.0.0"
         version = sdk_version()
         self.assertEqual(version, expected_version)
 
