@@ -9,7 +9,8 @@ logger = logging.getLogger(__name__)
 
 class LocalBucketingTest(unittest.TestCase):
     def test_init(self):
-        config_manager = LocalBucketing()
+        local_bucketing = LocalBucketing()
+        self.assertIsNotNone(local_bucketing)
 
 
 if __name__ == '__main__':

@@ -137,7 +137,7 @@ class DevCycleLocalClient:
             logger.debug("track called before client has initialized")
             return
 
-        events = [user_event]
+        # events = [user_event]
         try:
             # TODO delegate to local bucketing api
             pass
