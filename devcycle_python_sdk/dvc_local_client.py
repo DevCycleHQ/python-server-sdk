@@ -16,14 +16,6 @@ logger = logging.getLogger(__name__)
 
 
 class DevCycleLocalClient:
-    options: DevCycleLocalOptions
-    config_manager: EnvironmentConfigManager
-    event_queue_manager: EventQueueManager
-    platform: str
-    platform_version: str
-    sdk_version: str
-    local_bucketing: LocalBucketing
-
     def __init__(self, sdk_key: str, options: DevCycleLocalOptions):
         self._validate_sdk_key(sdk_key)
 
