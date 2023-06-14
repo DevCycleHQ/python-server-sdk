@@ -3,6 +3,9 @@ import platform
 from typing import Any, Dict
 
 from devcycle_python_sdk import DevCycleLocalOptions
+from devcycle_python_sdk.api.local_bucketing import LocalBucketing
+from devcycle_python_sdk.managers.config_manager import EnvironmentConfigManager
+from devcycle_python_sdk.managers.event_queue_manager import EventQueueManager
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.user import User
@@ -14,9 +17,12 @@ logger = logging.getLogger(__name__)
 
 class DevCycleLocalClient:
     options: DevCycleLocalOptions
+    config_manager: EnvironmentConfigManager
+    event_queue_manager: EventQueueManager
     platform: str
     platform_version: str
     sdk_version: str
+    local_bucketing: LocalBucketing
 
     def __init__(self, sdk_key: str, options: DevCycleLocalOptions):
         self._validate_sdk_key(sdk_key)
@@ -30,6 +36,10 @@ class DevCycleLocalClient:
         self.platform_version = platform.python_version()
         self.sdk_version = sdk_version()
         self.sdk_type = "local"
+
+        self.local_bucketing = LocalBucketing()
+        self.config_manager = EnvironmentConfigManager(sdk_key, self.options, self.local_bucketing)
+        self.event_queue_manager = EventQueueManager(sdk_key, self.options, self.local_bucketing)
 
     def _add_platform_data_to_user(self, user: User) -> User:
         user.platform = self.platform
@@ -55,8 +65,7 @@ class DevCycleLocalClient:
             raise ValueError("userId cannot be empty")
 
     def _is_initialized(self) -> bool:
-        # TODO evaluate initialized state from the EnvironmentConfigManager
-        return True
+        return self.config_manager and self.config_manager.is_initialized()
 
     def set_client_custom_data(self, custom_data: Dict[str, Any]) -> None:
         if not self._is_initialized():
@@ -144,5 +153,8 @@ class DevCycleLocalClient:
             logger.error("Error tracking event: %s", e)
 
     def close(self) -> None:
-        # TODO
-        pass
+        if self.config_manager:
+            self.config_manager.close()
+
+        if self.event_queue_manager:
+            self.event_queue_manager.close()
