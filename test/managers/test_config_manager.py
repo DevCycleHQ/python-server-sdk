@@ -7,7 +7,7 @@ from unittest.mock import patch, MagicMock
 
 from devcycle_python_sdk import DevCycleLocalOptions
 from devcycle_python_sdk.managers.config_manager import EnvironmentConfigManager
-from test.fixture_helper import get_small_config_json, get_small_config
+from test.fixture_helper import get_small_config_json
 
 logger = logging.getLogger(__name__)
 
