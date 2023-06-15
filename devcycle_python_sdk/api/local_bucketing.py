@@ -81,10 +81,44 @@ class LocalBucketing:
         wasm_memory = wasm_instance.exports(wasm_store)["memory"]
 
         # Bind exported internal AssemblyScript functions
-        self.__newFunc: Func = wasm_instance.exports(wasm_store)["__new"]
-        self.__pinFunc: Func = wasm_instance.exports(wasm_store)["__pin"]
-        self.__unpinFunc: Func = wasm_instance.exports(wasm_store)["__unpin"]
-        self.__collectFunc: Func = wasm_instance.exports(wasm_store)["__collect"]
+        self.__new: Func = wasm_instance.exports(wasm_store)["__new"]
+        self.__pin: Func = wasm_instance.exports(wasm_store)["__pin"]
+        self.__unpin: Func = wasm_instance.exports(wasm_store)["__unpin"]
+
+        # TODO: Is collect used?
+        self.__collect: Func = wasm_instance.exports(wasm_store)["__collect"]
+
+        self.initEventQueue = wasm_instance.exports(wasm_store)["initEventQueue"]
+        self.flushEventQueue = wasm_instance.exports(wasm_store)["flushEventQueue"]
+        self.eventQueueSize = wasm_instance.exports(wasm_store)["eventQueueSize"]
+        self.onPayloadSuccess = wasm_instance.exports(wasm_store)["onPayloadSuccess"]
+        self.onPayloadFailure = wasm_instance.exports(wasm_store)["onPayloadFailure"]
+        self.queueEvent = wasm_instance.exports(wasm_store)["queueEvent"]
+        self.queueAggregateEvent = wasm_instance.exports(wasm_store)[
+            "queueAggregateEvent"
+        ]
+        self.setConfigDataUTF8 = wasm_instance.exports(wasm_store)["setConfigDataUTF8"]
+        self.setPlatformDataUTF8 = wasm_instance.exports(wasm_store)[
+            "setPlatformDataUTF8"
+        ]
+        self.setClientCustomDataUTF8 = wasm_instance.exports(wasm_store)[
+            "setClientCustomDataUTF8"
+        ]
+        self.generateBucketedConfigForUserUTF8 = wasm_instance.exports(wasm_store)[
+            "generateBucketedConfigForUserUTF8"
+        ]
+
+        self.variable_type_map = {
+            variable_type_key: wasm_instance.exports(wasm_store)[
+                f"VariableType.{variable_type_key}"
+            ].value(wasm_store)
+            for variable_type_key in [
+                "Boolean",
+                "String",
+                "Number",
+                "JSON",
+            ]
+        }
 
         self.wasm_memory = wasm_memory
         self.wasm_instance = wasm_instance
