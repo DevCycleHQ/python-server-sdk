@@ -32,9 +32,6 @@ class ConfigAPIClient:
     def _config_file_url(self) -> str:
         return join(self.options.config_CDN_URI, "v1", "server", self.sdk_key, ".json")
 
-    def get_config(self, config_etag: str) -> dict:
-        return self._request("GET", self._config_file_url(), etag=config_etag)
-
     def get_config(self, config_etag: str = None) -> (dict, str):
         retries_remaining = self.max_config_retries
         timeout = self.options.config_request_timeout_ms / 1000.0
