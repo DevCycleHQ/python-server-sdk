@@ -4,6 +4,7 @@ import random
 import time
 from os.path import join
 from typing import Optional
+from http import HTTPStatus
 
 import requests
 
@@ -50,16 +51,20 @@ class ConfigAPIClient:
                     "GET", url, params={}, timeout=timeout, headers=headers
                 )
 
-                if res.status_code == 401:
+                if res.status_code == HTTPStatus.UNAUTHORIZED or res.status_code == HTTPStatus.FORBIDDEN:
                     # Not a retryable error
                     raise CloudClientUnauthorizedError("Invalid SDK Key")
-                elif res.status_code == 404:
+                elif res.status_code == HTTPStatus.NOT_MODIFIED:
+                    # the config hasn't changed since the last request
+                    # don't return anything
+                    return None, config_etag
+                elif res.status_code == HTTPStatus.NOT_FOUND:
                     # Not a retryable error
                     raise NotFoundError(url)
-                elif 400 <= res.status_code < 500:
+                elif HTTPStatus.BAD_REQUEST <= res.status_code < HTTPStatus.INTERNAL_SERVER_ERROR:
                     # Not a retryable error
                     raise CloudClientError(f"Bad request: HTTP {res.status_code}")
-                elif res.status_code >= 500:
+                elif res.status_code >= HTTPStatus.INTERNAL_SERVER_ERROR:
                     # Retryable error
                     request_error = CloudClientError(
                         f"Server error: HTTP {res.status_code}"
@@ -70,7 +75,7 @@ class ConfigAPIClient:
             if not request_error:
                 break
 
-            logger.error(
+            logger.warning(
                 f"DevCycle cloud bucketing request failed (attempt {attempts}): {request_error}"
             )
             retries_remaining -= 1

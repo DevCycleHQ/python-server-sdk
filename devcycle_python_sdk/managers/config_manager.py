@@ -5,6 +5,7 @@ import logging
 from devcycle_python_sdk.dvc_options import DevCycleLocalOptions
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
 from devcycle_python_sdk.api.config_client import ConfigAPIClient
+from devcycle_python_sdk.exceptions import CloudClientUnauthorizedError, CloudClientError
 
 logger = logging.getLogger(__name__)
 
@@ -30,18 +31,29 @@ class EnvironmentConfigManager(threading.Thread):
         return self._config is not None
 
     def get_config(self):
-        new_config, new_etag = self._config_api_client.get_config(config_etag=self._config_etag)
-        trigger_on_client_initialized = self._config is None
-        self._config = new_config
-        self._config_etag = new_etag
-        self._local_bucketing.store_config(self._sdk_key, self._config)
+        try:
+            new_config, new_etag = self._config_api_client.get_config(config_etag=self._config_etag)
 
-        if trigger_on_client_initialized and self._options.on_client_initialized is not None:
-            try:
-                self._options.on_client_initialized()
-            except Exception as e:
-                # consume any error
-                logger.warning(f"Error in on_client_initialized callback: {str(e)}")
+            if new_config is None and new_etag == self._config_etag:
+                # no change to the config since last request
+                return
+
+            trigger_on_client_initialized = self._config is None
+            self._config = new_config
+            self._config_etag = new_etag
+            self._local_bucketing.store_config(self._sdk_key, self._config)
+
+            if trigger_on_client_initialized and self._options.on_client_initialized is not None:
+                try:
+                    self._options.on_client_initialized()
+                except Exception as e:
+                    # consume any error
+                    logger.warning(f"Error in on_client_initialized callback: {str(e)}")
+        except CloudClientError as e:
+            logger.warning(f"Config fetch failed. Status: {str(e)}")
+        except CloudClientUnauthorizedError:
+            logger.error("Unauthorized to get config. Aborting config polling.")
+            self._polling_enabled = False
 
     def run(self):
         while self._polling_enabled:

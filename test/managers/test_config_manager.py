@@ -88,6 +88,28 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
         self.assertFalse(config_manager._polling_enabled)
         self.assertFalse(config_manager.is_alive())
 
+    @patch("devcycle_python_sdk.api.config_client.ConfigAPIClient.get_config")
+    def test_get_config_unchanged(self, mock_get_config):
+        mock_get_config.return_value = (self.test_config_json, self.test_etag)
+
+        self.test_options.config_polling_interval_ms = 200
+        config_manager = EnvironmentConfigManager(self.sdk_key, self.test_options, self.test_local_bucketing)
+
+        time.sleep(0.1)
+        # stop the polling
+        config_manager.close()
+
+        self.test_local_bucketing.store_config.reset_mock()
+        mock_get_config.return_value = (None, config_manager._config_etag)
+
+        # trigger refresh of the config directly
+        config_manager.get_config()
+
+        # verify that the config was not updated
+        self.assertEqual(config_manager._config_etag, self.test_etag)
+        self.assertDictEqual(config_manager._config, self.test_config_json)
+        self.test_local_bucketing.store_config.assert_not_called()
+
 
 if __name__ == '__main__':
     unittest.main()

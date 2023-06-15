@@ -2,6 +2,7 @@ import logging
 import unittest
 import uuid
 from os.path import join
+from http import HTTPStatus
 
 import requests
 import responses
@@ -84,7 +85,7 @@ class ConfigAPIClientTest(unittest.TestCase):
             responses.add(
                 responses.GET,
                 self.config_url,
-                status=500,
+                status=HTTPStatus.INTERNAL_SERVER_ERROR,
             )
         with self.assertRaises(CloudClientError):
             self.test_client.get_config(config_etag=self.test_etag)
@@ -95,7 +96,7 @@ class ConfigAPIClientTest(unittest.TestCase):
             responses.add(
                 responses.GET,
                 self.config_url,
-                status=404,
+                status=HTTPStatus.NOT_FOUND,
             )
         with self.assertRaises(NotFoundError):
             self.test_client.get_config(config_etag=self.test_etag)
@@ -106,7 +107,19 @@ class ConfigAPIClientTest(unittest.TestCase):
             responses.add(
                 responses.GET,
                 self.config_url,
-                status=401,
+                status=HTTPStatus.UNAUTHORIZED,
             )
         with self.assertRaises(CloudClientUnauthorizedError):
             self.test_client.get_config(config_etag=self.test_etag)
+
+    @responses.activate
+    def test_get_config_not_modified(self):
+        responses.add(
+            responses.GET,
+            self.config_url,
+            status=HTTPStatus.NOT_MODIFIED,
+        )
+
+        new_config, new_etag = self.test_client.get_config(config_etag=self.test_etag)
+        self.assertIsNone(new_config)
+        self.assertEqual(new_etag, self.test_etag)
