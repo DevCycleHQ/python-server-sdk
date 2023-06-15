@@ -15,7 +15,7 @@ from devcycle_python_sdk.exceptions import (
     CloudClientUnauthorizedError,
     NotFoundError,
 )
-from test.fixture_helper import get_small_config_json
+from test.fixture.data import small_config_json
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class ConfigAPIClientTest(unittest.TestCase):
         options = DevCycleLocalOptions(config_retry_delay_ms=0)
         self.test_client = ConfigAPIClient(self.sdk_key, options)
         self.test_etag = str(uuid.uuid4())
-        self.test_config_json: dict = get_small_config_json()
+        self.test_config_json: dict = small_config_json()
 
     @responses.activate
     def test_get_config(self):

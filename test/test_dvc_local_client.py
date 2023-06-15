@@ -7,7 +7,7 @@ from unittest.mock import patch
 from devcycle_python_sdk import DevCycleLocalClient, DevCycleLocalOptions
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.models.user import User
-from test.fixture_helper import get_small_config_json
+from test.fixture.data import small_config_json
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ class DVCLocalClientTest(unittest.TestCase):
 
     @patch("devcycle_python_sdk.api.config_client.ConfigAPIClient.get_config")
     def setUp(self, mock_get_config) -> None:
-        self.test_config_json = get_small_config_json()
+        self.test_config_json = small_config_json()
         self.test_etag = str(uuid.uuid4())
         mock_get_config.return_value = (self.test_config_json, self.test_etag)
 

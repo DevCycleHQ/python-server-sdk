@@ -7,7 +7,7 @@ from unittest.mock import patch, MagicMock
 
 from devcycle_python_sdk import DevCycleLocalOptions
 from devcycle_python_sdk.managers.config_manager import EnvironmentConfigManager
-from test.fixture_helper import get_small_config_json
+from test.fixture.data import small_config_json
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
         self.test_options = DevCycleLocalOptions(config_polling_interval_ms=500)
 
         self.test_etag = str(uuid.uuid4())
-        self.test_config_json = get_small_config_json()
+        self.test_config_json = small_config_json()
         self.test_config_string = json.dumps(self.test_config_json)
 
     def tearDown(self) -> None:
