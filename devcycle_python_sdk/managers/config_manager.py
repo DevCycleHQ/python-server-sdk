@@ -1,6 +1,7 @@
 import threading
 import time
 import logging
+import json
 
 from devcycle_python_sdk.dvc_options import DevCycleLocalOptions
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
@@ -35,13 +36,16 @@ class EnvironmentConfigManager(threading.Thread):
             new_config, new_etag = self._config_api_client.get_config(config_etag=self._config_etag)
 
             if new_config is None and new_etag == self._config_etag:
+                # api not returning data and the etag is the same
                 # no change to the config since last request
                 return
 
             trigger_on_client_initialized = self._config is None
             self._config = new_config
             self._config_etag = new_etag
-            self._local_bucketing.store_config(self._sdk_key, self._config)
+
+            json_config = json.dumps(self._config)
+            self._local_bucketing.store_config(self._sdk_key, json_config)
 
             if trigger_on_client_initialized and self._options.on_client_initialized is not None:
                 try:

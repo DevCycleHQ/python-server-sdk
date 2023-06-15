@@ -272,7 +272,7 @@ class LocalBucketing:
     def get_variable_for_user_protobuf(self, params_buffer) -> str:
         return ""
 
-    def store_config(self, sdk_key: str, config: dict):
+    def store_config(self, sdk_key: str, config: str):
         pass
 
 
