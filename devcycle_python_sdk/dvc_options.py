@@ -27,18 +27,18 @@ class DevCycleLocalOptions:
 
     def __init__(
             self,
-            events_api_uri: str = "https://events.devcycle.com/",
             config_cdn_uri: str = "https://config-cdn.devcycle.com/",
             config_request_timeout_ms: int = 5000,
             config_polling_interval_ms: int = 1000,
+            config_retry_delay_ms: int = 200,  # milliseconds
+            on_client_initialized: callable = None,
+            events_api_uri: str = "https://events.devcycle.com/",
             max_event_queue_size: int = 2000,
             event_flush_interval_ms: int = 10000,
             flush_event_queue_size: int = 1000,
             event_request_chunk_size: int = 100,
             disable_automatic_event_logging: bool = False,
             disable_custom_event_logging: bool = False,
-            config_retry_delay_ms: int = 200,  # milliseconds
-            on_client_initialized: callable = None,
     ):
         self.events_API_URI = events_api_uri
         self.config_CDN_URI = config_cdn_uri

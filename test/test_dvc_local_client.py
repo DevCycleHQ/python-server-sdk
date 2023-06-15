@@ -1,13 +1,12 @@
 import logging
 import unittest
-from unittest.mock import patch, MagicMock
 import uuid
 from time import time
+from unittest.mock import patch
 
 from devcycle_python_sdk import DevCycleLocalClient, DevCycleLocalOptions
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.models.user import User
-
 from test.fixture_helper import get_small_config_json
 
 logger = logging.getLogger(__name__)
