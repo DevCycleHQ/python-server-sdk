@@ -1,40 +1,55 @@
 import logging
-import requests
-import responses
-from responses.registries import OrderedRegistry
 import unittest
 import uuid
 from os.path import join
 
+import requests
+import responses
+from responses.registries import OrderedRegistry
+
 from devcycle_python_sdk.api.config_client import ConfigAPIClient
+from devcycle_python_sdk.dvc_options import DevCycleLocalOptions
 from devcycle_python_sdk.exceptions import (
     CloudClientError,
     CloudClientUnauthorizedError,
     NotFoundError,
 )
-from devcycle_python_sdk.dvc_options import DevCycleCloudOptions
+from test.fixture_helper import get_small_config_json
 
 logger = logging.getLogger(__name__)
 
 
-class ConfigAPIClient(unittest.TestCase):
+class ConfigAPIClientTest(unittest.TestCase):
     def setUp(self) -> None:
         self.sdk_key = "dvc_server_" + str(uuid.uuid4())
         self.config_url = join("https://config-cdn.devcycle.com/", "v1", "server", self.sdk_key, ".json")
 
-        options = DevCycleCloudOptions(retry_delay=0)
-        self.test_client: ConfigAPIClient = ConfigAPIClient(self.sdk_key, options)
+        options = DevCycleLocalOptions(config_retry_delay_ms=0)
+        self.test_client = ConfigAPIClient(self.sdk_key, options)
         self.test_etag = str(uuid.uuid4())
-        self.test_config_json: dict = {}
+        self.test_config_json: dict = get_small_config_json()
+
+    @responses.activate
+    def test_get_config(self):
+
+        new_etag = str(uuid.uuid4())
+        responses.add(
+            responses.GET,
+            self.config_url,
+            headers={"ETag": new_etag},
+            json=self.test_config_json,
+        )
+        result, etag = self.test_client.get_config(config_etag=self.test_etag)
+        self.assertDictEqual(result, self.test_config_json)
+        self.assertEqual(etag, new_etag)
 
     @responses.activate(registry=OrderedRegistry)
     def test_get_config_retries(self):
-        for i in range(self.test_client.options.request_retries):
-            responses.add(
-                responses.GET,
-                self.config_url,
-                status=500,
-            )
+        responses.add(
+            responses.GET,
+            self.config_url,
+            status=500,
+        )
         responses.add(
             responses.GET,
             self.config_url,
@@ -56,6 +71,7 @@ class ConfigAPIClient(unittest.TestCase):
         responses.add(
             responses.GET,
             self.config_url,
+            headers={"ETag": self.test_etag},
             json=self.test_config_json,
         )
         result, etag = self.test_client.get_config(config_etag=self.test_etag)
@@ -64,7 +80,7 @@ class ConfigAPIClient(unittest.TestCase):
 
     @responses.activate(registry=OrderedRegistry)
     def test_get_config_retries_exceeded(self):
-        for i in range(self.test_client.options.request_retries + 1):
+        for i in range(2):
             responses.add(
                 responses.GET,
                 self.config_url,
@@ -94,7 +110,3 @@ class ConfigAPIClient(unittest.TestCase):
             )
         with self.assertRaises(CloudClientUnauthorizedError):
             self.test_client.get_config(config_etag=self.test_etag)
-
-    @responses.activate
-    def test_get_config(self):
-        pass

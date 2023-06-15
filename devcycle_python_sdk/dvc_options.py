@@ -37,6 +37,8 @@ class DevCycleLocalOptions:
             event_request_chunk_size: int = 100,
             disable_automatic_event_logging: bool = False,
             disable_custom_event_logging: bool = False,
+            config_retry_delay_ms: int = 200,  # milliseconds
+            on_client_initialized: callable = None,
     ):
         self.events_API_URI = events_api_uri
         self.config_CDN_URI = config_cdn_uri
@@ -48,6 +50,8 @@ class DevCycleLocalOptions:
         self.event_request_chunk_size = event_request_chunk_size
         self.disable_automatic_event_logging = disable_automatic_event_logging
         self.disable_custom_event_logging = disable_custom_event_logging
+        self.config_retry_delay_ms = config_retry_delay_ms
+        self.on_client_initialized = on_client_initialized
 
         if self.flush_event_queue_size >= self.max_event_queue_size:
             logger.warning(

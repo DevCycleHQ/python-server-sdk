@@ -7,7 +7,7 @@ from typing import Optional
 
 import requests
 
-from devcycle_python_sdk.dvc_options import DevCycleCloudOptions
+from devcycle_python_sdk.dvc_options import DevCycleLocalOptions
 from devcycle_python_sdk.exceptions import (
     CloudClientError,
     NotFoundError,
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class ConfigAPIClient:
-    def __init__(self, sdk_key: str, options: DevCycleCloudOptions):
+    def __init__(self, sdk_key: str, options: DevCycleLocalOptions):
         self.sdk_key = sdk_key
         self.options = options
         self.session = requests.Session()
@@ -29,15 +29,15 @@ class ConfigAPIClient:
         self.session.max_redirects = 0
         self.max_config_retries = 2
 
-    def _config_file_url(self, *path_args: str) -> str:
-        return join(self.options.config_CDN_URI, "v1", "server", self.sdk_key, ".json" * path_args)
+    def _config_file_url(self) -> str:
+        return join(self.options.config_CDN_URI, "v1", "server", self.sdk_key, ".json")
 
     def get_config(self, config_etag: str) -> dict:
         return self._request("GET", self._config_file_url(), etag=config_etag)
 
     def get_config(self, config_etag: str = None) -> (dict, str):
         retries_remaining = self.max_config_retries
-        timeout = self.options.request_timeout
+        timeout = self.options.config_request_timeout_ms / 1000.0
 
         url = self._config_file_url()
 
@@ -79,7 +79,7 @@ class ConfigAPIClient:
             retries_remaining -= 1
             if retries_remaining:
                 retry_delay = exponential_backoff(
-                    attempts, self.options.retry_delay / 1000.0
+                    attempts, self.options.config_retry_delay_ms / 1000.0
                 )
                 time.sleep(retry_delay)
                 attempts += 1
