@@ -156,19 +156,13 @@ class LocalBucketing:
             # Create pointer to string buffer in WASM memory.
             pointer = self.__new(self.wasm_store, len(encoded) * 2, object_id_string)
         except Exception as err:
-            logger.error(f"__new (_new_assembly_script_string) error: {err}")
-            return -1
+            raise WASMError(f"Error allocating string in WASM: {err}")
         addr = pointer
         data = self.wasm_memory.data_ptr(self.wasm_store)
 
         # Write encoded data into buffer.
         for i, c in enumerate(encoded):
             data[addr + i * 2] = c
-
-        # TODO: Does this happen? Or do we just get an exception?
-        if pointer == 0:
-            logger.error("Failed to allocate memory for string")
-            raise WASMError("Failed to allocate memory for string")
 
         return pointer
 
@@ -212,11 +206,12 @@ class LocalBucketing:
             # Allocate memory for header.
             header_pointer = self.__new(self.wasm_store, 12, object_id_uint8_array)
 
-            # TODO: Do we actually need to pin the header pointer?
+            # An external object that is not referenced from within WebAssembly
+            # must be pinned whenever an allocation might happen in between
+            # allocating it and passing it to WebAssembly.
             pinned_addr = self.__pin(self.wasm_store, header_pointer)
         except Exception as err:
-            logger.error(f"__new (new_assembly_script_byte_array) error: {err}")
-            return -1
+            raise WASMError(f"Error allocating byte array in WASM: {err}")
 
         try:
             # Allocate memory for buffer.
@@ -243,8 +238,7 @@ class LocalBucketing:
 
             return header_pointer
         except Exception as err:
-            logger.error(f"__new (new_assembly_script_byte_array) error: {err}")
-            return -1
+            raise WASMError(f"Error writing byte array to WASM: {err}")
         finally:
             # Unpin the header pointer.
             self.__unpin(self.wasm_store, pinned_addr)
