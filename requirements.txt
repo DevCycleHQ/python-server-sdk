@@ -1,3 +1,4 @@
 setuptools >= 21.0.0
 urllib3 >= 1.15.1
 requests ~= 2.31.0
+wasmtime==9.0.0
