@@ -22,6 +22,10 @@ class WASMError(Exception):
     pass
 
 
+class WASMAbortError(WASMError):
+    pass
+
+
 class LocalBucketing:
     def __init__(self):
         self.random = random.random()
@@ -48,12 +52,21 @@ class LocalBucketing:
             "env", "Date.now", FuncType([], [ValType.f64()]), __date_now_func
         )
 
-        def __abort_func(caller, message_ptr, filename_ptr, line, column) -> None:
-            message: bytes = self._read_assembly_script_string(message_ptr)
-            filename: bytes = self._read_assembly_script_string(filename_ptr)
-            # TODO: make sure throwing an exception here results in a reasonable error message
-            raise RuntimeError(
-                f"Exception in {filename!r}:{line}:{column}  -- {message!r}"
+        def __abort_func(
+            message_ptr=None,
+            filename_ptr=None,
+            line=0,
+            column=0,
+        ) -> None:
+            message = None
+            filename = None
+            if message_ptr is not None:
+                message = self._read_assembly_script_string(message_ptr)
+            if filename_ptr is not None:
+                filename = self._read_assembly_script_string(filename_ptr)
+
+            raise WASMAbortError(
+                f"Abort in {filename!r}:{line!r}:{column!r} -- {message!r}"
             )
 
         wasm_linker.define_func(

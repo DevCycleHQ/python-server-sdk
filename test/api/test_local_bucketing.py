@@ -2,7 +2,7 @@ import logging
 
 import unittest
 
-from devcycle_python_sdk.api.local_bucketing import LocalBucketing
+from devcycle_python_sdk.api.local_bucketing import LocalBucketing, WASMAbortError
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +40,17 @@ class LocalBucketingTest(unittest.TestCase):
             result_pointer
         )
         self.assertEqual(result_bytes, test_bytes)
+
+    def test_abort(self) -> None:
+        abort_func = self.local_bucketing._get_export("triggerAbort")
+
+        with self.assertRaises(WASMAbortError) as context:
+            abort_func(self.local_bucketing.wasm_store)
+
+        self.assertRegexpMatches(
+            context.exception.args[0],
+            r"Abort in '[^']+':[0-9]+:[0-9]+ -- 'Manual abort triggered'",
+        )
 
 
 if __name__ == "__main__":
