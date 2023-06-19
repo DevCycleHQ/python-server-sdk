@@ -71,7 +71,7 @@ class LocalBucketing:
         )
 
         def __console_log_func(message_ptr) -> None:
-            message: bytes = self._read_assembly_script_string(message_ptr)
+            message: str = self._read_assembly_script_string(message_ptr)
             logger.warning(f"WASM console: {message!r}")
 
         wasm_linker.define_func(
@@ -93,9 +93,6 @@ class LocalBucketing:
         self.__new = wasm_instance.exports(wasm_store)["__new"]
         self.__pin = wasm_instance.exports(wasm_store)["__pin"]
         self.__unpin = wasm_instance.exports(wasm_store)["__unpin"]
-
-        # TODO: Is collect used?
-        self.__collect = wasm_instance.exports(wasm_store)["__collect"]
 
         # Bind exported WASM functions
         self.initEventQueue = self._get_export("initEventQueue")
@@ -134,24 +131,25 @@ class LocalBucketing:
     def _get_export(self, export_name):
         return self.wasm_instance.exports(self.wasm_store)[export_name]
 
-    def _new_assembly_script_string(self, param: bytes) -> int:
+    def _new_assembly_script_string(self, param: str) -> int:
         """
         Allocate memory for a string in AssemblyScript and write the string
         into memory, then return a pointer to the string.
         Only safe for use with ASCII strings.
         """
         object_id_string = 2
+        encoded = param.encode("utf-8")
         try:
             # Create pointer to string buffer in WASM memory.
-            pointer = self.__new(self.wasm_store, len(param) * 2, object_id_string)
+            pointer = self.__new(self.wasm_store, len(encoded) * 2, object_id_string)
         except Exception as err:
             logger.error(f"__new (_new_assembly_script_string) error: {err}")
             return -1
         addr = pointer
         data = self.wasm_memory.data_ptr(self.wasm_store)
 
-        # Write data into buffer.
-        for i, c in enumerate(param):
+        # Write encoded data into buffer.
+        for i, c in enumerate(encoded):
             data[addr + i * 2] = c
 
         # TODO: Does this happen? Or do we just get an exception?
@@ -161,7 +159,7 @@ class LocalBucketing:
 
         return pointer
 
-    def _read_assembly_script_string(self, pointer: int) -> bytes:
+    def _read_assembly_script_string(self, pointer: int) -> str:
         """
         Read a string from AssemblyScript memory.
         Only safe for use with ASCII strings.
@@ -187,7 +185,7 @@ class LocalBucketing:
         for i in range(0, len(raw_data), 2):
             ret[i // 2] += raw_data[i]
 
-        return ret
+        return ret.decode("utf-8")
 
     def _new_assembly_script_byte_array(self, param: bytes) -> int:
         """
