@@ -31,7 +31,7 @@ class EnvironmentConfigManager(threading.Thread):
     def is_initialized(self) -> bool:
         return self._config is not None
 
-    def get_config(self):
+    def _get_config(self):
         try:
             new_config, new_etag = self._config_api_client.get_config(config_etag=self._config_etag)
 
@@ -62,7 +62,7 @@ class EnvironmentConfigManager(threading.Thread):
     def run(self):
         while self._polling_enabled:
             try:
-                self.get_config()
+                self._get_config()
             except Exception as e:
                 logger.info(f"Error polling for config changes: {str(e)}")
             time.sleep(self._options.config_polling_interval_ms / 1000.0)

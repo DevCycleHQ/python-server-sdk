@@ -106,7 +106,7 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
         mock_get_config.return_value = (None, config_manager._config_etag)
 
         # trigger refresh of the config directly
-        config_manager.get_config()
+        config_manager._get_config()
 
         # verify that the config was not updated
         self.assertEqual(config_manager._config_etag, self.test_etag)

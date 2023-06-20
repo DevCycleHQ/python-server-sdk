@@ -2,17 +2,17 @@ import logging
 import math
 import random
 import time
-from os.path import join
-from typing import Optional
-from http import HTTPStatus
-
 import requests
+
+from os.path import join
+from typing import Optional, Tuple
+from http import HTTPStatus
 
 from devcycle_python_sdk.dvc_options import DevCycleLocalOptions
 from devcycle_python_sdk.exceptions import (
-    CloudClientError,
+    APIClientError,
     NotFoundError,
-    CloudClientUnauthorizedError,
+    APIClientUnauthorizedError,
 )
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ class ConfigAPIClient:
     def _config_file_url(self) -> str:
         return join(self.options.config_CDN_URI, "v1", "server", self.sdk_key, ".json")
 
-    def get_config(self, config_etag: str = None) -> (dict, str):
+    def get_config(self, config_etag: Optional[str] = None) -> Tuple[Optional[dict], str]:
         retries_remaining = self.max_config_retries
         timeout = self.options.config_request_timeout_ms / 1000.0
 
@@ -53,7 +53,7 @@ class ConfigAPIClient:
 
                 if res.status_code == HTTPStatus.UNAUTHORIZED or res.status_code == HTTPStatus.FORBIDDEN:
                     # Not a retryable error
-                    raise CloudClientUnauthorizedError("Invalid SDK Key")
+                    raise APIClientUnauthorizedError("Invalid SDK Key")
                 elif res.status_code == HTTPStatus.NOT_MODIFIED:
                     # the config hasn't changed since the last request
                     # don't return anything
@@ -63,10 +63,10 @@ class ConfigAPIClient:
                     raise NotFoundError(url)
                 elif HTTPStatus.BAD_REQUEST <= res.status_code < HTTPStatus.INTERNAL_SERVER_ERROR:
                     # Not a retryable error
-                    raise CloudClientError(f"Bad request: HTTP {res.status_code}")
+                    raise APIClientError(f"Bad request: HTTP {res.status_code}")
                 elif res.status_code >= HTTPStatus.INTERNAL_SERVER_ERROR:
                     # Retryable error
-                    request_error = CloudClientError(
+                    request_error = APIClientError(
                         f"Server error: HTTP {res.status_code}"
                     )
             except requests.exceptions.RequestException as e:
@@ -87,7 +87,7 @@ class ConfigAPIClient:
                 attempts += 1
                 continue
 
-            raise CloudClientError(message="Retries exceeded", cause=request_error)
+            raise APIClientError(message="Retries exceeded", cause=request_error)
 
         new_etag = res.headers.get("ETag", None)
 

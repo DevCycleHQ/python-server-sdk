@@ -11,8 +11,8 @@ from responses.registries import OrderedRegistry
 from devcycle_python_sdk.api.config_client import ConfigAPIClient
 from devcycle_python_sdk.dvc_options import DevCycleLocalOptions
 from devcycle_python_sdk.exceptions import (
-    CloudClientError,
-    CloudClientUnauthorizedError,
+    APIClientError,
+    APIClientUnauthorizedError,
     NotFoundError,
 )
 from test.fixture.data import small_config_json
@@ -87,7 +87,7 @@ class ConfigAPIClientTest(unittest.TestCase):
                 self.config_url,
                 status=HTTPStatus.INTERNAL_SERVER_ERROR,
             )
-        with self.assertRaises(CloudClientError):
+        with self.assertRaises(APIClientError):
             self.test_client.get_config(config_etag=self.test_etag)
 
     @responses.activate
@@ -109,7 +109,7 @@ class ConfigAPIClientTest(unittest.TestCase):
                 self.config_url,
                 status=HTTPStatus.UNAUTHORIZED,
             )
-        with self.assertRaises(CloudClientUnauthorizedError):
+        with self.assertRaises(APIClientUnauthorizedError):
             self.test_client.get_config(config_etag=self.test_etag)
 
     @responses.activate
