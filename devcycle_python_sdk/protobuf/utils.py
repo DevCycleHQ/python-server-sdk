@@ -49,17 +49,16 @@ def create_nullable_custom_data(val: Optional[dict]) -> pb2.NullableCustomData: 
 
 
 def convert_type_enum_to_variable_type(var_type: TypeEnum) -> pb2.VariableType_PB:  # type: ignore
-    match var_type:
-        case TypeEnum.BOOLEAN:
-            return pb2.VariableType_PB.Boolean  # type: ignore
-        case TypeEnum.STRING:
-            return pb2.VariableType_PB.String  # type: ignore
-        case TypeEnum.NUMBER:
-            return pb2.VariableType_PB.Number  # type: ignore
-        case TypeEnum.JSON:
-            return pb2.VariableType_PB.JSON  # type: ignore
-        case _:
-            raise ValueError("Unknown type: " + str(var_type))
+    if var_type == TypeEnum.BOOLEAN:
+        return pb2.VariableType_PB.Boolean  # type: ignore
+    elif var_type == TypeEnum.STRING:
+        return pb2.VariableType_PB.String  # type: ignore
+    elif var_type == TypeEnum.NUMBER:
+        return pb2.VariableType_PB.Number  # type: ignore
+    elif var_type == TypeEnum.JSON:
+        return pb2.VariableType_PB.JSON  # type: ignore
+    else:
+        raise ValueError("Unknown type: " + str(var_type))
 
 
 def create_dvcuser_pb(user: User) -> pb2.DVCUser_PB:  # type: ignore
@@ -84,48 +83,47 @@ def create_dvcuser_pb(user: User) -> pb2.DVCUser_PB:  # type: ignore
 
 
 def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Variable:  # type: ignore
-    match sdk_variable.type:
-        case pb2.VariableType_PB.Boolean:  # type: ignore
-            return Variable(
-                _id=sdk_variable._id,
-                value=sdk_variable.boolValue,
-                key=sdk_variable.key,
-                type=TypeEnum.BOOLEAN,
-                isDefaulted=False,
-                defaultValue=default_value,
-            )
+    if sdk_variable.type == pb2.VariableType_PB.Boolean:  # type: ignore
+        return Variable(
+            _id=sdk_variable._id,
+            value=sdk_variable.boolValue,
+            key=sdk_variable.key,
+            type=TypeEnum.BOOLEAN,
+            isDefaulted=False,
+            defaultValue=default_value,
+        )
 
-        case pb2.VariableType_PB.String:  # type: ignore
-            return Variable(
-                _id=sdk_variable._id,
-                value=sdk_variable.stringValue,
-                key=sdk_variable.key,
-                type=TypeEnum.STRING,
-                isDefaulted=False,
-                defaultValue=default_value,
-            )
+    elif sdk_variable.type == pb2.VariableType_PB.String:  # type: ignore
+        return Variable(
+            _id=sdk_variable._id,
+            value=sdk_variable.stringValue,
+            key=sdk_variable.key,
+            type=TypeEnum.STRING,
+            isDefaulted=False,
+            defaultValue=default_value,
+        )
 
-        case pb2.VariableType_PB.Number:  # type: ignore
-            return Variable(
-                _id=sdk_variable._id,
-                value=sdk_variable.doubleValue,
-                key=sdk_variable.key,
-                type=TypeEnum.NUMBER,
-                isDefaulted=False,
-                defaultValue=default_value,
-            )
+    elif sdk_variable.type == pb2.VariableType_PB.Number:  # type: ignore
+        return Variable(
+            _id=sdk_variable._id,
+            value=sdk_variable.doubleValue,
+            key=sdk_variable.key,
+            type=TypeEnum.NUMBER,
+            isDefaulted=False,
+            defaultValue=default_value,
+        )
 
-        case pb2.VariableType_PB.JSON:  # type: ignore
-            json_data = json.loads(sdk_variable.stringValue)
+    elif sdk_variable.type == pb2.VariableType_PB.JSON:  # type: ignore
+        json_data = json.loads(sdk_variable.stringValue)
 
-            return Variable(
-                _id=sdk_variable._id,
-                value=json_data,
-                key=sdk_variable.key,
-                type=TypeEnum.JSON,
-                isDefaulted=False,
-                defaultValue=default_value,
-            )
+        return Variable(
+            _id=sdk_variable._id,
+            value=json_data,
+            key=sdk_variable.key,
+            type=TypeEnum.JSON,
+            isDefaulted=False,
+            defaultValue=default_value,
+        )
 
-        case _:
-            raise ValueError("Unknown type: " + sdk_variable.type)
+    else:
+        raise ValueError("Unknown type: " + sdk_variable.type)
