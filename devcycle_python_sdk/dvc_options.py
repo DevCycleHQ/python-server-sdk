@@ -1,3 +1,8 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 class DevCycleCloudOptions:
     def __init__(
             self,
@@ -43,3 +48,29 @@ class DevCycleLocalOptions:
         self.event_request_chunk_size = event_request_chunk_size
         self.disable_automatic_event_logging = disable_automatic_event_logging
         self.disable_custom_event_logging = disable_custom_event_logging
+
+        if self.flush_event_queue_size >= self.max_event_queue_size:
+            logger.warning(
+                "flushEventQueueSize: %d must be smaller than maxEventQueueSize: %d", self.flush_event_queue_size,
+                self.max_event_queue_size)
+            self.flush_event_queue_size = self.max_event_queue_size - 1
+
+        if self.event_request_chunk_size > self.flush_event_queue_size:
+            logger.warning(
+                "eventRequestChunkSize: %d must be smaller than flushEventQueueSize: %d", self.event_request_chunk_size,
+                self.flush_event_queue_size)
+            self.event_request_chunk_size = 100
+
+        if self.event_request_chunk_size > self.max_event_queue_size:
+            logger.warning(
+                "eventRequestChunkSize: %d must be smaller than maxEventQueueSize: %d", self.event_request_chunk_size,
+                self.max_event_queue_size)
+            self.event_request_chunk_size = 100
+
+        if self.flush_event_queue_size > 20000:
+            logger.warning("flushEventQueueSize: %d must be smaller than 20,000", self.flush_event_queue_size)
+            self.flush_event_queue_size = 20000
+
+        if self.max_event_queue_size > 20000:
+            logger.warning("maxEventQueueSize: %d must be smaller than 20,000", self.max_event_queue_size)
+            self.max_event_queue_size = 20000
