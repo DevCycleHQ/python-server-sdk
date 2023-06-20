@@ -13,7 +13,7 @@ from devcycle_python_sdk.models.user import User
 from devcycle_python_sdk.models.variable import Variable, determine_variable_type
 from devcycle_python_sdk.util.version import sdk_version
 
-import devcycle_python_sdk.protobuf.helper as pb_helpers
+import devcycle_python_sdk.protobuf.utils as pb_utils
 import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
 
 logger = logging.getLogger(__name__)
@@ -93,13 +93,13 @@ class DevCycleLocalClient:
             return Variable.create_default_variable(key, default_value)
 
         var_type = determine_variable_type(default_value)
-        pb_variable_type = pb_helpers.convert_type_enum_to_variable_type(var_type)
+        pb_variable_type = pb_utils.convert_type_enum_to_variable_type(var_type)
 
         params_pb = pb2.VariableForUserParams_PB(
             sdkKey=self._sdk_key,
             variableKey=key,
             variableType=pb_variable_type,
-            user=pb_helpers.convert_user_to_user_pb(user),
+            user=pb_utils.convert_user_to_user_pb(user),
             shouldTrackEvent=True,
         )
 
@@ -117,7 +117,7 @@ class DevCycleLocalClient:
                     logger.info("Variable type mismatch, returning default value")
                     return Variable.create_default_variable(key, default_value)
 
-                return pb_helpers.create_variable(sdk_variable_pb, default_value)
+                return pb_utils.create_variable(sdk_variable_pb, default_value)
         except Exception as e:
             logger.error("Error retrieving variable for user: %s", e)
             return Variable.create_default_variable(key, default_value)

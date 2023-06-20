@@ -4,7 +4,7 @@ import unittest
 
 from devcycle_python_sdk.models.variable import TypeEnum
 from devcycle_python_sdk.models.user import User
-import devcycle_python_sdk.protobuf.helper as helper
+import devcycle_python_sdk.protobuf.utils as utils
 import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
 
 logger = logging.getLogger(__name__)
@@ -12,52 +12,52 @@ logger = logging.getLogger(__name__)
 
 class VersionTest(unittest.TestCase):
     def test_create_nullable_double(self):
-        result = helper.create_nullable_double(None)
+        result = utils.create_nullable_double(None)
         self.assertIsNotNone(result)
         self.assertTrue(result.isNull)
 
-        result = helper.create_nullable_double(99.0)
+        result = utils.create_nullable_double(99.0)
         self.assertIsNotNone(result)
         self.assertFalse(result.isNull)
         self.assertEqual(result.value, 99.0)
 
     def test_create_nullable_string(self):
-        result = helper.create_nullable_string(None)
+        result = utils.create_nullable_string(None)
         self.assertIsNotNone(result)
         self.assertTrue(result.isNull)
 
-        result = helper.create_nullable_string("")
+        result = utils.create_nullable_string("")
         self.assertIsNotNone(result)
         self.assertFalse(result.isNull)
         self.assertEqual(result.value, "")
 
-        result = helper.create_nullable_string("test value")
+        result = utils.create_nullable_string("test value")
         self.assertIsNotNone(result)
         self.assertFalse(result.isNull)
         self.assertEqual(result.value, "test value")
 
     def test_create_nullable_custom_data(self):
-        result = helper.create_nullable_custom_data(None)
+        result = utils.create_nullable_custom_data(None)
         self.assertIsNotNone(result)
         self.assertTrue(result.isNull)
 
-        result = helper.create_nullable_custom_data(dict())
+        result = utils.create_nullable_custom_data(dict())
         self.assertIsNotNone(result)
         self.assertTrue(result.isNull)
 
-        result = helper.create_nullable_custom_data({"strProp": "test value"})
+        result = utils.create_nullable_custom_data({"strProp": "test value"})
         self.assertIsNotNone(result)
         self.assertFalse(result.isNull)
         self.assertEqual(result.value["strProp"].type, pb2.CustomDataType.Str)
         self.assertEqual(result.value["strProp"].stringValue, "test value")
 
-        result = helper.create_nullable_custom_data({"boolProp": False})
+        result = utils.create_nullable_custom_data({"boolProp": False})
         self.assertIsNotNone(result)
         self.assertFalse(result.isNull)
         self.assertEqual(result.value["boolProp"].type, pb2.CustomDataType.Bool)
         self.assertEqual(result.value["boolProp"].boolValue, False)
 
-        result = helper.create_nullable_custom_data({"numProp": 1234.0})
+        result = utils.create_nullable_custom_data({"numProp": 1234.0})
         self.assertIsNotNone(result)
         self.assertFalse(result.isNull)
         self.assertEqual(result.value["numProp"].type, pb2.CustomDataType.Num)
@@ -71,7 +71,7 @@ class VersionTest(unittest.TestCase):
             type=pb2.VariableType_PB.String,
         )
 
-        var = helper.create_variable(sdk_var, "default value")
+        var = utils.create_variable(sdk_var, "default value")
         self.assertIsNotNone(var)
         self.assertEqual(var.type, TypeEnum.STRING)
         self.assertEqual(var._id, sdk_var._id)
@@ -88,7 +88,7 @@ class VersionTest(unittest.TestCase):
             type=pb2.VariableType_PB.Boolean,
         )
 
-        var = helper.create_variable(sdk_var, False)
+        var = utils.create_variable(sdk_var, False)
         self.assertIsNotNone(var)
         self.assertEqual(var.type, TypeEnum.BOOLEAN)
         self.assertEqual(var._id, sdk_var._id)
@@ -105,7 +105,7 @@ class VersionTest(unittest.TestCase):
             type=pb2.VariableType_PB.Number,
         )
 
-        var = helper.create_variable(sdk_var, 0)
+        var = utils.create_variable(sdk_var, 0)
         self.assertIsNotNone(var)
         self.assertEqual(var.type, TypeEnum.NUMBER)
         self.assertEqual(var._id, sdk_var._id)
@@ -122,7 +122,7 @@ class VersionTest(unittest.TestCase):
             type=pb2.VariableType_PB.JSON,
         )
 
-        var = helper.create_variable(sdk_var, {})
+        var = utils.create_variable(sdk_var, {})
         self.assertIsNotNone(var)
         self.assertEqual(var.type, TypeEnum.JSON)
         self.assertEqual(var._id, sdk_var._id)
@@ -137,7 +137,7 @@ class VersionTest(unittest.TestCase):
             appBuild=None,
         )
 
-        result = helper.create_dvcuser_pb(user)
+        result = utils.create_dvcuser_pb(user)
         self.assertIsNotNone(result)
         self.assertEqual(result.user_id, user.user_id)
         self.assertTrue(result.appBuild.isNull)
@@ -147,7 +147,7 @@ class VersionTest(unittest.TestCase):
             appBuild="NotANumberAtAll",
         )
 
-        result = helper.create_dvcuser_pb(user)
+        result = utils.create_dvcuser_pb(user)
         self.assertIsNotNone(result)
         self.assertEqual(result.user_id, user.user_id)
         self.assertTrue(result.appBuild.isNull)
@@ -166,7 +166,7 @@ class VersionTest(unittest.TestCase):
             deviceModel="iPhone X",
         )
 
-        result = helper.create_dvcuser_pb(user)
+        result = utils.create_dvcuser_pb(user)
         self.assertIsNotNone(result)
         self.assertEqual(result.user_id, user.user_id)
         self.assertEqual(result.name.value, user.name)

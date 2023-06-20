@@ -14,16 +14,16 @@ logger = logging.getLogger(__name__)
 
 def create_nullable_double(val: Optional[float]) -> pb2.NullableDouble:  # type: ignore
     if val and not math.isnan(val):
-        return pb2.NullableDouble(value=val, isNull=False)
+        return pb2.NullableDouble(value=val, isNull=False)  # type: ignore
     else:
-        return pb2.NullableDouble(isNull=True)
+        return pb2.NullableDouble(isNull=True)  # type: ignore
 
 
 def create_nullable_string(val: Optional[str]) -> pb2.NullableString:  # type: ignore
     if val is None:
-        return pb2.NullableString(isNull=True)
+        return pb2.NullableString(isNull=True)  # type: ignore
     else:
-        return pb2.NullableString(value=val, isNull=False)
+        return pb2.NullableString(value=val, isNull=False)  # type: ignore
 
 
 def create_nullable_custom_data(val: Optional[dict]) -> pb2.NullableCustomData:  # type: ignore
@@ -31,38 +31,38 @@ def create_nullable_custom_data(val: Optional[dict]) -> pb2.NullableCustomData: 
         values = dict()
         for key, value in val.items():
             if value is None:
-                values[key] = pb2.CustomDataValue(type=pb2.CustomDataType.Null)
+                values[key] = pb2.CustomDataValue(type=pb2.CustomDataType.Null)  # type: ignore
             elif isinstance(value, bool):
-                values[key] = pb2.CustomDataValue(type=pb2.CustomDataType.Bool, boolValue=value)
+                values[key] = pb2.CustomDataValue(type=pb2.CustomDataType.Bool, boolValue=value)  # type: ignore
             elif isinstance(value, str):
-                values[key] = pb2.CustomDataValue(type=pb2.CustomDataType.Str, stringValue=value)
+                values[key] = pb2.CustomDataValue(type=pb2.CustomDataType.Str, stringValue=value)  # type: ignore
             elif isinstance(value, (int, float)):
-                values[key] = pb2.CustomDataValue(type=pb2.CustomDataType.Num, doubleValue=value)
+                values[key] = pb2.CustomDataValue(type=pb2.CustomDataType.Num, doubleValue=value)  # type: ignore
             else:
                 logger.warning(
                     "Custom Data contains data type that can't be written, will be ignored. Key: %s, Type: %s", key,
                     str(type(value)))
 
-        return pb2.NullableCustomData(value=values, isNull=False)
+        return pb2.NullableCustomData(value=values, isNull=False)  # type: ignore
     else:
-        return pb2.NullableCustomData(isNull=True)
+        return pb2.NullableCustomData(isNull=True)  # type: ignore
 
 
 def convert_type_enum_to_variable_type(var_type: TypeEnum) -> pb2.VariableType_PB:  # type: ignore
     match var_type:
         case TypeEnum.BOOLEAN:
-            return pb2.VariableType_PB.Boolean
+            return pb2.VariableType_PB.Boolean  # type: ignore
         case TypeEnum.STRING:
-            return pb2.VariableType_PB.String
+            return pb2.VariableType_PB.String  # type: ignore
         case TypeEnum.NUMBER:
-            return pb2.VariableType_PB.Number
+            return pb2.VariableType_PB.Number  # type: ignore
         case TypeEnum.JSON:
-            return pb2.VariableType_PB.JSON
+            return pb2.VariableType_PB.JSON  # type: ignore
         case _:
-            raise ValueError("Unknown type: " + var_type)
+            raise ValueError("Unknown type: " + str(var_type))
 
 
-def create_dvcuser_pb(user: User) -> pb2.DVCUser_PB:
+def create_dvcuser_pb(user: User) -> pb2.DVCUser_PB:  # type: ignore
     app_build = float('nan')
     if user.appBuild:
         try:
@@ -70,7 +70,7 @@ def create_dvcuser_pb(user: User) -> pb2.DVCUser_PB:
         except ValueError:
             pass
 
-    return pb2.DVCUser_PB(
+    return pb2.DVCUser_PB(  # type: ignore
         user_id=user.user_id,
         email=create_nullable_string(user.email),
         name=create_nullable_string(user.name),
@@ -83,9 +83,9 @@ def create_dvcuser_pb(user: User) -> pb2.DVCUser_PB:
     )
 
 
-def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Variable:
+def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Variable:  # type: ignore
     match sdk_variable.type:
-        case pb2.VariableType_PB.Boolean:
+        case pb2.VariableType_PB.Boolean:  # type: ignore
             return Variable(
                 _id=sdk_variable._id,
                 value=sdk_variable.boolValue,
@@ -95,7 +95,7 @@ def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Var
                 defaultValue=default_value,
             )
 
-        case pb2.VariableType_PB.String:
+        case pb2.VariableType_PB.String:  # type: ignore
             return Variable(
                 _id=sdk_variable._id,
                 value=sdk_variable.stringValue,
@@ -105,7 +105,7 @@ def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Var
                 defaultValue=default_value,
             )
 
-        case pb2.VariableType_PB.Number:
+        case pb2.VariableType_PB.Number:  # type: ignore
             return Variable(
                 _id=sdk_variable._id,
                 value=sdk_variable.doubleValue,
@@ -115,7 +115,7 @@ def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Var
                 defaultValue=default_value,
             )
 
-        case pb2.VariableType_PB.JSON:
+        case pb2.VariableType_PB.JSON:  # type: ignore
             json_data = json.loads(sdk_variable.stringValue)
 
             return Variable(
