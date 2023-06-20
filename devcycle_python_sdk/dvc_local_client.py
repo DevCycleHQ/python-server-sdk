@@ -10,7 +10,7 @@ from devcycle_python_sdk.managers.event_queue_manager import EventQueueManager
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.user import User
-from devcycle_python_sdk.models.variable import Variable, TypeEnum, determine_variable_type
+from devcycle_python_sdk.models.variable import Variable, determine_variable_type
 from devcycle_python_sdk.util.version import sdk_version
 
 import devcycle_python_sdk.protobuf.helper as pb_helpers

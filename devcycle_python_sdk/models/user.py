@@ -3,8 +3,6 @@ from dataclasses import dataclass, field
 from time import time
 from typing import Dict, Optional
 
-import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
-
 
 @dataclass(order=False)
 class User:

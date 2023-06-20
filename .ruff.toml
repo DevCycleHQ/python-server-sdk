@@ -12,3 +12,4 @@ ignore = [
 ]
 [per-file-ignores]
 "__init__.py" = ["F401"]
+"variableForUserParams_pb2.py" = ["F821", "N999", "E712"]

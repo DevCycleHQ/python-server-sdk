@@ -63,10 +63,10 @@ def convert_type_enum_to_variable_type(var_type: TypeEnum) -> pb2.VariableType_P
 
 
 def create_dvcuser_pb(user: User) -> pb2.DVCUser_PB:
-    appBuild = float('nan')
+    app_build = float('nan')
     if user.appBuild:
         try:
-            appBuild = float(user.appBuild)
+            app_build = float(user.appBuild)
         except ValueError:
             pass
 
@@ -77,7 +77,7 @@ def create_dvcuser_pb(user: User) -> pb2.DVCUser_PB:
         language=create_nullable_string(user.language),
         country=create_nullable_string(user.country),
         appVersion=create_nullable_string(user.appVersion),
-        appBuild=create_nullable_double(appBuild),
+        appBuild=create_nullable_double(app_build),
         customData=create_nullable_custom_data(user.customData),
         privateCustomData=create_nullable_custom_data(user.privateCustomData)
     )
