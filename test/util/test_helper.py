@@ -2,7 +2,8 @@ import logging
 
 import unittest
 
-from devcycle_python_sdk.models.variable import Variable, TypeEnum
+from devcycle_python_sdk.models.variable import TypeEnum
+from devcycle_python_sdk.models.user import User
 import devcycle_python_sdk.protobuf.helper as helper
 import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
 
@@ -129,3 +130,52 @@ class VersionTest(unittest.TestCase):
         self.assertDictEqual(var.value, {"strProp": "test value"})
         self.assertDictEqual(var.defaultValue, {})
         self.assertFalse(var.isDefaulted)
+
+    def test_create_dvcuser_pb_bad_app_build(self):
+        user = User(
+            user_id="test id",
+            appBuild=None,
+        )
+
+        result = helper.create_dvcuser_pb(user)
+        self.assertIsNotNone(result)
+        self.assertEqual(result.user_id, user.user_id)
+        self.assertTrue(result.appBuild.isNull)
+
+        user = User(
+            user_id="test id",
+            appBuild="NotANumberAtAll",
+        )
+
+        result = helper.create_dvcuser_pb(user)
+        self.assertIsNotNone(result)
+        self.assertEqual(result.user_id, user.user_id)
+        self.assertTrue(result.appBuild.isNull)
+
+    def test_create_dvcuser_pb(self):
+        user = User(
+            user_id="test id",
+            name="test name",
+            email="test email",
+            customData={"a": "value1", "b": 0.0, "c": False},
+            privateCustomData={"x": "value2", "y": 1234.0, "z": False},
+            appBuild="1.17",
+            appVersion="1.0.0",
+            country="US",
+            language=None,
+            deviceModel="iPhone X",
+        )
+
+        result = helper.create_dvcuser_pb(user)
+        self.assertIsNotNone(result)
+        self.assertEqual(result.user_id, user.user_id)
+        self.assertEqual(result.name.value, user.name)
+        self.assertEqual(result.email.value, user.email)
+        self.assertTrue(result.language.isNull)
+        self.assertEqual(result.appBuild.value, 1.17)
+
+        self.assertEqual(result.customData.value["a"].type, pb2.CustomDataType.Str)
+        self.assertEqual(result.customData.value["a"].stringValue, "value1")
+
+        self.assertEqual(result.privateCustomData.value["x"].type, pb2.CustomDataType.Str)
+        self.assertEqual(result.privateCustomData.value["x"].stringValue, "value2")

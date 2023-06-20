@@ -1,5 +1,6 @@
 import json
 import logging
+import math
 
 from typing import Any, Optional
 
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def create_nullable_double(val: Optional[float]) -> pb2.NullableDouble:  # type: ignore
-    if val:
+    if val and not math.isnan(val):
         return pb2.NullableDouble(value=val, isNull=False)
     else:
         return pb2.NullableDouble(isNull=True)
