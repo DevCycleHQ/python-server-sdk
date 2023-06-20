@@ -1,5 +1,6 @@
 import logging
 import platform
+
 from typing import Any, Dict
 
 from devcycle_python_sdk import DevCycleLocalOptions
@@ -9,8 +10,11 @@ from devcycle_python_sdk.managers.event_queue_manager import EventQueueManager
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.user import User
-from devcycle_python_sdk.models.variable import Variable
+from devcycle_python_sdk.models.variable import Variable, TypeEnum, determine_variable_type
 from devcycle_python_sdk.util.version import sdk_version
+
+import devcycle_python_sdk.protobuf.helper as pb_helpers
+import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +22,10 @@ logger = logging.getLogger(__name__)
 class DevCycleLocalClient:
     def __init__(self, sdk_key: str, options: DevCycleLocalOptions):
         self._validate_sdk_key(sdk_key)
+        self._sdk_key = sdk_key
 
         if options is None:
-            self.options = DevCycleLocalOptions()
+            self.options: DevCycleLocalOptions = DevCycleLocalOptions()
         else:
             self.options = options
 
@@ -30,8 +35,9 @@ class DevCycleLocalClient:
         self.sdk_type = "local"
 
         self.local_bucketing = LocalBucketing()
-        self.config_manager = EnvironmentConfigManager(sdk_key, self.options, self.local_bucketing)
-        self.event_queue_manager = EventQueueManager(sdk_key, self.options, self.local_bucketing)
+        self.config_manager: EnvironmentConfigManager = EnvironmentConfigManager(sdk_key, self.options,
+                                                                                 self.local_bucketing)
+        self.event_queue_manager: EventQueueManager = EventQueueManager(sdk_key, self.options, self.local_bucketing)
 
     def _add_platform_data_to_user(self, user: User) -> User:
         user.platform = self.platform
@@ -57,7 +63,7 @@ class DevCycleLocalClient:
             raise ValueError("userId cannot be empty")
 
     def _is_initialized(self) -> bool:
-        return self.config_manager and self.config_manager.is_initialized()
+        return (self.config_manager and self.config_manager.is_initialized())
 
     def set_client_custom_data(self, custom_data: Dict[str, Any]) -> None:
         if not self._is_initialized():
@@ -71,6 +77,7 @@ class DevCycleLocalClient:
         return self.variable(user, key, default_value).value
 
     def variable(self, user: User, key: str, default_value: Any) -> Variable:
+
         self._validate_user(user)
         user = self._add_platform_data_to_user(user)
 
@@ -85,11 +92,35 @@ class DevCycleLocalClient:
             # TODO track aggregate event for default variable
             return Variable.create_default_variable(key, default_value)
 
-        variable = Variable(key, default_value)
+        var_type = determine_variable_type(default_value)
+        pb_variable_type = pb_helpers.convert_type_enum_to_variable_type(var_type)
 
-        # TODO delegate to local bucketing api
+        params_pb = pb2.VariableForUserParams_PB(
+            sdkKey=self._sdk_key,
+            variableKey=key,
+            variableType=pb_variable_type,
+            user=pb_helpers.convert_user_to_user_pb(user),
+            shouldTrackEvent=True,
+        )
 
-        return variable
+        try:
+            params_str = params_pb.SerializeToString()
+
+            variable_data = self.local_bucketing.get_variable_for_user_protobuf(params_str)
+            if variable_data is None or len(variable_data) == 0:
+                return Variable.create_default_variable(key, default_value)
+            else:
+                sdk_variable_pb = pb2.SDKVariable_PB()
+                sdk_variable_pb.ParseFromString(variable_data)
+
+                if sdk_variable_pb.type != pb_variable_type:
+                    logger.info("Variable type mismatch, returning default value")
+                    return Variable.create_default_variable(key, default_value)
+
+                return pb_helpers.create_variable(sdk_variable_pb, default_value)
+        except Exception as e:
+            logger.error("Error retrieving variable for user: %s", e)
+            return Variable.create_default_variable(key, default_value)
 
     def all_variables(self, user: User) -> Dict[str, Variable]:
         self._validate_user(user)
