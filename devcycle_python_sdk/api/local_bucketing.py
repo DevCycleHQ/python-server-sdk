@@ -27,7 +27,7 @@ class WASMAbortError(WASMError):
 
 
 class LocalBucketing:
-    def __init__(self):
+    def __init__(self, sdk_key: str):
         self.random = random.random()
 
         wasi_cfg = wasmtime.WasiConfig()
@@ -137,7 +137,10 @@ class LocalBucketing:
 
         # TODO: preallocate header
 
-        # TODO: set SDK key
+        # set and pin the SDK key so it can be reused
+        self.sdk_key = sdk_key
+        self.sdk_key_addr = self._new_assembly_script_string(sdk_key)
+        self.__pin(self.wasm_store, self.sdk_key_addr)
 
         # TODO: set platform JSON
 
@@ -237,18 +240,18 @@ class LocalBucketing:
             for i, b in enumerate(param):
                 data[buffer_pointer + i] = b
 
-            logger.warning(
-                f"header should contain: {buffer_pointer:04x} {buffer_pointer:04x} {data_length:04x}"
-            )
-            logger.warning(
-                f"buffer should contain: {' '.join([f'{data[i]:02x}' for i in range(buffer_pointer, buffer_pointer + data_length)])}"
-            )
-            logger.warning(
-                f"header: {' '.join([f'{data[i]:02x}' for i in range(header_pointer, header_pointer + 12)])}"
-            )
-            logger.warning(
-                f"buffer: {' '.join([f'{data[i]:02x}' for i in range(buffer_pointer, buffer_pointer + data_length)])}"
-            )
+            # logger.warning(
+            #     f"header should contain: {buffer_pointer:04x} {buffer_pointer:04x} {data_length:04x}"
+            # )
+            # logger.warning(
+            #     f"buffer should contain: {' '.join([f'{data[i]:02x}' for i in range(buffer_pointer, buffer_pointer + data_length)])}"
+            # )
+            # logger.warning(
+            #     f"header: {' '.join([f'{data[i]:02x}' for i in range(header_pointer, header_pointer + 12)])}"
+            # )
+            # logger.warning(
+            #     f"buffer: {' '.join([f'{data[i]:02x}' for i in range(buffer_pointer, buffer_pointer + data_length)])}"
+            # )
 
             return header_pointer
         except Exception as err:
@@ -286,10 +289,12 @@ class LocalBucketing:
     def get_variable_for_user_protobuf(self, params_buffer) -> str:
         return ""
 
-    def store_config(self, sdk_key: str, config: str):
-        pass
-
-
-if __name__ == "__main__":
-    lb = LocalBucketing()
-    logger.warning([export.name for export in lb.wasm_module.exports])
+    def store_config(self, config: str):
+        # TODO lock mutex
+        try:
+            data = config.encode("utf-8")
+            config_addr = self._new_assembly_script_byte_array(data)
+            self.setConfigDataUTF8(self.wasm_store, self.sdk_key_addr, config_addr)
+        finally:
+            # TODO unlock mutex
+            pass

@@ -45,7 +45,7 @@ class EnvironmentConfigManager(threading.Thread):
             self._config_etag = new_etag
 
             json_config = json.dumps(self._config)
-            self._local_bucketing.store_config(self._sdk_key, json_config)
+            self._local_bucketing.store_config(json_config)
 
             if trigger_on_client_initialized and self._options.on_client_initialized is not None:
                 try:

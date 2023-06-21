@@ -39,7 +39,7 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
         self.assertTrue(config_manager.daemon)
         self.assertEqual(config_manager._config_etag, self.test_etag)
         self.assertDictEqual(config_manager._config, self.test_config_json)
-        self.test_local_bucketing.store_config.assert_called_once_with(self.sdk_key, self.test_config_string)
+        self.test_local_bucketing.store_config.assert_called_once_with(self.test_config_string)
         self.assertTrue(config_manager.is_initialized())
 
     @patch("devcycle_python_sdk.api.config_client.ConfigAPIClient.get_config")
@@ -55,7 +55,7 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
         mock_get_config.assert_called_once_with(config_etag=None)
         self.assertEqual(config_manager._config_etag, self.test_etag)
         self.assertDictEqual(config_manager._config, self.test_config_json)
-        self.test_local_bucketing.store_config.assert_called_once_with(self.sdk_key, self.test_config_string)
+        self.test_local_bucketing.store_config.assert_called_once_with(self.test_config_string)
         self.assertTrue(config_manager.is_initialized())
         mock_callback.assert_called_once()
 
@@ -73,7 +73,7 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
         mock_get_config.assert_called_once_with(config_etag=None)
         self.assertEqual(config_manager._config_etag, self.test_etag)
         self.assertDictEqual(config_manager._config, self.test_config_json)
-        self.test_local_bucketing.store_config.assert_called_once_with(self.sdk_key, self.test_config_string)
+        self.test_local_bucketing.store_config.assert_called_once_with(self.test_config_string)
         self.assertTrue(config_manager.is_initialized())
         mock_callback.assert_called_once()
 

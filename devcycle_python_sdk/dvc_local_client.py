@@ -34,7 +34,7 @@ class DevCycleLocalClient:
         self.sdk_version = sdk_version()
         self.sdk_type = "local"
 
-        self.local_bucketing = LocalBucketing()
+        self.local_bucketing = LocalBucketing(sdk_key)
         self.config_manager: EnvironmentConfigManager = EnvironmentConfigManager(sdk_key, self.options,
                                                                                  self.local_bucketing)
         self.event_queue_manager: EventQueueManager = EventQueueManager(sdk_key, self.options, self.local_bucketing)
