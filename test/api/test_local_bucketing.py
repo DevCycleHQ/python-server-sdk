@@ -1,9 +1,9 @@
 import logging
-
+import json
 import unittest
 
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing, WASMAbortError
-
+from devcycle_python_sdk.models.platform_data import default_platform_data
 from test.fixture.data import small_config, large_config, special_character_config
 
 logger = logging.getLogger(__name__)
@@ -60,6 +60,11 @@ class LocalBucketingTest(unittest.TestCase):
         self.local_bucketing.store_config(small_config())
         self.local_bucketing.store_config(large_config())
         self.local_bucketing.store_config(special_character_config())
+
+    def test_set_platform_data(self):
+        # should set the data without any errors
+        platform_json = json.dumps(default_platform_data().to_json())
+        self.local_bucketing.set_platform_data(platform_json)
 
 
 if __name__ == "__main__":
