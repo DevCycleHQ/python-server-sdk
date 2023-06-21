@@ -1,7 +1,7 @@
 import logging
-from pathlib import Path
 import random
 import time
+from pathlib import Path
 
 import wasmtime
 from wasmtime import (
@@ -27,7 +27,7 @@ class WASMAbortError(WASMError):
 
 
 class LocalBucketing:
-    def __init__(self):
+    def __init__(self, sdk_key: str) -> None:
         self.random = random.random()
 
         wasi_cfg = wasmtime.WasiConfig()
@@ -137,9 +137,10 @@ class LocalBucketing:
 
         # TODO: preallocate header
 
-        # TODO: set SDK key
-
-        # TODO: set platform JSON
+        # Set and pin the SDK key so it can be reused
+        self.sdk_key = sdk_key
+        self.sdk_key_addr = self._new_assembly_script_string(sdk_key)
+        self.__pin(self.wasm_store, self.sdk_key_addr)
 
     def _get_export(self, export_name):
         return self.wasm_instance.exports(self.wasm_store)[export_name]
@@ -225,6 +226,7 @@ class LocalBucketing:
             # Write the buffer pointer value into the first 4 bytes of the header, little endian.
             for i, b in enumerate(buffer_pointer.to_bytes(4, byteorder="little")):
                 data[header_pointer + i] = b
+                data[header_pointer + i + 4] = b
 
             little_endian_buffer_len = data_length.to_bytes(4, byteorder="little")
 
@@ -272,7 +274,22 @@ class LocalBucketing:
     def get_variable_for_user_protobuf(self, params_buffer) -> str:
         return ""
 
+    def store_config(self, config_json: str) -> None:
+        # TODO lock mutex
+        try:
+            data = config_json.encode("utf-8")
+            config_addr = self._new_assembly_script_byte_array(data)
+            self.setConfigDataUTF8(self.wasm_store, self.sdk_key_addr, config_addr)
+        finally:
+            # TODO unlock mutex
+            pass
 
-if __name__ == "__main__":
-    lb = LocalBucketing()
-    logger.warning([export.name for export in lb.wasm_module.exports])
+    def set_platform_data(self, platform_json: str) -> None:
+        # TODO lock mutex
+        try:
+            data = platform_json.encode("utf-8")
+            data_addr = self._new_assembly_script_byte_array(data)
+            self.setPlatformDataUTF8(self.wasm_store, data_addr)
+        finally:
+            # TODO unlock mutex
+            pass

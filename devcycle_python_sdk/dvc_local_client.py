@@ -1,20 +1,18 @@
+import json
 import logging
-import platform
-
 from typing import Any, Dict
 
+import devcycle_python_sdk.protobuf.utils as pb_utils
+import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
 from devcycle_python_sdk import DevCycleLocalOptions
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
 from devcycle_python_sdk.managers.config_manager import EnvironmentConfigManager
 from devcycle_python_sdk.managers.event_queue_manager import EventQueueManager
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.models.feature import Feature
+from devcycle_python_sdk.models.platform_data import default_platform_data
 from devcycle_python_sdk.models.user import User
 from devcycle_python_sdk.models.variable import Variable, determine_variable_type
-from devcycle_python_sdk.util.version import sdk_version
-
-import devcycle_python_sdk.protobuf.utils as pb_utils
-import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
 
 logger = logging.getLogger(__name__)
 
@@ -29,21 +27,20 @@ class DevCycleLocalClient:
         else:
             self.options = options
 
-        self.platform = "Python"
-        self.platform_version = platform.python_version()
-        self.sdk_version = sdk_version()
-        self.sdk_type = "local"
+        self.local_bucketing = LocalBucketing(sdk_key)
 
-        self.local_bucketing = LocalBucketing()
+        self._platform_data = default_platform_data()
+        self.local_bucketing.set_platform_data(json.dumps(self._platform_data.to_json()))
+
         self.config_manager: EnvironmentConfigManager = EnvironmentConfigManager(sdk_key, self.options,
                                                                                  self.local_bucketing)
         self.event_queue_manager: EventQueueManager = EventQueueManager(sdk_key, self.options, self.local_bucketing)
 
     def _add_platform_data_to_user(self, user: User) -> User:
-        user.platform = self.platform
-        user.platformVersion = self.platform_version
-        user.sdkVersion = self.sdk_version
-        user.sdkType = self.sdk_type
+        user.platform = self._platform_data.platform
+        user.platformVersion = self._platform_data.platformVersion
+        user.sdkVersion = self._platform_data.sdkVersion
+        user.sdkType = self._platform_data.sdkType
         return user
 
     def _validate_sdk_key(self, sdk_key: str) -> None:

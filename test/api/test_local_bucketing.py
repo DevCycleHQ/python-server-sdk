@@ -1,18 +1,21 @@
 import logging
-
+import json
 import unittest
 
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing, WASMAbortError
+from devcycle_python_sdk.models.platform_data import default_platform_data
+from test.fixture.data import small_config, large_config, special_character_config
 
 logger = logging.getLogger(__name__)
 
 
 class LocalBucketingTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.local_bucketing = LocalBucketing()
+        self.test_sdk_key = "dvc_server_testkey"
+        self.local_bucketing = LocalBucketing(self.test_sdk_key)
 
     def test_init(self):
-        local_bucketing = LocalBucketing()
+        local_bucketing = LocalBucketing(self.test_sdk_key)
         self.assertIsNotNone(local_bucketing)
 
     def test_write_read_string(self) -> None:
@@ -51,6 +54,17 @@ class LocalBucketingTest(unittest.TestCase):
             context.exception.args[0],
             r"Abort in '[^']+':[0-9]+:[0-9]+ -- 'Manual abort triggered'",
         )
+
+    def test_store_config(self) -> None:
+        # should store each config with any errors
+        self.local_bucketing.store_config(small_config())
+        self.local_bucketing.store_config(large_config())
+        self.local_bucketing.store_config(special_character_config())
+
+    def test_set_platform_data(self):
+        # should set the data without any errors
+        platform_json = json.dumps(default_platform_data().to_json())
+        self.local_bucketing.set_platform_data(platform_json)
 
 
 if __name__ == "__main__":

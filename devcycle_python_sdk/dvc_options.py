@@ -27,10 +27,12 @@ class DevCycleLocalOptions:
 
     def __init__(
             self,
-            events_api_uri: str = "https://events.devcycle.com/",
             config_cdn_uri: str = "https://config-cdn.devcycle.com/",
             config_request_timeout_ms: int = 5000,
             config_polling_interval_ms: int = 1000,
+            config_retry_delay_ms: int = 200,  # milliseconds
+            on_client_initialized: callable = None,
+            events_api_uri: str = "https://events.devcycle.com/",
             max_event_queue_size: int = 2000,
             event_flush_interval_ms: int = 10000,
             flush_event_queue_size: int = 1000,
@@ -48,6 +50,8 @@ class DevCycleLocalOptions:
         self.event_request_chunk_size = event_request_chunk_size
         self.disable_automatic_event_logging = disable_automatic_event_logging
         self.disable_custom_event_logging = disable_custom_event_logging
+        self.config_retry_delay_ms = config_retry_delay_ms
+        self.on_client_initialized = on_client_initialized
 
         if self.flush_event_queue_size >= self.max_event_queue_size:
             logger.warning(
