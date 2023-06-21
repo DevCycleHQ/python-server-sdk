@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class ConfigAPIClientTest(unittest.TestCase):
     def setUp(self) -> None:
         self.sdk_key = "dvc_server_" + str(uuid.uuid4())
-        self.config_url = join("https://config-cdn.devcycle.com/", "v1", "server", self.sdk_key, ".json")
+        self.config_url = join("https://config-cdn.devcycle.com/", "v1", "server", self.sdk_key) + ".json"
 
         options = DevCycleLocalOptions(config_retry_delay_ms=0)
         self.test_client = ConfigAPIClient(self.sdk_key, options)

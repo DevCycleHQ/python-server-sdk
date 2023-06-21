@@ -31,7 +31,7 @@ class ConfigAPIClient:
         self.max_config_retries = 2
 
     def _config_file_url(self) -> str:
-        return join(self.options.config_CDN_URI, "v1", "server", self.sdk_key, ".json")
+        return join(self.options.config_CDN_URI, "v1", "server", self.sdk_key) + ".json"
 
     def get_config(self, config_etag: Optional[str] = None) -> Tuple[Optional[dict], Optional[str]]:
         """
@@ -79,6 +79,8 @@ class ConfigAPIClient:
                     request_error = APIClientError(
                         f"Server error: HTTP {res.status_code}"
                     )
+                else:
+                    pass
             except requests.exceptions.RequestException as e:
                 request_error = e
 

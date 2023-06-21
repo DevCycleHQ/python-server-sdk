@@ -238,19 +238,6 @@ class LocalBucketing:
             for i, b in enumerate(param):
                 data[buffer_pointer + i] = b
 
-            # logger.warning(
-            #     f"header should contain: {buffer_pointer:04x} {buffer_pointer:04x} {data_length:04x}"
-            # )
-            # logger.warning(
-            #     f"buffer should contain: {' '.join([f'{data[i]:02x}' for i in range(buffer_pointer, buffer_pointer + data_length)])}"
-            # )
-            # logger.warning(
-            #     f"header: {' '.join([f'{data[i]:02x}' for i in range(header_pointer, header_pointer + 12)])}"
-            # )
-            # logger.warning(
-            #     f"buffer: {' '.join([f'{data[i]:02x}' for i in range(buffer_pointer, buffer_pointer + data_length)])}"
-            # )
-
             return header_pointer
         except Exception as err:
             raise WASMError(f"Error writing byte array to WASM: {err}")

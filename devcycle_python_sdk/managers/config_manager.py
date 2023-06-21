@@ -39,6 +39,9 @@ class EnvironmentConfigManager(threading.Thread):
                 # api not returning data and the etag is the same
                 # no change to the config since last request
                 return
+            elif new_config is None:
+                logger.warning("Config fetch returned no data but returned different etag")
+                return
 
             trigger_on_client_initialized = self._config is None
             self._config = new_config
