@@ -225,6 +225,7 @@ class LocalBucketing:
             # Write the buffer pointer value into the first 4 bytes of the header, little endian.
             for i, b in enumerate(buffer_pointer.to_bytes(4, byteorder="little")):
                 data[header_pointer + i] = b
+                data[header_pointer + i + 4] = b
 
             little_endian_buffer_len = data_length.to_bytes(4, byteorder="little")
 
