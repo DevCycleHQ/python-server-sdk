@@ -56,11 +56,9 @@ class LocalBucketingTest(unittest.TestCase):
         )
 
     def test_store_config(self) -> None:
-        # should store the config with any errors
+        # should store each config with any errors
         self.local_bucketing.store_config(small_config())
-
         self.local_bucketing.store_config(large_config())
-
         self.local_bucketing.store_config(special_character_config())
 
 

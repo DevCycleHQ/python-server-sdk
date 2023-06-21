@@ -33,7 +33,17 @@ class ConfigAPIClient:
     def _config_file_url(self) -> str:
         return join(self.options.config_CDN_URI, "v1", "server", self.sdk_key, ".json")
 
-    def get_config(self, config_etag: Optional[str] = None) -> Tuple[Optional[dict], str]:
+    def get_config(self, config_etag: Optional[str] = None) -> Tuple[Optional[dict], Optional[str]]:
+        """
+        Get the config from the server. If the config_etag is provided, the server will only return the config if it
+        has changed since the last request. If the config hasn't changed, the server will return a 304 Not Modified
+        response.
+
+        :param config_etag: The etag of the last config request
+
+        :return: A tuple containing the config and the etag of the config. If the config hasn't changed since the last
+        request, the config will be None and the etag will be the same as the last request.
+        """
         retries_remaining = self.max_config_retries
         timeout = self.options.config_request_timeout_ms / 1000.0
 

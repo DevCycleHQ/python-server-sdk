@@ -137,7 +137,7 @@ class LocalBucketing:
 
         # TODO: preallocate header
 
-        # set and pin the SDK key so it can be reused
+        # Set and pin the SDK key so it can be reused
         self.sdk_key = sdk_key
         self.sdk_key_addr = self._new_assembly_script_string(sdk_key)
         self.__pin(self.wasm_store, self.sdk_key_addr)
