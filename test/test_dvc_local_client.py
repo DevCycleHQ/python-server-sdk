@@ -5,7 +5,7 @@ import responses
 import time
 
 from devcycle_python_sdk import DevCycleLocalClient, DevCycleLocalOptions
-from devcycle_python_sdk.dvc_local_client import _validate_user, _validate_sdk_key, _add_platform_data_to_user
+from devcycle_python_sdk.dvc_local_client import _validate_user, _validate_sdk_key
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.models.user import User
 from test.fixture.data import small_config_json
