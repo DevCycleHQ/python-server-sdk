@@ -29,9 +29,7 @@ class ConfigAPIClient:
         }
         self.session.max_redirects = 0
         self.max_config_retries = 2
-
-    def _config_file_url(self) -> str:
-        return join(self.options.config_CDN_URI, "v1", "server", self.sdk_key) + ".json"
+        self.config_file_url = join(self.options.config_CDN_URI, "v1", "server", self.sdk_key) + ".json"
 
     def get_config(self, config_etag: Optional[str] = None) -> Tuple[Optional[dict], Optional[str]]:
         """
@@ -47,7 +45,7 @@ class ConfigAPIClient:
         retries_remaining = self.max_config_retries
         timeout = self.options.config_request_timeout_ms / 1000.0
 
-        url = self._config_file_url()
+        url = self.config_file_url
 
         headers = {}
         if config_etag:

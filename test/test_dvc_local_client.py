@@ -21,16 +21,16 @@ class DVCLocalClientTest(unittest.TestCase):
         self.test_etag = "2f71454e-3279-4ca7-a8e7-802ce97bef43"
 
         config_url = "http://localhost/v1/server/" + self.sdk_key + ".json"
-        responses.add(
-            responses.GET,
-            config_url,
-            headers={"ETag": self.test_etag},
-            json=self.test_config_json,
-            status=200,
-        )
+        for i in range(1, 10):
+            responses.add(
+                responses.GET,
+                config_url,
+                headers={"ETag": self.test_etag},
+                json=self.test_config_json,
+                status=200,
+            )
 
-        self.options = DevCycleLocalOptions(config_polling_interval_ms=1000, config_cdn_uri="http://localhost/")
-
+        self.options = DevCycleLocalOptions(config_polling_interval_ms=500, config_cdn_uri="http://localhost/")
         self.test_user = User(user_id="test_user_id")
         self.test_user_empty_id = User(user_id="")
         self.client = None
@@ -38,6 +38,12 @@ class DVCLocalClientTest(unittest.TestCase):
     def tearDown(self) -> None:
         if self.client:
             self.client.close()
+        responses.reset()
+
+    def setup_client(self):
+        self.client = DevCycleLocalClient(self.sdk_key, self.options)
+        while not self.client.is_initialized():
+            time.sleep(0.05)
 
     def test_validate_sdk_key(self):
         with self.assertRaises(ValueError):
@@ -72,7 +78,7 @@ class DVCLocalClientTest(unittest.TestCase):
 
     @responses.activate
     def test_variable_bad_user(self):
-        self.client = DevCycleLocalClient(self.sdk_key, self.options)
+        self.setup_client()
         while not self.client.is_initialized():
             time.sleep(0.1)
 
@@ -86,7 +92,7 @@ class DVCLocalClientTest(unittest.TestCase):
 
     @responses.activate
     def test_variable_bad_key_and_value(self):
-        self.client = DevCycleLocalClient(self.sdk_key, self.options)
+        self.setup_client()
         while not self.client.is_initialized():
             time.sleep(0.1)
 
@@ -101,7 +107,7 @@ class DVCLocalClientTest(unittest.TestCase):
 
     @responses.activate
     def test_all_variables_bad_user(self):
-        self.client = DevCycleLocalClient(self.sdk_key, self.options)
+        self.setup_client()
 
         with self.assertRaises(ValueError):
             self.client.all_variables(None)
@@ -111,7 +117,8 @@ class DVCLocalClientTest(unittest.TestCase):
 
     @responses.activate
     def test_all_features_bad_user(self):
-        self.client = DevCycleLocalClient(self.sdk_key, self.options)
+        self.setup_client()
+
         with self.assertRaises(ValueError):
             self.client.all_features(None)
 
@@ -120,7 +127,7 @@ class DVCLocalClientTest(unittest.TestCase):
 
     @responses.activate
     def test_track_event_bad_user(self):
-        self.client = DevCycleLocalClient(self.sdk_key, self.options)
+        self.setup_client()
 
         event = Event(
             type="user",
@@ -138,7 +145,7 @@ class DVCLocalClientTest(unittest.TestCase):
 
     @responses.activate
     def test_track_bad_event(self):
-        self.client = DevCycleLocalClient(self.sdk_key, self.options)
+        self.setup_client()
 
         with self.assertRaises(ValueError):
             self.client.track(self.test_user, None)
@@ -165,7 +172,7 @@ class DVCLocalClientTest(unittest.TestCase):
 
     @responses.activate
     def test_set_client_custom_data(self):
-        self.client = DevCycleLocalClient(self.sdk_key, self.options)
+        self.setup_client()
         while not self.client.is_initialized():
             time.sleep(0.1)
 
