@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 class DVCLocalClientTest(unittest.TestCase):
-
     def setUp(self) -> None:
         self.sdk_key = "dvc_server_949e4962-c624-4d20-a1ea-7f2501b2ba79"
         self.test_config_json = small_config_json()
@@ -30,7 +29,9 @@ class DVCLocalClientTest(unittest.TestCase):
                 status=200,
             )
 
-        self.options = DevCycleLocalOptions(config_polling_interval_ms=500, config_cdn_uri="http://localhost/")
+        self.options = DevCycleLocalOptions(
+            config_polling_interval_ms=500, config_cdn_uri="http://localhost/"
+        )
         self.test_user = User(user_id="test_user_id")
         self.test_user_empty_id = User(user_id="")
         self.client = None
@@ -86,9 +87,7 @@ class DVCLocalClientTest(unittest.TestCase):
             self.client.variable(None, "strKey", "default_value")
 
         with self.assertRaises(ValueError):
-            self.client.variable(
-                self.test_user_empty_id, "strKey", "default_value"
-            )
+            self.client.variable(self.test_user_empty_id, "strKey", "default_value")
 
     @responses.activate
     def test_variable_bad_key_and_value(self):
