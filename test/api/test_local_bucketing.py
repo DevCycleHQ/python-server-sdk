@@ -50,7 +50,7 @@ class LocalBucketingTest(unittest.TestCase):
         with self.assertRaises(WASMAbortError) as context:
             abort_func(self.local_bucketing.wasm_store)
 
-        self.assertRegexpMatches(
+        self.assertRegex(
             context.exception.args[0],
             r"Abort in '[^']+':[0-9]+:[0-9]+ -- 'Manual abort triggered'",
         )
@@ -65,6 +65,18 @@ class LocalBucketingTest(unittest.TestCase):
         # should set the data without any errors
         platform_json = json.dumps(default_platform_data().to_json())
         self.local_bucketing.set_platform_data(platform_json)
+
+    def test_set_client_custom_data(self):
+        # should set the data without any errors
+        client_custom_data = {
+            "strProp": "strVal",
+            "intProp": 1,
+            "floatProp": 1.1,
+            "boolProp": True,
+            "nullProp": None,
+        }
+        data_str = json.dumps(client_custom_data)
+        self.local_bucketing.set_client_custom_data(data_str)
 
 
 if __name__ == "__main__":

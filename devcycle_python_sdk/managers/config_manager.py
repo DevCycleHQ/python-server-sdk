@@ -44,6 +44,7 @@ class EnvironmentConfigManager(threading.Thread):
                 return
 
             trigger_on_client_initialized = self._config is None
+
             self._config = new_config
             self._config_etag = new_etag
 

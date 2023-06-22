@@ -88,7 +88,7 @@ class ConfigAPIClient:
                 break
 
             logger.warning(
-                f"DevCycle cloud bucketing request failed (attempt {attempts}): {request_error}"
+                f"DevCycle config CDN request failed (attempt {attempts}): {request_error}"
             )
             retries_remaining -= 1
             if retries_remaining:
