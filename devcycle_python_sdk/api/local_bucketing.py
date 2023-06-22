@@ -30,8 +30,8 @@ class WASMAbortError(WASMError):
 class LocalBucketing:
     def __init__(self, sdk_key: str) -> None:
         self.random = random.random()
-        self.wasm_mutex = Lock()
-        self.flush_mutex = Lock()
+        self.wasm_lock = Lock()
+        self.flush_lock = Lock()
 
         wasi_cfg = wasmtime.WasiConfig()
         wasi_cfg.inherit_env()
@@ -278,19 +278,13 @@ class LocalBucketing:
         return ""
 
     def store_config(self, config_json: str) -> None:
-        self.wasm_mutex.acquire()
-        try:
+        with self.wasm_lock:
             data = config_json.encode("utf-8")
             config_addr = self._new_assembly_script_byte_array(data)
             self.setConfigDataUTF8(self.wasm_store, self.sdk_key_addr, config_addr)
-        finally:
-            self.wasm_mutex.release()
 
     def set_platform_data(self, platform_json: str) -> None:
-        self.wasm_mutex.acquire()
-        try:
+        with self.wasm_lock:
             data = platform_json.encode("utf-8")
             data_addr = self._new_assembly_script_byte_array(data)
             self.setPlatformDataUTF8(self.wasm_store, data_addr)
-        finally:
-            self.wasm_mutex.release()
