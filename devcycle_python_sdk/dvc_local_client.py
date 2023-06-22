@@ -3,17 +3,18 @@ import logging
 from typing import Any, Dict, Union
 from numbers import Real
 
-import devcycle_python_sdk.protobuf.utils as pb_utils
-import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
 from devcycle_python_sdk import DevCycleLocalOptions
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
+from devcycle_python_sdk.exceptions import VariableTypeMismatchError
 from devcycle_python_sdk.managers.config_manager import EnvironmentConfigManager
 from devcycle_python_sdk.managers.event_queue_manager import EventQueueManager
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.platform_data import default_platform_data, PlatformData
 from devcycle_python_sdk.models.user import User
-from devcycle_python_sdk.models.variable import Variable, determine_variable_type
+from devcycle_python_sdk.models.variable import Variable
+
+import devcycle_python_sdk.protobuf.utils as pb_utils
 
 logger = logging.getLogger(__name__)
 
@@ -83,37 +84,18 @@ class DevCycleLocalClient:
             # TODO track aggregate event for default variable
             return Variable.create_default_variable(key, default_value)
 
-        var_type = determine_variable_type(default_value)
-        pb_variable_type = pb_utils.convert_type_enum_to_variable_type(var_type)
-
-        params_pb = pb2.VariableForUserParams_PB(
-            sdkKey=self._sdk_key,
-            variableKey=key,
-            variableType=pb_variable_type,
-            user=pb_utils.convert_user_to_user_pb(user),
-            shouldTrackEvent=True,
-        )
-
         try:
-            params_str = params_pb.SerializeToString()
-
-            variable_data = self.local_bucketing.get_variable_for_user_protobuf(
-                params_str
+            sdk_variable_pb = self.local_bucketing.get_variable_for_user_protobuf(
+                user, key, default_value
             )
-            if variable_data is None or len(variable_data) == 0:
-                return Variable.create_default_variable(key, default_value)
-            else:
-                sdk_variable_pb = pb2.SDKVariable_PB()
-                sdk_variable_pb.ParseFromString(variable_data)
-
-                if sdk_variable_pb.type != pb_variable_type:
-                    logger.info("Variable type mismatch, returning default value")
-                    return Variable.create_default_variable(key, default_value)
-
+            if sdk_variable_pb:
                 return pb_utils.create_variable(sdk_variable_pb, default_value)
+        except VariableTypeMismatchError:
+            logger.info("Variable type mismatch, returning default value")
         except Exception as e:
             logger.error("Error retrieving variable for user: %s", e)
-            return Variable.create_default_variable(key, default_value)
+
+        return Variable.create_default_variable(key, default_value)
 
     def all_variables(self, user: User) -> Dict[str, Variable]:
         _validate_user(user)
