@@ -56,10 +56,10 @@ class LocalBucketing:
         )
 
         def __abort_func(
-                message_ptr=None,
-                filename_ptr=None,
-                line=0,
-                column=0,
+            message_ptr=None,
+            filename_ptr=None,
+            line=0,
+            column=0,
         ) -> None:
             message = None
             filename = None
@@ -186,8 +186,8 @@ class LocalBucketing:
         data = self.wasm_memory.data_ptr(self.wasm_store)
 
         # Parse the string length from the header.
-        string_length = int.from_bytes(data[pointer - 4: pointer], byteorder="little")
-        raw_data = data[pointer: pointer + string_length]
+        string_length = int.from_bytes(data[pointer - 4 : pointer], byteorder="little")
+        raw_data = data[pointer : pointer + string_length]
 
         # This skips every other index in the resulting array because there
         # isn't a great way to parse UTF-16 cleanly that matches the WTF-16
@@ -262,9 +262,9 @@ class LocalBucketing:
 
         # Parse the data length and data pointer from the header.
         data_length = int.from_bytes(
-            data[pointer + 8: pointer + 12], byteorder="little"
+            data[pointer + 8 : pointer + 12], byteorder="little"
         )
-        data_pointer = int.from_bytes(data[pointer: pointer + 4], byteorder="little")
+        data_pointer = int.from_bytes(data[pointer : pointer + 4], byteorder="little")
 
         ret = bytearray(data_length)
 
