@@ -2,6 +2,7 @@ import logging
 import random
 import time
 from pathlib import Path
+from threading import Lock
 
 import wasmtime
 from wasmtime import (
@@ -29,6 +30,8 @@ class WASMAbortError(WASMError):
 class LocalBucketing:
     def __init__(self, sdk_key: str) -> None:
         self.random = random.random()
+        self.wasm_mutex = Lock()
+        self.flush_mutex = Lock()
 
         wasi_cfg = wasmtime.WasiConfig()
         wasi_cfg.inherit_env()
@@ -275,21 +278,19 @@ class LocalBucketing:
         return ""
 
     def store_config(self, config_json: str) -> None:
-        # TODO lock mutex
+        self.wasm_mutex.acquire()
         try:
             data = config_json.encode("utf-8")
             config_addr = self._new_assembly_script_byte_array(data)
             self.setConfigDataUTF8(self.wasm_store, self.sdk_key_addr, config_addr)
         finally:
-            # TODO unlock mutex
-            pass
+            self.wasm_mutex.release()
 
     def set_platform_data(self, platform_json: str) -> None:
-        # TODO lock mutex
+        self.wasm_mutex.acquire()
         try:
             data = platform_json.encode("utf-8")
             data_addr = self._new_assembly_script_byte_array(data)
             self.setPlatformDataUTF8(self.wasm_store, data_addr)
         finally:
-            # TODO unlock mutex
-            pass
+            self.wasm_mutex.release()
