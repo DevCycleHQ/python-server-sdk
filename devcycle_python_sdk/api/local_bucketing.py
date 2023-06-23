@@ -3,15 +3,17 @@ import random
 import time
 from pathlib import Path
 from threading import Lock
-from typing import Any, Optional
+from typing import Any, cast, Optional
 
 import wasmtime
 from wasmtime import (
-    Store,
-    Module,
-    Linker,
-    FuncType,
     Engine,
+    Func,
+    FuncType,
+    Linker,
+    Memory,
+    Module,
+    Store,
     ValType,
 )
 
@@ -102,21 +104,20 @@ class LocalBucketing:
             "env", "console.log", FuncType([ValType.i32()], []), __console_log_func
         )
 
-        # TODO: setup a lock for the WASM instance
         wasm_instance = wasm_linker.instantiate(wasm_store, wasm_module)
-        wasm_memory = wasm_instance.exports(wasm_store)["memory"]
-
-        self.wasm_memory = wasm_memory
         self.wasm_instance = wasm_instance
         self.wasm_store = wasm_store
         self.wasm_linker = wasm_linker
         self.wasm_module = wasm_module
         self.wasm_engine = wasm_engine
 
+        wasm_memory: Memory = self._get_export("memory")
+        self.wasm_memory = wasm_memory
+
         # Bind exported internal AssemblyScript functions
-        self.__new = wasm_instance.exports(wasm_store)["__new"]
-        self.__pin = wasm_instance.exports(wasm_store)["__pin"]
-        self.__unpin = wasm_instance.exports(wasm_store)["__unpin"]
+        self.__new: Func = self._get_export("__new")
+        self.__pin: Func = self._get_export("__pin")
+        self.__unpin: Func = self._get_export("__unpin")
 
         # Bind exported WASM functions
         self.initEventQueue = self._get_export("initEventQueue")
@@ -136,9 +137,9 @@ class LocalBucketing:
 
         # Extract variable type enum values from WASM
         self.variable_type_map = {
-            variable_type_key: wasm_instance.exports(wasm_store)[
+            variable_type_key: self._get_export(
                 f"VariableType.{variable_type_key}"
-            ].value(wasm_store)
+            ).value(wasm_store)
             for variable_type_key in [
                 "Boolean",
                 "String",
@@ -154,7 +155,7 @@ class LocalBucketing:
         self.sdk_key_addr = self._new_assembly_script_string(sdk_key)
         self.__pin(self.wasm_store, self.sdk_key_addr)
 
-    def _get_export(self, export_name):
+    def _get_export(self, export_name: str):
         return self.wasm_instance.exports(self.wasm_store)[export_name]
 
     def _new_assembly_script_string(self, param: str) -> int:
@@ -167,7 +168,9 @@ class LocalBucketing:
         encoded = param.encode("utf-8")
         try:
             # Create pointer to string buffer in WASM memory.
-            pointer = self.__new(self.wasm_store, len(encoded) * 2, object_id_string)
+            pointer = cast(
+                int, self.__new(self.wasm_store, len(encoded) * 2, object_id_string)
+            )
         except Exception as err:
             raise WASMError(f"Error allocating string in WASM: {err}")
         addr = pointer
@@ -217,7 +220,9 @@ class LocalBucketing:
         data_length = len(param)
         try:
             # Allocate memory for header.
-            header_pointer = self.__new(self.wasm_store, 12, object_id_uint8_array)
+            header_pointer = cast(
+                int, self.__new(self.wasm_store, 12, object_id_uint8_array)
+            )
 
             # An external object that is not referenced from within WebAssembly
             # must be pinned whenever an allocation might happen in between
@@ -228,8 +233,8 @@ class LocalBucketing:
 
         try:
             # Allocate memory for buffer.
-            buffer_pointer = self.__new(
-                self.wasm_store, data_length, object_id_byte_array
+            buffer_pointer = cast(
+                int, self.__new(self.wasm_store, data_length, object_id_byte_array)
             )
 
             # Get a direct reference to the WASM memory
@@ -320,8 +325,7 @@ class LocalBucketing:
                     # it internally and returns a null value from the WASM function
                     # This check is here just in case that logic changes in the future
                     raise VariableTypeMismatchError(
-                        "Variable returned does not match requested type: "
-                        + pb_variable_type
+                        f"Variable returned does not match requested type: {pb_variable_type}"
                     )
                 return pb_utils.create_variable(sdk_variable, default_value)
 

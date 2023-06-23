@@ -10,7 +10,7 @@ class TypeEnum:
     JSON = "JSON"
 
 
-def determine_variable_type(value: Any) -> TypeEnum:
+def determine_variable_type(value: Any) -> str:
     if isinstance(value, bool):
         return TypeEnum.BOOLEAN
     elif isinstance(value, str):

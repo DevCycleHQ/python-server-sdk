@@ -50,15 +50,15 @@ def create_nullable_custom_data(val: Optional[dict]) -> pb2.NullableCustomData: 
         return pb2.NullableCustomData(isNull=True)  # type: ignore
 
 
-def convert_type_enum_to_variable_type(var_type: TypeEnum) -> pb2.VariableType_PB:  # type: ignore
+def convert_type_enum_to_variable_type(var_type: str) -> pb2.VariableType_PB:
     if var_type == TypeEnum.BOOLEAN:
-        return pb2.VariableType_PB.Boolean  # type: ignore
+        return pb2.VariableType_PB.Boolean
     elif var_type == TypeEnum.STRING:
-        return pb2.VariableType_PB.String  # type: ignore
+        return pb2.VariableType_PB.String
     elif var_type == TypeEnum.NUMBER:
-        return pb2.VariableType_PB.Number  # type: ignore
+        return pb2.VariableType_PB.Number
     elif var_type == TypeEnum.JSON:
-        return pb2.VariableType_PB.JSON  # type: ignore
+        return pb2.VariableType_PB.JSON
     else:
         raise ValueError("Unknown type: " + str(var_type))
 
