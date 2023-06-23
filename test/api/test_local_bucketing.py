@@ -86,9 +86,9 @@ class LocalBucketingTest(unittest.TestCase):
         self.local_bucketing.set_platform_data(platform_json)
         self.local_bucketing.init_event_queue("{}")
         user = User(user_id="test_user_id")
-        result = self.local_bucketing.get_variable_for_user_protobuf(user=user,
-                                                                     key="string-var",
-                                                                     default_value="default value")
+        result = self.local_bucketing.get_variable_for_user_protobuf(
+            user=user, key="string-var", default_value="default value"
+        )
         self.assertIsNotNone(result)
         self.assertEqual(result.key, "string-var")
         self.assertEqual(result.type, TypeEnum.STRING)
@@ -101,9 +101,9 @@ class LocalBucketingTest(unittest.TestCase):
         self.local_bucketing.set_platform_data(platform_json)
         self.local_bucketing.init_event_queue("{}")
         user = User(user_id="test_user_id")
-        result = self.local_bucketing.get_variable_for_user_protobuf(user=user,
-                                                                     key="string-var",
-                                                                     default_value="default value")
+        result = self.local_bucketing.get_variable_for_user_protobuf(
+            user=user, key="string-var", default_value="default value"
+        )
         self.assertIsNotNone(result)
         self.assertEqual(result.key, "string-var")
         self.assertEqual(result.type, TypeEnum.STRING)
@@ -119,9 +119,9 @@ class LocalBucketingTest(unittest.TestCase):
 
         # type mismatch is handled inside the WASM and will return
         # no data if the type is not correct
-        result = self.local_bucketing.get_variable_for_user_protobuf(user=user,
-                                                                     key="string-var",
-                                                                     default_value=9999)
+        result = self.local_bucketing.get_variable_for_user_protobuf(
+            user=user, key="string-var", default_value=9999
+        )
         self.assertIsNone(result)
 
 

@@ -118,7 +118,7 @@ class VersionTest(unittest.TestCase):
         sdk_var = pb2.SDKVariable_PB(
             _id="test id",
             key="test key",
-            stringValue="{\"strProp\": \"test value\"}",
+            stringValue='{"strProp": "test value"}',
             type=pb2.VariableType_PB.JSON,
         )
 
@@ -177,5 +177,7 @@ class VersionTest(unittest.TestCase):
         self.assertEqual(result.customData.value["a"].type, pb2.CustomDataType.Str)
         self.assertEqual(result.customData.value["a"].stringValue, "value1")
 
-        self.assertEqual(result.privateCustomData.value["x"].type, pb2.CustomDataType.Str)
+        self.assertEqual(
+            result.privateCustomData.value["x"].type, pb2.CustomDataType.Str
+        )
         self.assertEqual(result.privateCustomData.value["x"].stringValue, "value2")
