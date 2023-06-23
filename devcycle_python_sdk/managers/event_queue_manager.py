@@ -8,8 +8,12 @@ logger = logging.getLogger(__name__)
 
 
 class EventQueueManager:
-
-    def __init__(self, sdk_key: str, options: DevCycleLocalOptions, local_bucketing: LocalBucketing):
+    def __init__(
+        self,
+        sdk_key: str,
+        options: DevCycleLocalOptions,
+        local_bucketing: LocalBucketing,
+    ):
         self.sdk_key = sdk_key
         self.options = options
         self.local_bucketing = local_bucketing

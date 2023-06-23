@@ -45,7 +45,9 @@ class DevCycleLocalClient:
     def is_initialized(self) -> bool:
         return self.config_manager and self.config_manager.is_initialized()
 
-    def set_client_custom_data(self, custom_data: Dict[str, Union[str, Real, bool, None]]) -> None:
+    def set_client_custom_data(
+        self, custom_data: Dict[str, Union[str, Real, bool, None]]
+    ) -> None:
         """
         Sets global custom data for this client. This data will be utilized in all segmentation and bucketing
         decisions. This data will be merged with any custom data set on the user object, with user data
