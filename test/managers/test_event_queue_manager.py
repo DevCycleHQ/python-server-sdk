@@ -2,8 +2,6 @@ import logging
 
 import unittest
 
-from devcycle_python_sdk.managers.event_queue_manager import EventQueueManager
-
 logger = logging.getLogger(__name__)
 
 
