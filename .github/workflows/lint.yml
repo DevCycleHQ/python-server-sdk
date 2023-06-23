@@ -26,4 +26,4 @@ jobs:
           mypy .
       - name: Run black
         run: |
-          black --check --target-version py37 --extend-exclude '_pb2\.py$' .
+          black --check --target-version py37 --extend-exclude '_pb2\.pyi?$' .
