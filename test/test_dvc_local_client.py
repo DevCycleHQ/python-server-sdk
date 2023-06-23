@@ -8,6 +8,7 @@ from devcycle_python_sdk import DevCycleLocalClient, DevCycleLocalOptions
 from devcycle_python_sdk.dvc_local_client import _validate_user, _validate_sdk_key
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.variable import Variable, TypeEnum
 from test.fixture.data import small_config_json
 
 logger = logging.getLogger(__name__)
@@ -172,8 +173,6 @@ class DVCLocalClientTest(unittest.TestCase):
     @responses.activate
     def test_set_client_custom_data(self):
         self.setup_client()
-        while not self.client.is_initialized():
-            time.sleep(0.1)
 
         # set the data without error
         client_custom_data = {
@@ -184,6 +183,52 @@ class DVCLocalClientTest(unittest.TestCase):
             "nullProp": None,
         }
         self.client.set_client_custom_data(client_custom_data)
+
+    @responses.activate
+    def test_variable_default(self):
+        self.setup_client()
+
+        # try each default value data type and make sure it gets returned
+        tests = [
+            ("default_value", TypeEnum.STRING),
+            (True, TypeEnum.BOOLEAN),
+            (1000, TypeEnum.NUMBER),
+            (0.0001, TypeEnum.NUMBER),
+            ({"key": "value"}, TypeEnum.JSON),
+        ]
+
+        for test_value, value_type in tests:
+            result = self.client.variable(self.test_user, "badKey", test_value)
+            self.assertIsNotNone(result)
+            self.assertEqual(result.key, "badKey")
+            self.assertTrue(result.isDefaulted)
+            self.assertEqual(result.defaultValue, test_value)
+            self.assertEqual(result.value, test_value)
+            self.assertEqual(result.type, value_type)
+
+    @responses.activate
+    def test_variable_with_bucketing(self):
+        self.setup_client()
+
+        user = User(user_id="1234")
+
+        tests = [
+            ("string-var", "default_value", "variationOn", TypeEnum.STRING),
+            ("a-cool-new-feature", False, True, TypeEnum.BOOLEAN),
+            ("num-var", 0, 12345, TypeEnum.NUMBER),
+            ("json-var", {"default": "value"},
+             {"displayText": "This variation is on", "showDialog": True, "maxUsers": 100}, TypeEnum.JSON),
+        ]
+
+        for key, default_val, expected, var_type in tests:
+            result = self.client.variable(user, key, default_val)
+            self.assertIsNotNone(result, msg="Test key: " + key)
+            self.assertEqual(result.key, key, msg="Test key: " + key)
+            self.assertFalse(result.isDefaulted, msg="Test key: " + key)
+            if var_type == TypeEnum.JSON:
+                self.assertDictEqual(result.value, expected, msg="Test key: " + key)
+            else:
+                self.assertEqual(result.value, expected, msg="Test key: " + key)
 
 
 if __name__ == "__main__":

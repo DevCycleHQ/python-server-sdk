@@ -95,6 +95,21 @@ class LocalBucketingTest(unittest.TestCase):
         self.assertEqual(result.type, pb2.VariableType_PB.String)
         self.assertEqual(result.stringValue, "variationOn")
 
+    def test_get_variable_for_user_protobuf_special_characters(self):
+        self.local_bucketing.store_config(special_character_config())
+        platform_json = json.dumps(default_platform_data().to_json())
+        self.local_bucketing.set_platform_data(platform_json)
+        self.local_bucketing.init_event_queue("{}")
+        user = User(user_id="test_user_id")
+        result = self.local_bucketing.get_variable_for_user_protobuf(user=user,
+                                                                     key="string-var",
+                                                                     default_value="default value")
+        self.assertIsNotNone(result)
+        self.assertEqual(result._id, "63125320a4719939fd57cb2b")
+        self.assertEqual(result.key, "string-var")
+        self.assertEqual(result.type, pb2.VariableType_PB.String)
+        self.assertEqual(result.stringValue, "öé 🐍 ¥ variationOn")
+
     def test_get_variable_for_user_protobuf_type_mismatch(self):
         self.local_bucketing.store_config(small_config())
         platform_json = json.dumps(default_platform_data().to_json())
