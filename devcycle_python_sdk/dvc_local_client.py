@@ -71,7 +71,6 @@ class DevCycleLocalClient:
 
     def variable(self, user: User, key: str, default_value: Any) -> Variable:
         _validate_user(user)
-        user = _add_platform_data_to_user(self._platform_data, user)
 
         if not key:
             raise ValueError("Missing parameter: key")
@@ -82,6 +81,7 @@ class DevCycleLocalClient:
         if not self.is_initialized():
             logger.debug("variable called before client has initialized")
             # TODO track aggregate event for default variable
+            # need event queue setup for this
             return Variable.create_default_variable(key, default_value)
 
         try:
@@ -99,7 +99,6 @@ class DevCycleLocalClient:
 
     def all_variables(self, user: User) -> Dict[str, Variable]:
         _validate_user(user)
-        user = _add_platform_data_to_user(self._platform_data, user)
 
         if not self.is_initialized():
             logger.debug("all_variables called before client has initialized")
@@ -117,7 +116,6 @@ class DevCycleLocalClient:
 
     def all_features(self, user: User) -> Dict[str, Feature]:
         _validate_user(user)
-        user = _add_platform_data_to_user(self._platform_data, user)
 
         if not self.is_initialized():
             logger.debug("all_features called before client has initialized")
@@ -134,7 +132,6 @@ class DevCycleLocalClient:
 
     def track(self, user: User, user_event: Event) -> None:
         _validate_user(user)
-        user = _add_platform_data_to_user(self._platform_data, user)
 
         if user_event is None or not user_event.type:
             raise ValueError("Invalid Event")
@@ -159,14 +156,6 @@ class DevCycleLocalClient:
 
         if self.event_queue_manager:
             self.event_queue_manager.close()
-
-
-def _add_platform_data_to_user(platform_data: PlatformData, user: User) -> User:
-    user.platform = platform_data.platform
-    user.platformVersion = platform_data.platformVersion
-    user.sdkVersion = platform_data.sdkVersion
-    user.sdkType = platform_data.sdkType
-    return user
 
 
 def _validate_sdk_key(sdk_key: str) -> None:
