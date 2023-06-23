@@ -30,7 +30,8 @@ class ConfigAPIClient:
         self.session.max_redirects = 0
         self.max_config_retries = 2
         self.config_file_url = (
-            join(self.options.config_CDN_URI, "config", "v1", "server", self.sdk_key) + ".json"
+            join(self.options.config_CDN_URI, "config", "v1", "server", self.sdk_key)
+            + ".json"
         )
 
     def get_config(
