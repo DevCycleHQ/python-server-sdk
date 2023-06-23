@@ -1,8 +1,9 @@
 import json
 import logging
-from typing import Any, Dict, Union
 from numbers import Real
+from typing import Any, Dict, Union
 
+import devcycle_python_sdk.protobuf.utils as pb_utils
 from devcycle_python_sdk import DevCycleLocalOptions
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
 from devcycle_python_sdk.exceptions import VariableTypeMismatchError
@@ -10,11 +11,9 @@ from devcycle_python_sdk.managers.config_manager import EnvironmentConfigManager
 from devcycle_python_sdk.managers.event_queue_manager import EventQueueManager
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.models.feature import Feature
-from devcycle_python_sdk.models.platform_data import default_platform_data, PlatformData
+from devcycle_python_sdk.models.platform_data import default_platform_data
 from devcycle_python_sdk.models.user import User
 from devcycle_python_sdk.models.variable import Variable
-
-import devcycle_python_sdk.protobuf.utils as pb_utils
 
 logger = logging.getLogger(__name__)
 
