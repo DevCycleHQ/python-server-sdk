@@ -1,6 +1,7 @@
 import json
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, Union
+from numbers import Real
 
 import devcycle_python_sdk.protobuf.utils as pb_utils
 import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
@@ -44,14 +45,14 @@ class DevCycleLocalClient:
     def is_initialized(self) -> bool:
         return self.config_manager and self.config_manager.is_initialized()
 
-    def set_client_custom_data(self, custom_data: Dict[str, Any]) -> None:
+    def set_client_custom_data(self, custom_data: Dict[str, Union[str, Real, bool, None]]) -> None:
         """
         Sets global custom data for this client. This data will be utilized in all segmentation and bucketing
         decisions. This data will be merged with any custom data set on the user object, with user data
         taking priority
 
-        :param custom_data: Global data to set.  Supported values are strings, numbers, booleans, and lists of strings,
-        numbers, and booleans. Nested dictionaries are not permitted
+        :param custom_data: Global data to set.  Supported values are strings, numbers, booleans. Nested dictionaries
+        are not permitted
         """
         if not self.is_initialized():
             logger.debug("set_client_custom_data called before client has initialized")
