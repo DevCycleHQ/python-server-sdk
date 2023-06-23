@@ -21,4 +21,4 @@ jobs:
           pip install -r requirements.test.txt
       - name: Run unit tests
         run: |
-          python -m unittest -v
+          python -m unittest --verbose --buffer --locals

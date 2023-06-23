@@ -2,6 +2,7 @@ import threading
 import time
 import logging
 import json
+from typing import Optional
 
 from devcycle_python_sdk.dvc_options import DevCycleLocalOptions
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
@@ -27,8 +28,8 @@ class EnvironmentConfigManager(threading.Thread):
         self._options = options
         self._local_bucketing = local_bucketing
 
-        self._config: dict = None
-        self._config_etag: str = None
+        self._config: Optional[dict] = None
+        self._config_etag: Optional[str] = None
 
         self._config_api_client = ConfigAPIClient(self._sdk_key, self._options)
 

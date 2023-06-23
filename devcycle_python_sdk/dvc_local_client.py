@@ -42,7 +42,7 @@ class DevCycleLocalClient:
         )
 
     def is_initialized(self) -> bool:
-        return self.config_manager and self.config_manager.is_initialized()
+        return self.config_manager.is_initialized()
 
     def set_client_custom_data(
         self, custom_data: Dict[str, Union[str, Real, bool, None]]
@@ -151,8 +151,7 @@ class DevCycleLocalClient:
         """
         Closes the client and releases any resources held by it.
         """
-        if self.config_manager:
-            self.config_manager.close()
+        self.config_manager.close()
 
         if self.event_queue_manager:
             self.event_queue_manager.close()

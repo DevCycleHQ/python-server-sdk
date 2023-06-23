@@ -23,7 +23,7 @@ class DVCCloudClientTest(unittest.TestCase):
         options = DevCycleCloudOptions()
         self.test_client = DevCycleCloudClient(sdk_key, options)
         self.test_user = User(user_id="test_user_id")
-        self.test_user_no_id = User(user_id=None)
+        self.test_user_no_id = User(user_id=None)  # type: ignore
         self.test_user_empty_id = User(user_id="")
 
     def tearDown(self) -> None:

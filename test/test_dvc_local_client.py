@@ -217,8 +217,16 @@ class DVCLocalClientTest(unittest.TestCase):
             ("string-var", "default_value", "variationOn", TypeEnum.STRING),
             ("a-cool-new-feature", False, True, TypeEnum.BOOLEAN),
             ("num-var", 0, 12345, TypeEnum.NUMBER),
-            ("json-var", {"default": "value"},
-             {"displayText": "This variation is on", "showDialog": True, "maxUsers": 100}, TypeEnum.JSON),
+            (
+                "json-var",
+                {"default": "value"},
+                {
+                    "displayText": "This variation is on",
+                    "showDialog": True,
+                    "maxUsers": 100,
+                },
+                TypeEnum.JSON,
+            ),
         ]
 
         for key, default_val, expected, var_type in tests:

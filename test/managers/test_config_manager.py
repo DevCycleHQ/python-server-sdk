@@ -28,7 +28,9 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
     @patch("devcycle_python_sdk.api.config_client.ConfigAPIClient.get_config")
     def test_init(self, mock_get_config):
         mock_get_config.return_value = (self.test_config_json, self.test_etag)
-        config_manager = EnvironmentConfigManager(self.sdk_key, self.test_options, self.test_local_bucketing)
+        config_manager = EnvironmentConfigManager(
+            self.sdk_key, self.test_options, self.test_local_bucketing
+        )
 
         # sleep to allow polling thread to load the config
         time.sleep(0.1)
@@ -39,7 +41,9 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
         self.assertTrue(config_manager.daemon)
         self.assertEqual(config_manager._config_etag, self.test_etag)
         self.assertDictEqual(config_manager._config, self.test_config_json)
-        self.test_local_bucketing.store_config.assert_called_once_with(self.test_config_string)
+        self.test_local_bucketing.store_config.assert_called_once_with(
+            self.test_config_string
+        )
         self.assertTrue(config_manager.is_initialized())
 
     @patch("devcycle_python_sdk.api.config_client.ConfigAPIClient.get_config")
@@ -50,12 +54,16 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
 
         self.test_options.on_client_initialized = mock_callback
 
-        config_manager = EnvironmentConfigManager(self.sdk_key, self.test_options, self.test_local_bucketing)
+        config_manager = EnvironmentConfigManager(
+            self.sdk_key, self.test_options, self.test_local_bucketing
+        )
         time.sleep(0.1)
         mock_get_config.assert_called_once_with(config_etag=None)
         self.assertEqual(config_manager._config_etag, self.test_etag)
         self.assertDictEqual(config_manager._config, self.test_config_json)
-        self.test_local_bucketing.store_config.assert_called_once_with(self.test_config_string)
+        self.test_local_bucketing.store_config.assert_called_once_with(
+            self.test_config_string
+        )
         self.assertTrue(config_manager.is_initialized())
         mock_callback.assert_called_once()
 
@@ -63,17 +71,23 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
     def test_init_with_client_callback_with_error(self, mock_get_config):
         mock_get_config.return_value = (self.test_config_json, self.test_etag)
         mock_callback = MagicMock()
-        mock_callback.side_effect = Exception("Badly written callback generates an exception")
+        mock_callback.side_effect = Exception(
+            "Badly written callback generates an exception"
+        )
 
         self.test_options.on_client_initialized = mock_callback
 
-        config_manager = EnvironmentConfigManager(self.sdk_key, self.test_options, self.test_local_bucketing)
+        config_manager = EnvironmentConfigManager(
+            self.sdk_key, self.test_options, self.test_local_bucketing
+        )
         # the callback error should not negatively impact initialization of the config manager
         time.sleep(0.1)
         mock_get_config.assert_called_once_with(config_etag=None)
         self.assertEqual(config_manager._config_etag, self.test_etag)
         self.assertDictEqual(config_manager._config, self.test_config_json)
-        self.test_local_bucketing.store_config.assert_called_once_with(self.test_config_string)
+        self.test_local_bucketing.store_config.assert_called_once_with(
+            self.test_config_string
+        )
         self.assertTrue(config_manager.is_initialized())
         mock_callback.assert_called_once()
 
@@ -82,7 +96,9 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
         mock_get_config.return_value = (self.test_config_json, self.test_etag)
         self.test_options.config_polling_interval_ms = 500
 
-        config_manager = EnvironmentConfigManager(self.sdk_key, self.test_options, self.test_local_bucketing)
+        config_manager = EnvironmentConfigManager(
+            self.sdk_key, self.test_options, self.test_local_bucketing
+        )
 
         # sleep to allow polling thread to load the config
         time.sleep(0.1)
@@ -96,7 +112,9 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
         mock_get_config.return_value = (self.test_config_json, self.test_etag)
 
         self.test_options.config_polling_interval_ms = 200
-        config_manager = EnvironmentConfigManager(self.sdk_key, self.test_options, self.test_local_bucketing)
+        config_manager = EnvironmentConfigManager(
+            self.sdk_key, self.test_options, self.test_local_bucketing
+        )
 
         time.sleep(0.1)
         # stop the polling
@@ -114,5 +132,5 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
         self.test_local_bucketing.store_config.assert_not_called()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

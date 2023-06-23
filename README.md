@@ -86,7 +86,7 @@ python -m unittest -v
 To generate the protobuf source files run the following from the root of the project. Ensure you have `protoc` installed.
 
 ```bash
-protoc --proto_path=./protobuf/ --python_out=devcycle_python_sdk/protobuf variableForUserParams.proto
+protoc --proto_path=./protobuf/ --python_out=devcycle_python_sdk/protobuf --pyi_out=devcycle_python_sdk/protobuf variableForUserParams.proto
 ```
 
 This will rebuild the `variableForUserParams_pb2.py` file.

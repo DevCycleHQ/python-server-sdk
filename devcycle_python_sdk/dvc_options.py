@@ -1,4 +1,5 @@
 import logging
+from typing import Callable, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ class DevCycleLocalOptions:
         config_request_timeout_ms: int = 5000,
         config_polling_interval_ms: int = 1000,
         config_retry_delay_ms: int = 200,  # milliseconds
-        on_client_initialized: callable = None,
+        on_client_initialized: Optional[Callable] = None,
         events_api_uri: str = "https://events.devcycle.com/",
         max_event_queue_size: int = 2000,
         event_flush_interval_ms: int = 10000,

@@ -14,5 +14,5 @@ class VersionTest(unittest.TestCase):
         self.assertEqual(version, expected_version)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
