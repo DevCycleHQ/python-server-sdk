@@ -29,11 +29,13 @@ class ConfigAPIClient:
         }
         self.session.max_redirects = 0
         self.max_config_retries = 2
+        self.config_file_url = (
+            join(self.options.config_CDN_URI, "v1", "server", self.sdk_key) + ".json"
+        )
 
-    def _config_file_url(self) -> str:
-        return join(self.options.config_CDN_URI, "v1", "server", self.sdk_key) + ".json"
-
-    def get_config(self, config_etag: Optional[str] = None) -> Tuple[Optional[dict], Optional[str]]:
+    def get_config(
+        self, config_etag: Optional[str] = None
+    ) -> Tuple[Optional[dict], Optional[str]]:
         """
         Get the config from the server. If the config_etag is provided, the server will only return the config if it
         has changed since the last request. If the config hasn't changed, the server will return a 304 Not Modified
@@ -47,7 +49,7 @@ class ConfigAPIClient:
         retries_remaining = self.max_config_retries
         timeout = self.options.config_request_timeout_ms / 1000.0
 
-        url = self._config_file_url()
+        url = self.config_file_url
 
         headers = {}
         if config_etag:
@@ -61,7 +63,10 @@ class ConfigAPIClient:
                     "GET", url, params={}, timeout=timeout, headers=headers
                 )
 
-                if res.status_code == HTTPStatus.UNAUTHORIZED or res.status_code == HTTPStatus.FORBIDDEN:
+                if (
+                    res.status_code == HTTPStatus.UNAUTHORIZED
+                    or res.status_code == HTTPStatus.FORBIDDEN
+                ):
                     # Not a retryable error
                     raise APIClientUnauthorizedError("Invalid SDK Key")
                 elif res.status_code == HTTPStatus.NOT_MODIFIED:
@@ -71,7 +76,11 @@ class ConfigAPIClient:
                 elif res.status_code == HTTPStatus.NOT_FOUND:
                     # Not a retryable error
                     raise NotFoundError(url)
-                elif HTTPStatus.BAD_REQUEST <= res.status_code < HTTPStatus.INTERNAL_SERVER_ERROR:
+                elif (
+                    HTTPStatus.BAD_REQUEST
+                    <= res.status_code
+                    < HTTPStatus.INTERNAL_SERVER_ERROR
+                ):
                     # Not a retryable error
                     raise APIClientError(f"Bad request: HTTP {res.status_code}")
                 elif res.status_code >= HTTPStatus.INTERNAL_SERVER_ERROR:
@@ -88,7 +97,7 @@ class ConfigAPIClient:
                 break
 
             logger.warning(
-                f"DevCycle cloud bucketing request failed (attempt {attempts}): {request_error}"
+                f"DevCycle config CDN request failed (attempt {attempts}): {request_error}"
             )
             retries_remaining -= 1
             if retries_remaining:

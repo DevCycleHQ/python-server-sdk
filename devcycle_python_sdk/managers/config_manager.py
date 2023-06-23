@@ -6,13 +6,21 @@ import json
 from devcycle_python_sdk.dvc_options import DevCycleLocalOptions
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
 from devcycle_python_sdk.api.config_client import ConfigAPIClient
-from devcycle_python_sdk.exceptions import CloudClientUnauthorizedError, CloudClientError
+from devcycle_python_sdk.exceptions import (
+    CloudClientUnauthorizedError,
+    CloudClientError,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class EnvironmentConfigManager(threading.Thread):
-    def __init__(self, sdk_key: str, options: DevCycleLocalOptions, local_bucketing: LocalBucketing):
+    def __init__(
+        self,
+        sdk_key: str,
+        options: DevCycleLocalOptions,
+        local_bucketing: LocalBucketing,
+    ):
         super().__init__()
 
         self._sdk_key = sdk_key
@@ -33,24 +41,32 @@ class EnvironmentConfigManager(threading.Thread):
 
     def _get_config(self):
         try:
-            new_config, new_etag = self._config_api_client.get_config(config_etag=self._config_etag)
+            new_config, new_etag = self._config_api_client.get_config(
+                config_etag=self._config_etag
+            )
 
             if new_config is None and new_etag == self._config_etag:
                 # api not returning data and the etag is the same
                 # no change to the config since last request
                 return
             elif new_config is None:
-                logger.warning("Config fetch returned no data but returned different etag")
+                logger.warning(
+                    "Config fetch returned no data but returned different etag"
+                )
                 return
 
             trigger_on_client_initialized = self._config is None
+
             self._config = new_config
             self._config_etag = new_etag
 
             json_config = json.dumps(self._config)
             self._local_bucketing.store_config(json_config)
 
-            if trigger_on_client_initialized and self._options.on_client_initialized is not None:
+            if (
+                trigger_on_client_initialized
+                and self._options.on_client_initialized is not None
+            ):
                 try:
                     self._options.on_client_initialized()
                 except Exception as e:

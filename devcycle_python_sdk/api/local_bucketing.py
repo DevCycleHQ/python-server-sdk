@@ -288,3 +288,9 @@ class LocalBucketing:
             data = platform_json.encode("utf-8")
             data_addr = self._new_assembly_script_byte_array(data)
             self.setPlatformDataUTF8(self.wasm_store, data_addr)
+
+    def set_client_custom_data(self, client_data_json: str) -> None:
+        with self.wasm_lock:
+            data = client_data_json.encode("utf-8")
+            data_addr = self._new_assembly_script_byte_array(data)
+            self.setClientCustomDataUTF8(self.wasm_store, self.sdk_key_addr, data_addr)
