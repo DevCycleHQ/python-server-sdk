@@ -40,8 +40,10 @@ def create_nullable_custom_data(val: Optional[dict]) -> pb2.NullableCustomData: 
                 values[key] = pb2.CustomDataValue(type=pb2.CustomDataType.Num, doubleValue=value)  # type: ignore
             else:
                 logger.warning(
-                    "Custom Data contains data type that can't be written, will be ignored. Key: %s, Type: %s", key,
-                    str(type(value)))
+                    "Custom Data contains data type that can't be written, will be ignored. Key: %s, Type: %s",
+                    key,
+                    str(type(value)),
+                )
 
         return pb2.NullableCustomData(value=values, isNull=False)  # type: ignore
     else:
@@ -62,7 +64,7 @@ def convert_type_enum_to_variable_type(var_type: TypeEnum) -> pb2.VariableType_P
 
 
 def create_dvcuser_pb(user: User) -> pb2.DVCUser_PB:  # type: ignore
-    app_build = float('nan')
+    app_build = float("nan")
     if user.appBuild:
         try:
             app_build = float(user.appBuild)
@@ -78,14 +80,14 @@ def create_dvcuser_pb(user: User) -> pb2.DVCUser_PB:  # type: ignore
         appVersion=create_nullable_string(user.appVersion),
         appBuild=create_nullable_double(app_build),
         customData=create_nullable_custom_data(user.customData),
-        privateCustomData=create_nullable_custom_data(user.privateCustomData)
+        privateCustomData=create_nullable_custom_data(user.privateCustomData),
     )
 
 
 def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Variable:  # type: ignore
     if sdk_variable.type == pb2.VariableType_PB.Boolean:  # type: ignore
         return Variable(
-            _id=sdk_variable._id,
+            _id=None,
             value=sdk_variable.boolValue,
             key=sdk_variable.key,
             type=TypeEnum.BOOLEAN,
@@ -95,7 +97,7 @@ def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Var
 
     elif sdk_variable.type == pb2.VariableType_PB.String:  # type: ignore
         return Variable(
-            _id=sdk_variable._id,
+            _id=None,
             value=sdk_variable.stringValue,
             key=sdk_variable.key,
             type=TypeEnum.STRING,
@@ -105,7 +107,7 @@ def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Var
 
     elif sdk_variable.type == pb2.VariableType_PB.Number:  # type: ignore
         return Variable(
-            _id=sdk_variable._id,
+            _id=None,
             value=sdk_variable.doubleValue,
             key=sdk_variable.key,
             type=TypeEnum.NUMBER,
@@ -117,7 +119,7 @@ def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Var
         json_data = json.loads(sdk_variable.stringValue)
 
         return Variable(
-            _id=sdk_variable._id,
+            _id=None,
             value=json_data,
             key=sdk_variable.key,
             type=TypeEnum.JSON,

@@ -3,6 +3,7 @@ import random
 import time
 from pathlib import Path
 from threading import Lock
+from typing import Any, Optional
 
 import wasmtime
 from wasmtime import (
@@ -13,6 +14,13 @@ from wasmtime import (
     Engine,
     ValType,
 )
+
+import devcycle_python_sdk.protobuf.utils as pb_utils
+import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
+
+from devcycle_python_sdk.exceptions import VariableTypeMismatchError
+from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.variable import Variable, determine_variable_type
 
 logger = logging.getLogger(__name__)
 
@@ -124,6 +132,7 @@ class LocalBucketing:
         self.generateBucketedConfigForUserUTF8 = self._get_export(
             "generateBucketedConfigForUserUTF8"
         )
+        self.VariableForUserProtobuf = self._get_export("variableForUser_PB")
 
         # Extract variable type enum values from WASM
         self.variable_type_map = {
@@ -272,10 +281,49 @@ class LocalBucketing:
         for i in range(data_length):
             ret[i] = data[data_pointer + i]
 
-        return ret
+        return bytes(ret)
 
-    def get_variable_for_user_protobuf(self, params_buffer) -> str:
-        return ""
+    def init_event_queue(self, options_json: str) -> None:
+        with self.wasm_lock:
+            options_addr = self._new_assembly_script_string(options_json)
+            self.initEventQueue(self.wasm_store, self.sdk_key_addr, options_addr)
+
+    def get_variable_for_user_protobuf(
+        self, user: User, key: str, default_value: Any
+    ) -> Optional[Variable]:
+        var_type = determine_variable_type(default_value)
+        pb_variable_type = pb_utils.convert_type_enum_to_variable_type(var_type)
+
+        params_pb = pb2.VariableForUserParams_PB(
+            sdkKey=self.sdk_key,
+            variableKey=key,
+            variableType=pb_variable_type,
+            user=pb_utils.create_dvcuser_pb(user),
+            shouldTrackEvent=True,
+        )
+
+        params_str = params_pb.SerializeToString()
+
+        with self.wasm_lock:
+            params_addr = self._new_assembly_script_byte_array(params_str)
+            variable_addr = self.VariableForUserProtobuf(self.wasm_store, params_addr)
+
+            if variable_addr == 0:
+                return None
+            else:
+                var_bytes = self._read_assembly_script_byte_array(variable_addr)
+                sdk_variable = pb2.SDKVariable_PB()
+                sdk_variable.ParseFromString(var_bytes)
+
+                if sdk_variable.type != pb_variable_type:
+                    # this situation should never actually happen because the WASM handles
+                    # it internally and returns a null value from the WASM function
+                    # This check is here just in case that logic changes in the future
+                    raise VariableTypeMismatchError(
+                        "Variable returned does not match requested type: "
+                        + pb_variable_type
+                    )
+                return pb_utils.create_variable(sdk_variable, default_value)
 
     def store_config(self, config_json: str) -> None:
         with self.wasm_lock:

@@ -10,7 +10,7 @@ class TypeEnum:
     JSON = "JSON"
 
 
-def determine_variable_type(value: Any) -> str:
+def determine_variable_type(value: Any) -> TypeEnum:
     if isinstance(value, bool):
         return TypeEnum.BOOLEAN
     elif isinstance(value, str):
@@ -31,6 +31,7 @@ class Variable:
     value: Optional[Any] = None
     isDefaulted: Optional[bool] = False
     defaultValue: Optional[Any] = None
+
     # evalReason: Optional[str] = None
 
     def to_json(self):

@@ -1,19 +1,18 @@
 import json
 import logging
-from typing import Any, Dict, Union
 from numbers import Real
+from typing import Any, Dict, Union
 
-import devcycle_python_sdk.protobuf.utils as pb_utils
-import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
 from devcycle_python_sdk import DevCycleLocalOptions
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
+from devcycle_python_sdk.exceptions import VariableTypeMismatchError
 from devcycle_python_sdk.managers.config_manager import EnvironmentConfigManager
 from devcycle_python_sdk.managers.event_queue_manager import EventQueueManager
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.models.feature import Feature
-from devcycle_python_sdk.models.platform_data import default_platform_data, PlatformData
+from devcycle_python_sdk.models.platform_data import default_platform_data
 from devcycle_python_sdk.models.user import User
-from devcycle_python_sdk.models.variable import Variable, determine_variable_type
+from devcycle_python_sdk.models.variable import Variable
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +44,9 @@ class DevCycleLocalClient:
     def is_initialized(self) -> bool:
         return self.config_manager and self.config_manager.is_initialized()
 
-    def set_client_custom_data(self, custom_data: Dict[str, Union[str, Real, bool, None]]) -> None:
+    def set_client_custom_data(
+        self, custom_data: Dict[str, Union[str, Real, bool, None]]
+    ) -> None:
         """
         Sets global custom data for this client. This data will be utilized in all segmentation and bucketing
         decisions. This data will be merged with any custom data set on the user object, with user data
@@ -70,7 +71,6 @@ class DevCycleLocalClient:
 
     def variable(self, user: User, key: str, default_value: Any) -> Variable:
         _validate_user(user)
-        user = _add_platform_data_to_user(self._platform_data, user)
 
         if not key:
             raise ValueError("Missing parameter: key")
@@ -81,43 +81,24 @@ class DevCycleLocalClient:
         if not self.is_initialized():
             logger.debug("variable called before client has initialized")
             # TODO track aggregate event for default variable
+            # need event queue setup for this
             return Variable.create_default_variable(key, default_value)
-
-        var_type = determine_variable_type(default_value)
-        pb_variable_type = pb_utils.convert_type_enum_to_variable_type(var_type)
-
-        params_pb = pb2.VariableForUserParams_PB(
-            sdkKey=self._sdk_key,
-            variableKey=key,
-            variableType=pb_variable_type,
-            user=pb_utils.convert_user_to_user_pb(user),
-            shouldTrackEvent=True,
-        )
 
         try:
-            params_str = params_pb.SerializeToString()
-
-            variable_data = self.local_bucketing.get_variable_for_user_protobuf(
-                params_str
+            variable = self.local_bucketing.get_variable_for_user_protobuf(
+                user, key, default_value
             )
-            if variable_data is None or len(variable_data) == 0:
-                return Variable.create_default_variable(key, default_value)
-            else:
-                sdk_variable_pb = pb2.SDKVariable_PB()
-                sdk_variable_pb.ParseFromString(variable_data)
-
-                if sdk_variable_pb.type != pb_variable_type:
-                    logger.info("Variable type mismatch, returning default value")
-                    return Variable.create_default_variable(key, default_value)
-
-                return pb_utils.create_variable(sdk_variable_pb, default_value)
+            if variable:
+                return variable
+        except VariableTypeMismatchError:
+            logger.info("Variable type mismatch, returning default value")
         except Exception as e:
             logger.error("Error retrieving variable for user: %s", e)
-            return Variable.create_default_variable(key, default_value)
+
+        return Variable.create_default_variable(key, default_value)
 
     def all_variables(self, user: User) -> Dict[str, Variable]:
         _validate_user(user)
-        user = _add_platform_data_to_user(self._platform_data, user)
 
         if not self.is_initialized():
             logger.debug("all_variables called before client has initialized")
@@ -135,7 +116,6 @@ class DevCycleLocalClient:
 
     def all_features(self, user: User) -> Dict[str, Feature]:
         _validate_user(user)
-        user = _add_platform_data_to_user(self._platform_data, user)
 
         if not self.is_initialized():
             logger.debug("all_features called before client has initialized")
@@ -152,7 +132,6 @@ class DevCycleLocalClient:
 
     def track(self, user: User, user_event: Event) -> None:
         _validate_user(user)
-        user = _add_platform_data_to_user(self._platform_data, user)
 
         if user_event is None or not user_event.type:
             raise ValueError("Invalid Event")
@@ -177,14 +156,6 @@ class DevCycleLocalClient:
 
         if self.event_queue_manager:
             self.event_queue_manager.close()
-
-
-def _add_platform_data_to_user(platform_data: PlatformData, user: User) -> User:
-    user.platform = platform_data.platform
-    user.platformVersion = platform_data.platformVersion
-    user.sdkVersion = platform_data.sdkVersion
-    user.sdkType = platform_data.sdkType
-    return user
 
 
 def _validate_sdk_key(sdk_key: str) -> None:

@@ -1,9 +1,11 @@
-import logging
 import json
+import logging
 import unittest
 
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing, WASMAbortError
 from devcycle_python_sdk.models.platform_data import default_platform_data
+from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.variable import TypeEnum
 from test.fixture.data import small_config, large_config, special_character_config
 
 logger = logging.getLogger(__name__)
@@ -77,6 +79,50 @@ class LocalBucketingTest(unittest.TestCase):
         }
         data_str = json.dumps(client_custom_data)
         self.local_bucketing.set_client_custom_data(data_str)
+
+    def test_get_variable_for_user_protobuf(self):
+        self.local_bucketing.store_config(small_config())
+        platform_json = json.dumps(default_platform_data().to_json())
+        self.local_bucketing.set_platform_data(platform_json)
+        self.local_bucketing.init_event_queue("{}")
+        user = User(user_id="test_user_id")
+        result = self.local_bucketing.get_variable_for_user_protobuf(user=user,
+                                                                     key="string-var",
+                                                                     default_value="default value")
+        self.assertIsNotNone(result)
+        self.assertEqual(result.key, "string-var")
+        self.assertEqual(result.type, TypeEnum.STRING)
+        self.assertEqual(result.value, "variationOn")
+        self.assertFalse(result.isDefaulted)
+
+    def test_get_variable_for_user_protobuf_special_characters(self):
+        self.local_bucketing.store_config(special_character_config())
+        platform_json = json.dumps(default_platform_data().to_json())
+        self.local_bucketing.set_platform_data(platform_json)
+        self.local_bucketing.init_event_queue("{}")
+        user = User(user_id="test_user_id")
+        result = self.local_bucketing.get_variable_for_user_protobuf(user=user,
+                                                                     key="string-var",
+                                                                     default_value="default value")
+        self.assertIsNotNone(result)
+        self.assertEqual(result.key, "string-var")
+        self.assertEqual(result.type, TypeEnum.STRING)
+        self.assertEqual(result.value, "öé 🐍 ¥ variationOn")
+        self.assertFalse(result.isDefaulted)
+
+    def test_get_variable_for_user_protobuf_type_mismatch(self):
+        self.local_bucketing.store_config(small_config())
+        platform_json = json.dumps(default_platform_data().to_json())
+        self.local_bucketing.set_platform_data(platform_json)
+        self.local_bucketing.init_event_queue("{}")
+        user = User(user_id="test_user_id")
+
+        # type mismatch is handled inside the WASM and will return
+        # no data if the type is not correct
+        result = self.local_bucketing.get_variable_for_user_protobuf(user=user,
+                                                                     key="string-var",
+                                                                     default_value=9999)
+        self.assertIsNone(result)
 
 
 if __name__ == "__main__":
