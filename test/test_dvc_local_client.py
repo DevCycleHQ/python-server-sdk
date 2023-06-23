@@ -21,7 +21,7 @@ class DVCLocalClientTest(unittest.TestCase):
         self.test_config_json = small_config_json()
         self.test_etag = "2f71454e-3279-4ca7-a8e7-802ce97bef43"
 
-        config_url = "http://localhost/v1/server/" + self.sdk_key + ".json"
+        config_url = "http://localhost/config/v1/server/" + self.sdk_key + ".json"
         for i in range(1, 10):
             responses.add(
                 responses.GET,
