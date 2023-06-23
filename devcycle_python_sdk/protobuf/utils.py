@@ -87,7 +87,7 @@ def create_dvcuser_pb(user: User) -> pb2.DVCUser_PB:  # type: ignore
 def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Variable:  # type: ignore
     if sdk_variable.type == pb2.VariableType_PB.Boolean:  # type: ignore
         return Variable(
-            _id=sdk_variable._id,
+            _id=None,
             value=sdk_variable.boolValue,
             key=sdk_variable.key,
             type=TypeEnum.BOOLEAN,
@@ -97,7 +97,7 @@ def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Var
 
     elif sdk_variable.type == pb2.VariableType_PB.String:  # type: ignore
         return Variable(
-            _id=sdk_variable._id,
+            _id=None,
             value=sdk_variable.stringValue,
             key=sdk_variable.key,
             type=TypeEnum.STRING,
@@ -107,7 +107,7 @@ def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Var
 
     elif sdk_variable.type == pb2.VariableType_PB.Number:  # type: ignore
         return Variable(
-            _id=sdk_variable._id,
+            _id=None,
             value=sdk_variable.doubleValue,
             key=sdk_variable.key,
             type=TypeEnum.NUMBER,
@@ -119,7 +119,7 @@ def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Var
         json_data = json.loads(sdk_variable.stringValue)
 
         return Variable(
-            _id=sdk_variable._id,
+            _id=None,
             value=json_data,
             key=sdk_variable.key,
             type=TypeEnum.JSON,
