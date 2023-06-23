@@ -30,14 +30,19 @@ class DevCycleLocalClient:
         self.local_bucketing = LocalBucketing(sdk_key)
 
         self._platform_data = default_platform_data()
-        self.local_bucketing.set_platform_data(json.dumps(self._platform_data.to_json()))
+        self.local_bucketing.set_platform_data(
+            json.dumps(self._platform_data.to_json())
+        )
 
-        self.config_manager: EnvironmentConfigManager = EnvironmentConfigManager(sdk_key, self.options,
-                                                                                 self.local_bucketing)
-        self.event_queue_manager: EventQueueManager = EventQueueManager(sdk_key, self.options, self.local_bucketing)
+        self.config_manager: EnvironmentConfigManager = EnvironmentConfigManager(
+            sdk_key, self.options, self.local_bucketing
+        )
+        self.event_queue_manager: EventQueueManager = EventQueueManager(
+            sdk_key, self.options, self.local_bucketing
+        )
 
     def is_initialized(self) -> bool:
-        return (self.config_manager and self.config_manager.is_initialized())
+        return self.config_manager and self.config_manager.is_initialized()
 
     def set_client_custom_data(self, custom_data: Dict[str, Any]) -> None:
         """
@@ -91,7 +96,9 @@ class DevCycleLocalClient:
         try:
             params_str = params_pb.SerializeToString()
 
-            variable_data = self.local_bucketing.get_variable_for_user_protobuf(params_str)
+            variable_data = self.local_bucketing.get_variable_for_user_protobuf(
+                params_str
+            )
             if variable_data is None or len(variable_data) == 0:
                 return Variable.create_default_variable(key, default_value)
             else:

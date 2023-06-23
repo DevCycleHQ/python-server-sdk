@@ -29,9 +29,13 @@ class ConfigAPIClient:
         }
         self.session.max_redirects = 0
         self.max_config_retries = 2
-        self.config_file_url = join(self.options.config_CDN_URI, "v1", "server", self.sdk_key) + ".json"
+        self.config_file_url = (
+            join(self.options.config_CDN_URI, "v1", "server", self.sdk_key) + ".json"
+        )
 
-    def get_config(self, config_etag: Optional[str] = None) -> Tuple[Optional[dict], Optional[str]]:
+    def get_config(
+        self, config_etag: Optional[str] = None
+    ) -> Tuple[Optional[dict], Optional[str]]:
         """
         Get the config from the server. If the config_etag is provided, the server will only return the config if it
         has changed since the last request. If the config hasn't changed, the server will return a 304 Not Modified
@@ -59,7 +63,10 @@ class ConfigAPIClient:
                     "GET", url, params={}, timeout=timeout, headers=headers
                 )
 
-                if res.status_code == HTTPStatus.UNAUTHORIZED or res.status_code == HTTPStatus.FORBIDDEN:
+                if (
+                    res.status_code == HTTPStatus.UNAUTHORIZED
+                    or res.status_code == HTTPStatus.FORBIDDEN
+                ):
                     # Not a retryable error
                     raise APIClientUnauthorizedError("Invalid SDK Key")
                 elif res.status_code == HTTPStatus.NOT_MODIFIED:
@@ -69,7 +76,11 @@ class ConfigAPIClient:
                 elif res.status_code == HTTPStatus.NOT_FOUND:
                     # Not a retryable error
                     raise NotFoundError(url)
-                elif HTTPStatus.BAD_REQUEST <= res.status_code < HTTPStatus.INTERNAL_SERVER_ERROR:
+                elif (
+                    HTTPStatus.BAD_REQUEST
+                    <= res.status_code
+                    < HTTPStatus.INTERNAL_SERVER_ERROR
+                ):
                     # Not a retryable error
                     raise APIClientError(f"Bad request: HTTP {res.status_code}")
                 elif res.status_code >= HTTPStatus.INTERNAL_SERVER_ERROR:
