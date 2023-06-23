@@ -2,6 +2,7 @@ import logging
 import random
 import time
 from pathlib import Path
+from threading import Lock
 
 import wasmtime
 from wasmtime import (
@@ -29,6 +30,8 @@ class WASMAbortError(WASMError):
 class LocalBucketing:
     def __init__(self, sdk_key: str) -> None:
         self.random = random.random()
+        self.wasm_lock = Lock()
+        self.flush_lock = Lock()
 
         wasi_cfg = wasmtime.WasiConfig()
         wasi_cfg.inherit_env()
@@ -53,10 +56,10 @@ class LocalBucketing:
         )
 
         def __abort_func(
-                message_ptr=None,
-                filename_ptr=None,
-                line=0,
-                column=0,
+            message_ptr=None,
+            filename_ptr=None,
+            line=0,
+            column=0,
         ) -> None:
             message = None
             filename = None
@@ -183,8 +186,8 @@ class LocalBucketing:
         data = self.wasm_memory.data_ptr(self.wasm_store)
 
         # Parse the string length from the header.
-        string_length = int.from_bytes(data[pointer - 4: pointer], byteorder="little")
-        raw_data = data[pointer: pointer + string_length]
+        string_length = int.from_bytes(data[pointer - 4 : pointer], byteorder="little")
+        raw_data = data[pointer : pointer + string_length]
 
         # This skips every other index in the resulting array because there
         # isn't a great way to parse UTF-16 cleanly that matches the WTF-16
@@ -259,9 +262,9 @@ class LocalBucketing:
 
         # Parse the data length and data pointer from the header.
         data_length = int.from_bytes(
-            data[pointer + 8: pointer + 12], byteorder="little"
+            data[pointer + 8 : pointer + 12], byteorder="little"
         )
-        data_pointer = int.from_bytes(data[pointer: pointer + 4], byteorder="little")
+        data_pointer = int.from_bytes(data[pointer : pointer + 4], byteorder="little")
 
         ret = bytearray(data_length)
 
@@ -275,21 +278,13 @@ class LocalBucketing:
         return ""
 
     def store_config(self, config_json: str) -> None:
-        # TODO lock mutex
-        try:
+        with self.wasm_lock:
             data = config_json.encode("utf-8")
             config_addr = self._new_assembly_script_byte_array(data)
             self.setConfigDataUTF8(self.wasm_store, self.sdk_key_addr, config_addr)
-        finally:
-            # TODO unlock mutex
-            pass
 
     def set_platform_data(self, platform_json: str) -> None:
-        # TODO lock mutex
-        try:
+        with self.wasm_lock:
             data = platform_json.encode("utf-8")
             data_addr = self._new_assembly_script_byte_array(data)
             self.setPlatformDataUTF8(self.wasm_store, data_addr)
-        finally:
-            # TODO unlock mutex
-            pass
