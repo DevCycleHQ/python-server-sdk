@@ -3,7 +3,6 @@ import logging
 from numbers import Real
 from typing import Any, Dict, Union
 
-import devcycle_python_sdk.protobuf.utils as pb_utils
 from devcycle_python_sdk import DevCycleLocalOptions
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
 from devcycle_python_sdk.exceptions import VariableTypeMismatchError
@@ -86,11 +85,11 @@ class DevCycleLocalClient:
             return Variable.create_default_variable(key, default_value)
 
         try:
-            sdk_variable_pb = self.local_bucketing.get_variable_for_user_protobuf(
+            variable = self.local_bucketing.get_variable_for_user_protobuf(
                 user, key, default_value
             )
-            if sdk_variable_pb:
-                return pb_utils.create_variable(sdk_variable_pb, default_value)
+            if variable:
+                return variable
         except VariableTypeMismatchError:
             logger.info("Variable type mismatch, returning default value")
         except Exception as e:

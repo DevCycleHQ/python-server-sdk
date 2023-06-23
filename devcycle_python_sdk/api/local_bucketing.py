@@ -3,7 +3,7 @@ import random
 import time
 from pathlib import Path
 from threading import Lock
-from typing import Any
+from typing import Any, Optional
 
 import wasmtime
 from wasmtime import (
@@ -20,7 +20,7 @@ import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
 
 from devcycle_python_sdk.exceptions import VariableTypeMismatchError
 from devcycle_python_sdk.models.user import User
-from devcycle_python_sdk.models.variable import determine_variable_type
+from devcycle_python_sdk.models.variable import Variable, determine_variable_type
 
 logger = logging.getLogger(__name__)
 
@@ -290,7 +290,7 @@ class LocalBucketing:
 
     def get_variable_for_user_protobuf(
         self, user: User, key: str, default_value: Any
-    ) -> pb2.SDKVariable_PB:
+    ) -> Optional[Variable]:
         var_type = determine_variable_type(default_value)
         pb_variable_type = pb_utils.convert_type_enum_to_variable_type(var_type)
 
@@ -309,7 +309,7 @@ class LocalBucketing:
             variable_addr = self.VariableForUserProtobuf(self.wasm_store, params_addr)
 
             if variable_addr == 0:
-                sdk_variable = None
+                return None
             else:
                 var_bytes = self._read_assembly_script_byte_array(variable_addr)
                 sdk_variable = pb2.SDKVariable_PB()
@@ -323,8 +323,7 @@ class LocalBucketing:
                         "Variable returned does not match requested type: "
                         + pb_variable_type
                     )
-
-        return sdk_variable
+                return pb_utils.create_variable(sdk_variable, default_value)
 
     def store_config(self, config_json: str) -> None:
         with self.wasm_lock:

@@ -2,10 +2,10 @@ import json
 import logging
 import unittest
 
-import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing, WASMAbortError
 from devcycle_python_sdk.models.platform_data import default_platform_data
 from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.variable import TypeEnum
 from test.fixture.data import small_config, large_config, special_character_config
 
 logger = logging.getLogger(__name__)
@@ -90,10 +90,10 @@ class LocalBucketingTest(unittest.TestCase):
                                                                      key="string-var",
                                                                      default_value="default value")
         self.assertIsNotNone(result)
-        self.assertEqual(result._id, "63125320a4719939fd57cb2b")
         self.assertEqual(result.key, "string-var")
-        self.assertEqual(result.type, pb2.VariableType_PB.String)
-        self.assertEqual(result.stringValue, "variationOn")
+        self.assertEqual(result.type, TypeEnum.STRING)
+        self.assertEqual(result.value, "variationOn")
+        self.assertFalse(result.isDefaulted)
 
     def test_get_variable_for_user_protobuf_special_characters(self):
         self.local_bucketing.store_config(special_character_config())
@@ -105,10 +105,10 @@ class LocalBucketingTest(unittest.TestCase):
                                                                      key="string-var",
                                                                      default_value="default value")
         self.assertIsNotNone(result)
-        self.assertEqual(result._id, "63125320a4719939fd57cb2b")
         self.assertEqual(result.key, "string-var")
-        self.assertEqual(result.type, pb2.VariableType_PB.String)
-        self.assertEqual(result.stringValue, "öé 🐍 ¥ variationOn")
+        self.assertEqual(result.type, TypeEnum.STRING)
+        self.assertEqual(result.value, "öé 🐍 ¥ variationOn")
+        self.assertFalse(result.isDefaulted)
 
     def test_get_variable_for_user_protobuf_type_mismatch(self):
         self.local_bucketing.store_config(small_config())
