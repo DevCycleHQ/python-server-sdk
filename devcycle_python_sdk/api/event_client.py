@@ -2,7 +2,7 @@ import json
 import logging
 import time
 from os.path import join
-from typing import Optional
+from typing import Optional, List
 
 import requests
 
@@ -31,7 +31,7 @@ class EventAPIClient:
         self.max_batch_retries = 1
         self.batch_url = join(self.options.events_API_URI, "v1/events/batch")
 
-    def publish_events(self, batch: list[UserEventsBatchRecord]) -> str:
+    def publish_events(self, batch: List[UserEventsBatchRecord]) -> str:
         """
         Attempts to send a batch of events to the server
         """
