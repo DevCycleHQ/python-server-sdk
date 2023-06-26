@@ -1,6 +1,6 @@
 # ruff: noqa: N815
 from dataclasses import dataclass, field
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, List
 import time
 import datetime
 
@@ -68,7 +68,7 @@ class UserEventsBatchRecord:
     """
 
     user: User
-    events: list[RequestEvent]
+    events: List[RequestEvent]
 
     def to_json(self) -> Dict[str, Any]:
         return {
@@ -84,5 +84,5 @@ class FlushPayload:
     """
 
     payloadId: str
-    records: list[UserEventsBatchRecord]
+    records: List[UserEventsBatchRecord]
     eventCount: int
