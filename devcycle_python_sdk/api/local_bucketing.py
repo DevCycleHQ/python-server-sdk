@@ -1,10 +1,10 @@
-from pathlib import Path
-from threading import Lock
-from typing import Any, cast, Optional
 import json
 import logging
 import random
 import time
+from pathlib import Path
+from threading import Lock
+from typing import Any, cast, Optional, List
 
 import wasmtime
 from wasmtime import (
@@ -20,7 +20,6 @@ from wasmtime import (
 
 import devcycle_python_sdk.protobuf.utils as pb_utils
 import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
-
 from devcycle_python_sdk.exceptions import (
     VariableTypeMismatchError,
     MalformedConfigError,
@@ -377,3 +376,13 @@ class LocalBucketing:
             data = client_data_json.encode("utf-8")
             data_addr = self._new_assembly_script_byte_array(data)
             self.setClientCustomDataUTF8(self.wasm_store, self.sdk_key_addr, data_addr)
+
+
+    def flush_event_queue(self) -> List:
+        pass
+    
+    def on_payload_success(self, payload_id: str) -> None:
+        pass
+
+    def on_payload_failure(self, payload_id: str, allow_retry: bool) -> None:
+        pass
