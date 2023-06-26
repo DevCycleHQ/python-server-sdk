@@ -4,7 +4,6 @@ import time
 from os.path import join
 from typing import Optional
 
-from dataclasses import dataclass
 import requests
 
 from devcycle_python_sdk.api.backoff import exponential_backoff
@@ -39,16 +38,22 @@ class EventAPIClient:
         retries_remaining = self.max_batch_retries + 1
         timeout = self.options.event_request_timeout_ms
 
-        payload_json = json.dumps({
-            "batch": [record.to_json() for record in batch],
-        })
+        payload_json = json.dumps(
+            {
+                "batch": [record.to_json() for record in batch],
+            }
+        )
 
         attempts = 1
         while retries_remaining > 0:
             request_error: Optional[Exception] = None
             try:
                 res: requests.Response = self.session.request(
-                    "POST", self.batch_url, params={}, timeout=timeout, data=payload_json
+                    "POST",
+                    self.batch_url,
+                    params={},
+                    timeout=timeout,
+                    data=payload_json,
                 )
                 if res.status_code == 401 or res.status_code == 403:
                     # Not a retryable error
@@ -58,7 +63,9 @@ class EventAPIClient:
                     raise NotFoundError(self.batch_url)
                 elif 400 <= res.status_code < 500:
                     # Not a retryable error
-                    raise APIClientError(f"Bad request: HTTP {res.status_code} - {res.text}")
+                    raise APIClientError(
+                        f"Bad request: HTTP {res.status_code} - {res.text}"
+                    )
                 elif res.status_code >= 500:
                     # Retryable error
                     request_error = APIClientError(

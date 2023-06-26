@@ -15,7 +15,11 @@ from devcycle_python_sdk.exceptions import (
     APIClientUnauthorizedError,
     NotFoundError,
 )
-from devcycle_python_sdk.models.event import UserEventsBatchRecord, RequestEvent, EventType
+from devcycle_python_sdk.models.event import (
+    UserEventsBatchRecord,
+    RequestEvent,
+    EventType,
+)
 from devcycle_python_sdk.models.user import User
 
 logger = logging.getLogger(__name__)
@@ -31,7 +35,13 @@ class EventAPIClientTest(unittest.TestCase):
 
         self.test_user = User(user_id="123")
         events = [
-            RequestEvent(type=EventType.VariableDefaulted, user_id="123", date=time.time(), clientDate=time.time())]
+            RequestEvent(
+                type=EventType.VariableDefaulted,
+                user_id="123",
+                date=time.time(),
+                clientDate=time.time(),
+            )
+        ]
         self.test_batch = [UserEventsBatchRecord(user=self.test_user, events=events)]
 
     @responses.activate

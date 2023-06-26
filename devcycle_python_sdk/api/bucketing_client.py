@@ -141,4 +141,3 @@ class BucketingAPIClient:
         )
         message = data.get("message", "")
         return message
-
