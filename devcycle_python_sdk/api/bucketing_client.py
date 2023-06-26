@@ -1,22 +1,21 @@
 import logging
-import math
-from os.path import join
-import random
 import time
+from os.path import join
 from typing import Dict, List, Optional
 
 import requests
 
+from devcycle_python_sdk.api.backoff import exponential_backoff
+from devcycle_python_sdk.dvc_options import DevCycleCloudOptions
 from devcycle_python_sdk.exceptions import (
     CloudClientError,
     NotFoundError,
     CloudClientUnauthorizedError,
 )
-from devcycle_python_sdk.dvc_options import DevCycleCloudOptions
-from devcycle_python_sdk.models.user import User
 from devcycle_python_sdk.models.event import Event
-from devcycle_python_sdk.models.variable import Variable
 from devcycle_python_sdk.models.feature import Feature
+from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.variable import Variable
 
 logger = logging.getLogger(__name__)
 
@@ -143,11 +142,3 @@ class BucketingAPIClient:
         message = data.get("message", "")
         return message
 
-
-def exponential_backoff(attempt: int, base_delay: float) -> float:
-    """
-    Exponential backoff starting with 200ms +- 0...40ms jitter
-    """
-    delay = math.pow(2, attempt) * base_delay / 2.0
-    random_sum = delay * 0.1 * random.random()
-    return delay + random_sum

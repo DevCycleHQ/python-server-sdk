@@ -37,6 +37,8 @@ class DevCycleLocalOptions:
         event_flush_interval_ms: int = 10000,
         flush_event_queue_size: int = 1000,
         event_request_chunk_size: int = 100,
+        event_request_timeout_ms: int = 10000,
+        event_retry_delay_ms: int = 200,  # milliseconds
         disable_automatic_event_logging: bool = False,
         disable_custom_event_logging: bool = False,
     ):
@@ -52,6 +54,8 @@ class DevCycleLocalOptions:
         self.disable_custom_event_logging = disable_custom_event_logging
         self.config_retry_delay_ms = config_retry_delay_ms
         self.on_client_initialized = on_client_initialized
+        self.event_request_timeout_ms = event_request_timeout_ms
+        self.event_retry_delay_ms = event_retry_delay_ms
 
         if self.flush_event_queue_size >= self.max_event_queue_size:
             logger.warning(

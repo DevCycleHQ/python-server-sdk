@@ -1,13 +1,12 @@
 import logging
-import math
-import random
 import time
-import requests
-
+from http import HTTPStatus
 from os.path import join
 from typing import Optional, Tuple
-from http import HTTPStatus
 
+import requests
+
+from devcycle_python_sdk.api.backoff import exponential_backoff
 from devcycle_python_sdk.dvc_options import DevCycleLocalOptions
 from devcycle_python_sdk.exceptions import (
     APIClientError,
@@ -115,12 +114,3 @@ class ConfigAPIClient:
 
         data: dict = res.json()
         return data, new_etag
-
-
-def exponential_backoff(attempt: int, base_delay: float) -> float:
-    """
-    Exponential backoff starting with 200ms +- 0...40ms jitter
-    """
-    delay = math.pow(2, attempt) * base_delay / 2.0
-    random_sum = delay * 0.1 * random.random()
-    return delay + random_sum
