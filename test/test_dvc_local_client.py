@@ -8,8 +8,9 @@ import responses
 from devcycle_python_sdk import DevCycleLocalClient, DevCycleLocalOptions
 from devcycle_python_sdk.dvc_local_client import _validate_user, _validate_sdk_key
 from devcycle_python_sdk.models.event import Event
+from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.user import User
-from devcycle_python_sdk.models.variable import TypeEnum
+from devcycle_python_sdk.models.variable import Variable, TypeEnum
 from test.fixture.data import small_config_json
 
 logger = logging.getLogger(__name__)
@@ -238,6 +239,80 @@ class DVCLocalClientTest(unittest.TestCase):
                 self.assertDictEqual(result.value, expected, msg="Test key: " + key)
             else:
                 self.assertEqual(result.value, expected, msg="Test key: " + key)
+
+    @responses.activate
+    def test_all_features(self):
+        self.setup_client()
+
+        user = User(user_id="1234")
+
+        result = self.client.all_features(user)
+        self.assertEqual(
+            result,
+            {
+                "a-cool-new-feature": Feature(
+                    _id="62fbf6566f1ba302829f9e32",
+                    key="a-cool-new-feature",
+                    type="release",
+                    _variation="62fbf6566f1ba302829f9e39",
+                    variationName="VariationOn",
+                    variationKey="variation-on",
+                    evalReason=None,
+                )
+            },
+        )
+
+    @responses.activate
+    def test_all_variables(self):
+        self.setup_client()
+
+        user = User(user_id="1234")
+
+        result = self.client.all_variables(user)
+
+        expected_variables = {
+            "a-cool-new-feature": Variable(
+                _id="62fbf6566f1ba302829f9e34",
+                key="a-cool-new-feature",
+                type="Boolean",
+                value=True,
+                isDefaulted=False,
+                defaultValue=None,
+                evalReason=None,
+            ),
+            "string-var": Variable(
+                _id="63125320a4719939fd57cb2b",
+                key="string-var",
+                type="String",
+                value="variationOn",
+                isDefaulted=False,
+                defaultValue=None,
+                evalReason=None,
+            ),
+            "json-var": Variable(
+                _id="64372363125123fca69d3f7b",
+                key="json-var",
+                type="JSON",
+                value={
+                    "displayText": "This variation is on",
+                    "showDialog": True,
+                    "maxUsers": 100,
+                },
+                isDefaulted=False,
+                defaultValue=None,
+                evalReason=None,
+            ),
+            "num-var": Variable(
+                _id="65272363125123fca69d3a7d",
+                key="num-var",
+                type="Number",
+                value=12345,
+                isDefaulted=False,
+                defaultValue=None,
+                evalReason=None,
+            ),
+        }
+        self.assertEqual(result, expected_variables)
 
 
 if __name__ == "__main__":

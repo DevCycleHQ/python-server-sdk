@@ -3,6 +3,17 @@ import logging
 import unittest
 
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing, WASMAbortError
+from devcycle_python_sdk.models.bucketed_config import (
+    Environment,
+    EdgeDBSettings,
+    FeatureVariation,
+    OptInColors,
+    OptInSettings,
+    Project,
+    ProjectSettings,
+)
+from devcycle_python_sdk.models.feature import Feature
+from devcycle_python_sdk.models.variable import Variable
 from devcycle_python_sdk.models.platform_data import default_platform_data
 from devcycle_python_sdk.models.user import User
 from devcycle_python_sdk.models.variable import TypeEnum
@@ -123,6 +134,128 @@ class LocalBucketingTest(unittest.TestCase):
             user=user, key="string-var", default_value=9999
         )
         self.assertIsNone(result)
+
+    def test_generate_bucketed_config(self):
+        self.local_bucketing.store_config(small_config())
+        platform_json = json.dumps(default_platform_data().to_json())
+        self.local_bucketing.set_platform_data(platform_json)
+        self.local_bucketing.init_event_queue("{}")
+        user = User(user_id="test_user_id")
+
+        result = self.local_bucketing.generate_bucketed_config(user=user)
+
+        expected_features = {
+            "a-cool-new-feature": Feature(
+                _id="62fbf6566f1ba302829f9e32",
+                key="a-cool-new-feature",
+                type="release",
+                _variation="62fbf6566f1ba302829f9e39",
+                variationName="VariationOn",
+                variationKey="variation-on",
+                evalReason=None,
+            )
+        }
+        expected_variables = {
+            "a-cool-new-feature": Variable(
+                _id="62fbf6566f1ba302829f9e34",
+                key="a-cool-new-feature",
+                type="Boolean",
+                value=True,
+                isDefaulted=False,
+                defaultValue=None,
+                evalReason=None,
+            ),
+            "string-var": Variable(
+                _id="63125320a4719939fd57cb2b",
+                key="string-var",
+                type="String",
+                value="variationOn",
+                isDefaulted=False,
+                defaultValue=None,
+                evalReason=None,
+            ),
+            "json-var": Variable(
+                _id="64372363125123fca69d3f7b",
+                key="json-var",
+                type="JSON",
+                value={
+                    "displayText": "This variation is on",
+                    "showDialog": True,
+                    "maxUsers": 100,
+                },
+                isDefaulted=False,
+                defaultValue=None,
+                evalReason=None,
+            ),
+            "num-var": Variable(
+                _id="65272363125123fca69d3a7d",
+                key="num-var",
+                type="Number",
+                value=12345,
+                isDefaulted=False,
+                defaultValue=None,
+                evalReason=None,
+            ),
+        }
+
+        self.assertIsNotNone(result)
+        self.assertEqual(result.user, user)
+        self.assertEqual(
+            result.project,
+            Project(
+                id="61f97628ff4afcb6d057dbf0",
+                key="emma-project",
+                a0_organization="org_tPyJN5dvNNirKar7",
+                settings=ProjectSettings(
+                    edge_db=EdgeDBSettings(enabled=False),
+                    opt_in=OptInSettings(
+                        enabled=True,
+                        title="EarlyAccess",
+                        description="Getearlyaccesstobetafeaturesbelow!",
+                        image_url="",
+                        colors=OptInColors(primary="#531cd9", secondary="#16dec0"),
+                    ),
+                ),
+            ),
+        )
+        self.assertEqual(
+            result.environment,
+            Environment(id="61f97628ff4afcb6d057dbf2", key="development"),
+        )
+        self.assertEqual(
+            result.features,
+            expected_features,
+        )
+        self.assertEqual(
+            result.feature_variation_map,
+            {"62fbf6566f1ba302829f9e32": "62fbf6566f1ba302829f9e39"},
+        )
+        self.assertEqual(
+            result.variable_variation_map,
+            {
+                "a-cool-new-feature": FeatureVariation(
+                    feature="62fbf6566f1ba302829f9e32",
+                    variation="62fbf6566f1ba302829f9e39",
+                ),
+                "string-var": FeatureVariation(
+                    feature="62fbf6566f1ba302829f9e32",
+                    variation="62fbf6566f1ba302829f9e39",
+                ),
+                "json-var": FeatureVariation(
+                    feature="62fbf6566f1ba302829f9e32",
+                    variation="62fbf6566f1ba302829f9e39",
+                ),
+                "num-var": FeatureVariation(
+                    feature="62fbf6566f1ba302829f9e32",
+                    variation="62fbf6566f1ba302829f9e39",
+                ),
+            },
+        )
+        self.assertEqual(
+            result.variables,
+            expected_variables,
+        )
+        self.assertEqual(result.known_variable_keys, [])
 
 
 if __name__ == "__main__":

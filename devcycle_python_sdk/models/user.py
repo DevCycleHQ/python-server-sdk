@@ -29,3 +29,24 @@ class User:
             for key in self.__dataclass_fields__
             if getattr(self, key) is not None
         }
+
+    @classmethod
+    def from_json(cls, data: dict) -> "User":
+        return cls(
+            user_id=data["user_id"],
+            email=data.get("email"),
+            name=data.get("name"),
+            language=data.get("language"),
+            country=data.get("country"),
+            appVersion=data.get("appVersion"),
+            appBuild=data.get("appBuild"),
+            customData=data.get("customData", {}),
+            privateCustomData=data.get("privateCustomData", {}),
+            createdDate=data.get("createdDate", int(time())),
+            lastSeenDate=data.get("lastSeenDate"),
+            platform=data.get("platform"),
+            platformVersion=data.get("platformVersion"),
+            deviceModel=data.get("deviceModel"),
+            sdkType=data.get("sdkType"),
+            sdkVersion=data.get("sdkVersion"),
+        )
