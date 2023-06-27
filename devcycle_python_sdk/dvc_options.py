@@ -1,5 +1,5 @@
 import logging
-from typing import Callable, Optional
+from typing import Callable, Optional, Dict, Any
 
 logger = logging.getLogger(__name__)
 
@@ -94,3 +94,14 @@ class DevCycleLocalOptions:
                 self.max_event_queue_size,
             )
             self.max_event_queue_size = 20000
+
+    def event_queue_options(self) -> Dict[str, Any]:
+        return {
+            "flushEventsMS": self.event_flush_interval_ms,
+            "disableAutomaticEventLogging": self.disable_automatic_event_logging,
+            "disableCustomEventLogging": self.disable_custom_event_logging,
+            "maxEventsPerFlush": self.max_event_queue_size,
+            "minEventsPerFlush": self.flush_event_queue_size,
+            "eventRequestChunkSize": self.event_request_chunk_size,
+            "eventsAPIBasePath": self.events_API_URI,
+        }

@@ -2,6 +2,8 @@ import json
 import logging
 import random
 import time
+import json
+
 from pathlib import Path
 from threading import Lock
 from typing import Any, cast, Optional, List
@@ -27,6 +29,7 @@ from devcycle_python_sdk.exceptions import (
 from devcycle_python_sdk.models.bucketed_config import BucketedConfig
 from devcycle_python_sdk.models.user import User
 from devcycle_python_sdk.models.variable import Variable, determine_variable_type
+from devcycle_python_sdk.models.event import FlushPayload
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +48,6 @@ class LocalBucketing:
     def __init__(self, sdk_key: str) -> None:
         self.random = random.random()
         self.wasm_lock = Lock()
-        self.flush_lock = Lock()
 
         wasi_cfg = wasmtime.WasiConfig()
         wasi_cfg.inherit_env()
@@ -377,12 +379,45 @@ class LocalBucketing:
             data_addr = self._new_assembly_script_byte_array(data)
             self.setClientCustomDataUTF8(self.wasm_store, self.sdk_key_addr, data_addr)
 
+    def flush_event_queue(self) -> List[FlushPayload]:
+        """
+        Collects the events that are ready to send to the server. Events are group into separate payloads
 
-    def flush_event_queue(self) -> List:
-        pass
-    
-    def on_payload_success(self, payload_id: str) -> None:
-        pass
+        Returns: a list of FlushPayload objects, or an empty list if there are no events to send
+        """
+        with self.wasm_lock:
+            result_addr = self.flushEventQueue(self.wasm_store, self.sdk_key_addr)
+            if result_addr != 0:
+                result_str = self._read_assembly_script_string(result_addr)
+                result_json = json.loads(result_str)
+                return [FlushPayload.from_json(element) for element in result_json]
+            else:
+                return []
 
-    def on_payload_failure(self, payload_id: str, allow_retry: bool) -> None:
-        pass
+    def on_event_payload_success(self, payload_id: str) -> None:
+        """
+        Notifies the WASM that the events associated with the payload_id have been sent successfully and
+        can be purged from the queue
+        """
+        with self.wasm_lock:
+            id_addr = self._new_assembly_script_string(payload_id)
+            self.onPayloadSuccess(self.wasm_store, self.sdk_key_addr, id_addr)
+
+    def on_event_payload_failure(self, payload_id: str, retryable: bool) -> None:
+        """
+        Notifies the WASM that the events associated with the payload_id failed to be sent and should
+        be re-queued.
+        """
+        with self.wasm_lock:
+            id_addr = self._new_assembly_script_string(payload_id)
+            self.onPayloadFailure(
+                self.wasm_store, self.sdk_key_addr, id_addr, 1 if retryable else 0
+            )
+
+    def get_event_queue_size(self) -> int:
+        """
+        Returns the number of events currently in the queue
+        """
+        with self.wasm_lock:
+            val = self.eventQueueSize(self.wasm_store, self.sdk_key_addr)
+            return int(val)

@@ -89,4 +89,4 @@ class EnvironmentConfigManager(threading.Thread):
 
     def close(self):
         self._polling_enabled = False
-        self.join(timeout=5.0)
+        self.join(timeout=1)

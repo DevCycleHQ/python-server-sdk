@@ -258,5 +258,72 @@ class LocalBucketingTest(unittest.TestCase):
         self.assertEqual(result.known_variable_keys, [])
 
 
+    def test_get_event_queue_size(self):
+        self.local_bucketing.store_config(small_config())
+        platform_json = json.dumps(default_platform_data().to_json())
+        self.local_bucketing.set_platform_data(platform_json)
+        self.local_bucketing.init_event_queue("{}")
+        result = self.local_bucketing.get_event_queue_size()
+        self.assertEqual(result, 0)
+
+    def test_flush_event_queue_empty(self):
+        self.local_bucketing.store_config(small_config())
+        platform_json = json.dumps(default_platform_data().to_json())
+        self.local_bucketing.set_platform_data(platform_json)
+
+        self.local_bucketing.init_event_queue(json.dumps(
+            {"disableAutomaticEventLogging": False, "disableCustomEventLogging": False, "minEventsPerFlush": 1}))
+        results = self.local_bucketing.flush_event_queue()
+        self.assertIsNotNone(results)
+        self.assertListEqual(results, [])
+
+    def test_flush_event_queue(self):
+        self.local_bucketing.store_config(small_config())
+        platform_json = json.dumps(default_platform_data().to_json())
+        self.local_bucketing.set_platform_data(platform_json)
+
+        self.local_bucketing.init_event_queue(json.dumps(
+            {"disableAutomaticEventLogging": False, "disableCustomEventLogging": False, "minEventsPerFlush": 1}))
+
+        # trigger two events for a single user
+        user = User(user_id="test_user_id")
+        self.local_bucketing.get_variable_for_user_protobuf(
+            user=user, key="string-var", default_value="default value"
+        )
+        self.local_bucketing.get_variable_for_user_protobuf(
+            user=user, key="bool-var", default_value=False
+        )
+        results = self.local_bucketing.flush_event_queue()
+        self.assertIsNotNone(results)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].eventCount, 2)
+        self.assertIsNotNone(results[0].payloadId)
+        self.assertTrue(len(results[0].payloadId) > 0)
+        self.assertEqual(len(results[0].records), 1)
+        self.assertEqual(len(results[0].records[0].events), 2)
+
+    def test_on_event_payload_failure_unknown_payload_id(self):
+        self.local_bucketing.store_config(small_config())
+        platform_json = json.dumps(default_platform_data().to_json())
+        self.local_bucketing.set_platform_data(platform_json)
+
+        self.local_bucketing.init_event_queue(json.dumps(
+            {"disableAutomaticEventLogging": False, "disableCustomEventLogging": False, "minEventsPerFlush": 1}))
+
+        with self.assertRaises(WASMAbortError):
+            self.local_bucketing.on_event_payload_failure("test_payload_id", True)
+
+    def test_on_event_payload_success_unknown_payload_id(self):
+        self.local_bucketing.store_config(small_config())
+        platform_json = json.dumps(default_platform_data().to_json())
+        self.local_bucketing.set_platform_data(platform_json)
+
+        self.local_bucketing.init_event_queue(json.dumps(
+            {"disableAutomaticEventLogging": False, "disableCustomEventLogging": False, "minEventsPerFlush": 1}))
+
+        with self.assertRaises(WASMAbortError):
+            self.local_bucketing.on_event_payload_success("test_payload_id")
+
+
 if __name__ == "__main__":
     unittest.main()
