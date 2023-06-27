@@ -37,3 +37,7 @@ class NotFoundError(Exception):
 class VariableTypeMismatchError(Exception):
     def __init__(self, message: str):
         super().__init__(message)
+
+
+class MalformedConfigError(Exception):
+    pass

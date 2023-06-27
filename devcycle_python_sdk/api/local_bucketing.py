@@ -21,7 +21,10 @@ from wasmtime import (
 import devcycle_python_sdk.protobuf.utils as pb_utils
 import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
 
-from devcycle_python_sdk.exceptions import VariableTypeMismatchError
+from devcycle_python_sdk.exceptions import (
+    VariableTypeMismatchError,
+    MalformedConfigError,
+)
 from devcycle_python_sdk.models.bucketed_config import BucketedConfig
 from devcycle_python_sdk.models.user import User
 from devcycle_python_sdk.models.variable import Variable, determine_variable_type
@@ -346,9 +349,15 @@ class LocalBucketing:
 
             config_data = json.loads(config_bytes.decode("utf-8"))
 
-            # TODO: wrap exceptions from parsing BucketedConfig
-            config = BucketedConfig.from_json(config_data)
+            try:
+                config = BucketedConfig.from_json(config_data)
+            except KeyError as e:
+                raise MalformedConfigError(
+                    f"Failed to parse bucketed config: missing key {e}"
+                ) from e
+
             config.user = user
+
             return config
 
     def store_config(self, config_json: str) -> None:
