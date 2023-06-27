@@ -96,6 +96,9 @@ class DevCycleLocalOptions:
             self.max_event_queue_size = 20000
 
     def event_queue_options(self) -> Dict[str, Any]:
+        """
+        Returns a read-only view of the options that are relevant to the event subsystem
+        """
         return {
             "flushEventsMS": self.event_flush_interval_ms,
             "disableAutomaticEventLogging": self.disable_automatic_event_logging,
