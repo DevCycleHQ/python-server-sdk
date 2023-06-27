@@ -47,7 +47,7 @@ class Variable:
             key=data["key"],
             type=data["type"],
             value=data["value"],
-            isDefaulted=data.get("isDefaulted", False),
+            isDefaulted=data.get("isDefaulted", None),
             defaultValue=data.get("defaultValue"),
             evalReason=data.get("evalReason"),
         )
