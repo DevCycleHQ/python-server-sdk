@@ -15,7 +15,7 @@ class EdgeDBSettings:
     @classmethod
     def from_json(cls, data: dict) -> "EdgeDBSettings":
         return cls(
-            enabled=data["enabled"],
+            enabled=data.get("enabled", False),
         )
 
 
@@ -27,8 +27,8 @@ class OptInColors:
     @classmethod
     def from_json(cls, data: dict) -> "OptInColors":
         return cls(
-            primary=data["primary"],
-            secondary=data["secondary"],
+            primary=data.get("primary", ""),
+            secondary=data.get("secondary", ""),
         )
 
 
@@ -43,24 +43,26 @@ class OptInSettings:
     @classmethod
     def from_json(cls, data: dict) -> "OptInSettings":
         return cls(
-            enabled=data["enabled"],
-            title=data["title"],
-            description=data["description"],
-            image_url=data["imageURL"],
-            colors=OptInColors.from_json(data["colors"]),
+            enabled=data.get("enabled", False),
+            title=data.get("title", ""),
+            description=data.get("description", ""),
+            image_url=data.get("imageURL", ""),
+            colors=OptInColors.from_json(data.get("colors", "")),
         )
 
 
 @dataclass
 class ProjectSettings:
-    edge_db: EdgeDBSettings
-    opt_in: OptInSettings
+    edge_db: Optional[EdgeDBSettings]
+    opt_in: Optional[OptInSettings]
 
     @classmethod
     def from_json(cls, data: dict) -> "ProjectSettings":
         return cls(
-            edge_db=EdgeDBSettings.from_json(data["edgeDB"]),
-            opt_in=OptInSettings.from_json(data["optIn"]),
+            edge_db=EdgeDBSettings.from_json(data["edgeDB"])
+            if "edgeDB" in data
+            else None,
+            opt_in=OptInSettings.from_json(data["optIn"]) if "optIn" in data else None,
         )
 
 
@@ -69,7 +71,7 @@ class Project:
     id: str
     key: str
     a0_organization: str
-    settings: ProjectSettings
+    settings: Optional[ProjectSettings]
 
     @classmethod
     def from_json(cls, data: dict) -> "Project":
@@ -77,7 +79,9 @@ class Project:
             id=data["_id"],
             key=data["key"],
             a0_organization=data["a0_organization"],
-            settings=ProjectSettings.from_json(data["settings"]),
+            settings=ProjectSettings.from_json(data["settings"])
+            if "settings" in data
+            else None,
         )
 
 
