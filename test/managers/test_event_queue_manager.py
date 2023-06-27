@@ -68,6 +68,7 @@ class EventQueueManagerTest(unittest.TestCase):
         self.assertTrue(manager._processing_enabled)
         self.assertTrue(manager.is_alive())
         self.assertTrue(manager.daemon)
+
     def test_close(self):
         self.test_local_bucketing.flush_event_queue.return_value = []
         self.test_options.event_flush_interval_ms = 100
@@ -111,7 +112,6 @@ class EventQueueManagerTest(unittest.TestCase):
         self.test_local_bucketing.flush_event_queue = MagicMock()
         self.test_local_bucketing.flush_event_queue.return_value = []
 
-        # this will disable the thread
         manager = EventQueueManager(self.sdk_key, self.test_options_no_thread, self.test_local_bucketing)
         manager._flush_events()
 
@@ -124,7 +124,6 @@ class EventQueueManagerTest(unittest.TestCase):
             self.test_payload
         ]
 
-        # this will disable the thread
         manager = EventQueueManager(self.sdk_key, self.test_options_no_thread, self.test_local_bucketing)
         result = manager._flush_events()
 
