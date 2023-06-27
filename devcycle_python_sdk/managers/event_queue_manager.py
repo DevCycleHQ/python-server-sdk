@@ -9,6 +9,7 @@ from devcycle_python_sdk.api.event_client import EventAPIClient
 from devcycle_python_sdk.exceptions import (
     APIClientError,
     APIClientUnauthorizedError,
+    NotFoundError,
 )
 from devcycle_python_sdk.models.event import FlushPayload, EventType
 
@@ -32,7 +33,7 @@ class EventQueueManager(threading.Thread):
         self._options = options
         self._local_bucketing = local_bucketing
         self._event_api_client = EventAPIClient(self._sdk_key, self._options)
-        self.flush_lock = threading.Lock()
+        self._flush_lock = threading.Lock()
 
         # Setup the event queue inside the WASM module
         event_options_json = json.dumps(self._options.event_queue_options())
@@ -49,43 +50,42 @@ class EventQueueManager(threading.Thread):
         else:
             self._processing_enabled = False
 
-    def _flush_events(self):
-        if self.flush_lock.locked():
-            return
+    def _flush_events(self) -> int:
+        if self._flush_lock.locked():
+            return 0
 
-        with self.flush_lock:
+        with self._flush_lock:
             try:
                 payloads = self._local_bucketing.flush_event_queue()
             except Exception as e:
                 logger.error(f"Error flushing event payloads: {str(e)}")
 
+            event_count = 0
             if payloads:
                 logger.info(f"DVC Flush {len(payloads)} event payloads")
-                event_count = 0
                 for payload in payloads:
                     event_count += payload.eventCount
                     self._publish_event_payload(payload)
                 logger.info(
                     f"DVC Flush {event_count} events, for {len(payloads)} users"
                 )
+            return event_count
 
     def _publish_event_payload(self, payload: FlushPayload) -> None:
         if payload and payload.records:
             try:
                 self._event_api_client.publish_events(payload.records)
                 self._local_bucketing.on_event_payload_success(payload.payloadId)
-            except APIClientError as e:
-                allow_retry = True
-                if isinstance(e, APIClientUnauthorizedError):
-                    logger.error(
-                        "Unauthorized to publish events, please check your SDK key"
-                    )
-                    self._processing_enabled = False
-                    allow_retry = False
-
-                self._local_bucketing.on_event_payload_failure(
-                    payload.payloadId, allow_retry
+            except (APIClientUnauthorizedError, NotFoundError):
+                logger.error(
+                    "Unauthorized to publish events, please check your SDK key"
                 )
+                # stop the thread
+                self._processing_enabled = False
+                self._local_bucketing.on_event_payload_failure(payload.payloadId, False)
+            except APIClientError as e:
+                logger.warning(f"Error publishing events: {str(e)}")
+                self._local_bucketing.on_event_payload_failure(payload.payloadId, True)
 
     def is_event_logging_disabled(self, event_type: str) -> bool:
         if event_type in [
