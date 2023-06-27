@@ -115,7 +115,7 @@ class DevCycleLocalClient:
         try:
             return self.local_bucketing.generate_bucketed_config(user).variables
         except Exception as e:
-            logger.error("Error retrieving all features for a user: %s", e)
+            logger.exception("Error retrieving all variables for a user: %s", e)
             return {}
 
         return variable_map
@@ -131,7 +131,7 @@ class DevCycleLocalClient:
         try:
             return self.local_bucketing.generate_bucketed_config(user).features
         except Exception as e:
-            logger.error("Error retrieving all features for a user: %s", e)
+            logger.exception("Error retrieving all features for a user: %s", e)
 
         return feature_map
 
