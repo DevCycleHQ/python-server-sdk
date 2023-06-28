@@ -83,6 +83,12 @@ class EventQueueManager(threading.Thread):
                 # stop the thread
                 self._processing_enabled = False
                 self._local_bucketing.on_event_payload_failure(payload.payloadId, False)
+            except NotFoundError as e:
+                logger.error(
+                    f"Unable to reach the DevCycle Events API service: {str(e)}"
+                )
+                self._processing_enabled = False
+                self._local_bucketing.on_event_payload_failure(payload.payloadId, False)
             except APIClientError as e:
                 logger.warning(f"Error publishing events: {str(e)}")
                 self._local_bucketing.on_event_payload_failure(payload.payloadId, True)
