@@ -2,13 +2,16 @@ import logging
 import time
 import unittest
 import uuid
+from unittest.mock import patch
 
 import responses
 
 from devcycle_python_sdk import DevCycleLocalClient, DevCycleLocalOptions
 from devcycle_python_sdk.dvc_local_client import _validate_user, _validate_sdk_key
+from devcycle_python_sdk.exceptions import MalformedConfigError
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.models.feature import Feature
+from devcycle_python_sdk.api.local_bucketing import LocalBucketing
 from devcycle_python_sdk.models.user import User
 from devcycle_python_sdk.models.variable import Variable, TypeEnum
 from test.fixture.data import small_config_json
@@ -23,14 +26,14 @@ class DVCLocalClientTest(unittest.TestCase):
         self.test_etag = "2f71454e-3279-4ca7-a8e7-802ce97bef43"
 
         config_url = "http://localhost/config/v1/server/" + self.sdk_key + ".json"
-        for i in range(1, 10):
-            responses.add(
-                responses.GET,
-                config_url,
-                headers={"ETag": self.test_etag},
-                json=self.test_config_json,
-                status=200,
-            )
+
+        responses.add(
+            responses.GET,
+            config_url,
+            headers={"ETag": self.test_etag},
+            json=self.test_config_json,
+            status=200,
+        )
 
         self.options = DevCycleLocalOptions(
             config_polling_interval_ms=500, config_cdn_uri="http://localhost/"
@@ -263,6 +266,20 @@ class DVCLocalClientTest(unittest.TestCase):
         )
 
     @responses.activate
+    @patch.object(
+        LocalBucketing,
+        "generate_bucketed_config",
+        side_effect=MalformedConfigError("bad config"),
+    )
+    def test_all_features_exception(self, _):
+        self.setup_client()
+
+        user = User(user_id="1234")
+
+        result = self.client.all_features(user)
+        self.assertEqual(result, {})
+
+    @responses.activate
     def test_all_variables(self):
         self.setup_client()
 
@@ -313,6 +330,20 @@ class DVCLocalClientTest(unittest.TestCase):
             ),
         }
         self.assertEqual(result, expected_variables)
+
+    @responses.activate
+    @patch.object(
+        LocalBucketing,
+        "generate_bucketed_config",
+        side_effect=MalformedConfigError("bad config"),
+    )
+    def test_all_variables_exception(self, _):
+        self.setup_client()
+
+        user = User(user_id="1234")
+
+        result = self.client.all_variables(user)
+        self.assertEqual(result, {})
 
 
 if __name__ == "__main__":

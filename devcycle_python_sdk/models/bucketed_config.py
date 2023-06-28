@@ -132,23 +132,19 @@ class BucketedConfig:
 
     @classmethod
     def from_json(cls, data: dict) -> "BucketedConfig":
-        try:
-            return cls(
-                project=Project.from_json(data["project"]),
-                environment=Environment.from_json(data["environment"]),
-                features={
-                    k: Feature.from_json(v) for k, v in data.get("features", {}).items()
-                },
-                feature_variation_map=data.get("featureVariationMap", {}),
-                variable_variation_map={
-                    k: FeatureVariation.from_json(v)
-                    for k, v in data.get("variableVariationMap", {}).items()
-                },
-                variables={
-                    k: Variable.from_json(v)
-                    for k, v in data.get("variables", {}).items()
-                },
-                known_variable_keys=data.get("knownVariableKeys", []),
-            )
-        except KeyError as e:
-            raise ValueError(f"Failed to parse bucketed config: missing key {e}") from e
+        return cls(
+            project=Project.from_json(data["project"]),
+            environment=Environment.from_json(data["environment"]),
+            features={
+                k: Feature.from_json(v) for k, v in data.get("features", {}).items()
+            },
+            feature_variation_map=data.get("featureVariationMap", {}),
+            variable_variation_map={
+                k: FeatureVariation.from_json(v)
+                for k, v in data.get("variableVariationMap", {}).items()
+            },
+            variables={
+                k: Variable.from_json(v) for k, v in data.get("variables", {}).items()
+            },
+            known_variable_keys=data.get("knownVariableKeys", []),
+        )

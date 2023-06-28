@@ -1,0 +1,126 @@
+{
+    "project": {
+        "_id": "638680c459f1b81cc9e6c557",
+        "key": "test-harness-data",
+        "a0_organization": "org_fakeorg",
+        "settings": {
+            "edgeDB": {
+                "enabled": false
+            },
+            "optIn": {
+                "enabled": false,
+                "colors": {
+                    "primary": "#000000",
+                    "secondary": "#000000"
+                },
+                "title": "title",
+                "description": "description",
+                "image_url": "image_url"
+            }
+        }
+    },
+    "environment": {
+        "_id": "638680c459f1b81cc9e6c559",
+        "key": "development"
+    },
+    "features": {
+        "test-harness": {
+            "_id": "638680d6fcb67b96878d90e6",
+            "type": "release",
+            "key": "test-harness",
+            "_variation": "638680d6fcb67b96878d90ec",
+            "variationName": "Variation On",
+            "variationKey": "variation-on"
+        },
+        "schedule-feature": {
+            "_id": "6386813a59f1b81cc9e6c68d",
+            "type": "release",
+            "key": "schedule-feature",
+            "_variation": "6386813a59f1b81cc9e6c693",
+            "variationName": "Variation On",
+            "variationKey": "variation-on"
+        }
+    },
+    "featureVariationMap": {
+        "638680d6fcb67b96878d90e6": "638680d6fcb67b96878d90ec",
+        "6386813a59f1b81cc9e6c68d": "6386813a59f1b81cc9e6c693"
+    },
+    "variableVariationMap": {
+        "bool-var": {
+            "_feature": "638680d6fcb67b96878d90e6",
+            "_variation": "638680d6fcb67b96878d90ec"
+        },
+        "string-var": {
+            "_feature": "638680d6fcb67b96878d90e6",
+            "_variation": "638680d6fcb67b96878d90ec"
+        },
+        "number-var": {
+            "_feature": "638680d6fcb67b96878d90e6",
+            "_variation": "638680d6fcb67b96878d90ec"
+        },
+        "json-var": {
+            "_feature": "638680d6fcb67b96878d90e6",
+            "_variation": "638680d6fcb67b96878d90ec"
+        },
+        "unicode-var": {
+            "_feature": "638680d6fcb67b96878d90e6",
+            "_variation": "638680d6fcb67b96878d90ec"
+        },
+        "schedule-feature": {
+            "_feature": "6386813a59f1b81cc9e6c68d",
+            "_variation": "6386813a59f1b81cc9e6c693"
+        }
+    },
+    "variables": {
+        "bool-var": {
+            "_id": "638681f059f1b81cc9e6c7fa",
+            "type": "Boolean",
+            "key": "bool-var",
+            "value": true,
+            "isDefaulted": false,
+            "defaultValue": false,
+            "evalReason": "evalReason"
+        },
+        "string-var": {
+            "_id": "638681f059f1b81cc9e6c7fb",
+            "type": "String",
+            "key": "string-var",
+            "value": "string",
+            "isDefaulted": false,
+            "defaultValue": "default",
+            "evalReason": "evalReason"
+        },
+        "number-var": {
+            "_id": "638681f059f1b81cc9e6c7fc",
+            "type": "Number",
+            "key": "number-var",
+            "value": 1,
+            "isDefaulted": false,
+            "defaultValue": 0,
+            "evalReason": "evalReason"
+        },
+        "json-var": {
+            "_id": "638681f059f1b81cc9e6c7fd",
+            "type": "JSON",
+            "key": "json-var",
+            "value": {
+                "facts": true
+            },
+            "isDefaulted": false,
+            "defaultValue": {},
+            "evalReason": "evalReason"
+        },
+        "unicode-var": {
+            "_id": "638681f059f1b81cc9e6c7fe",
+            "type": "String",
+            "key": "unicode-var",
+            "value": "↑↑↓↓←→←→BA 🤖"
+        },
+        "schedule-feature": {
+            "_id": "6386813a59f1b81cc9e6c68f",
+            "type": "Boolean",
+            "key": "schedule-feature",
+            "value": true
+        }
+    }
+}

@@ -39,3 +39,19 @@ def large_config() -> str:
 def large_config_json() -> dict:
     data = large_config()
     return json.loads(data)
+
+
+def bucketed_config() -> str:
+    config_filename = os.path.join(
+        os.path.dirname(__file__), "fixture_bucketed_config.json"
+    )
+    with open(config_filename, "r") as f:
+        return f.read()
+
+
+def bucketed_config_minimal() -> str:
+    config_filename = os.path.join(
+        os.path.dirname(__file__), "fixture_bucketed_config_minimal.json"
+    )
+    with open(config_filename, "r") as f:
+        return f.read()
