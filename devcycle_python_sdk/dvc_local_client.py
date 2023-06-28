@@ -87,7 +87,11 @@ class DevCycleLocalClient:
                     bucketed_config=None,
                 )
             except Exception as e:
-                logger.error("Unable to track AggVariableDefaulted event for Variable %s: %s", key, e)
+                logger.error(
+                    "Unable to track AggVariableDefaulted event for Variable %s: %s",
+                    key,
+                    e,
+                )
             return Variable.create_default_variable(key, default_value)
 
         try:
