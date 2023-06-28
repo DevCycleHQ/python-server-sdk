@@ -157,9 +157,7 @@ class DevCycleLocalClient:
         Closes the client and releases any resources held by it.
         """
         self.config_manager.close()
-
-        if self.event_queue_manager:
-            self.event_queue_manager.close()
+        self.event_queue_manager.close()
 
 
 def _validate_sdk_key(sdk_key: str) -> None:

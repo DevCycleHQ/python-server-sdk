@@ -1,5 +1,4 @@
 import logging
-import time
 import unittest
 import uuid
 from http import HTTPStatus
@@ -38,8 +37,8 @@ class EventAPIClientTest(unittest.TestCase):
             RequestEvent(
                 type=EventType.VariableDefaulted,
                 user_id="123",
-                date=time.time(),
-                clientDate=time.time(),
+                date="2023-06-27T12:50:19.871Z",
+                clientDate="2023-06-27T12:50:19.871Z",
             )
         ]
         self.test_batch = [UserEventsBatchRecord(user=self.test_user, events=events)]

@@ -29,7 +29,7 @@ class EventAPIClient:
         }
         self.session.max_redirects = 0
         self.max_batch_retries = 1
-        self.batch_url = join(self.options.events_API_URI, "v1/events/batch")
+        self.batch_url = join(self.options.events_api_uri, "v1/events/batch")
 
     def publish_events(self, batch: List[UserEventsBatchRecord]) -> str:
         """

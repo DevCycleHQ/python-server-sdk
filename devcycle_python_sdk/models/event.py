@@ -2,7 +2,6 @@
 from dataclasses import dataclass, field
 from typing import Dict, Optional, Any, List
 import time
-import datetime
 
 from .user import User
 
@@ -39,26 +38,36 @@ class RequestEvent:
 
     type: str
     user_id: str
-    clientDate: float
-    date: float = field(default_factory=lambda: time.time())
+    # will be a timestamp in iso format
+    clientDate: str
+    # will be a timestamp in iso format
+    date: str
     target: Optional[str] = None
     customType: Optional[str] = None
-    value: Optional[int] = None
+    value: Optional[float] = 0
     featureVars: Dict[str, str] = field(default_factory=dict)
     metaData: Dict[str, str] = field(default_factory=dict)
 
     def to_json(self):
         json_obj = {}
         for key in self.__dataclass_fields__:
-            if key == "date" or key == "clientDate":
-                # timestamps come from the WASM as milliseconds since epoch
-                # needs to be converted to yyyy-MM-dd'T'hh:mm:ss.SSS'Z' format
-                json_date = datetime.datetime.fromtimestamp(getattr(self, key))
-                json_obj[key] = f"{json_date.isoformat()}Z"
-            else:
-                json_obj[key] = getattr(self, key)
+            json_obj[key] = getattr(self, key)
 
         return json_obj
+
+    @classmethod
+    def from_json(cls, data: dict) -> "RequestEvent":
+        return cls(
+            type=data["type"],
+            user_id=data["user_id"],
+            clientDate=data["clientDate"],
+            date=data["date"],
+            target=data.get("target"),
+            customType=data.get("customType"),
+            value=data.get("value", 0),
+            featureVars=data.get("featureVars", {}),
+            metaData=data.get("metaData", {}),
+        )
 
 
 @dataclass()
@@ -76,8 +85,15 @@ class UserEventsBatchRecord:
             "events": [event.to_json() for event in self.events],
         }
 
+    @classmethod
+    def from_json(cls, data: dict) -> "UserEventsBatchRecord":
+        return cls(
+            user=User.from_json(data["user"]),
+            events=[RequestEvent.from_json(element) for element in data["events"]],
+        )
 
-@dataclass(order=False)
+
+@dataclass()
 class FlushPayload:
     """
     A collection of events exported by the local bucketing library that can be sent to the Events API as a batch
@@ -86,3 +102,13 @@ class FlushPayload:
     payloadId: str
     records: List[UserEventsBatchRecord]
     eventCount: int
+
+    @classmethod
+    def from_json(cls, data: dict) -> "FlushPayload":
+        return cls(
+            payloadId=data["payloadId"],
+            eventCount=data["eventCount"],
+            records=[
+                UserEventsBatchRecord.from_json(element) for element in data["records"]
+            ],
+        )

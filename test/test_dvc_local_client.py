@@ -86,8 +86,6 @@ class DVCLocalClientTest(unittest.TestCase):
     @responses.activate
     def test_variable_bad_user(self):
         self.setup_client()
-        while not self.client.is_initialized():
-            time.sleep(0.1)
 
         with self.assertRaises(ValueError):
             self.client.variable(None, "strKey", "default_value")
@@ -98,8 +96,6 @@ class DVCLocalClientTest(unittest.TestCase):
     @responses.activate
     def test_variable_bad_key_and_value(self):
         self.setup_client()
-        while not self.client.is_initialized():
-            time.sleep(0.1)
 
         with self.assertRaises(ValueError):
             self.client.variable(self.test_user, None, "default_value")

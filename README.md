@@ -62,7 +62,7 @@ pip install --editable .
 from the top level of the repo (same level as setup.py). Then run the example app as normal.
 
 
-### Linting
+### Linting & Formatting
 
 Linting checks on PRs are run using [ruff](https://github.com/charliermarsh/ruff), and are configured using `.ruff.toml`. To run the linter locally, run this command from the top level of the repo:
 ```
@@ -73,6 +73,14 @@ Ruff can automatically fix simple linting errors (the ones marked with `[*]`). T
 ```
 ruff check . --fix
 ```
+
+Formatting checks on PRs are done using [black](https://github.com/psf/black). To run the formatter locally, run this command from the top level of the repo:
+
+```
+black --target-version py37 --extend-exclude '_pb2\.pyi?$' .
+```
+
+
 
 ### Unit Tests
 
