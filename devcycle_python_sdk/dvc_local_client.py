@@ -9,7 +9,7 @@ from devcycle_python_sdk.exceptions import VariableTypeMismatchError
 from devcycle_python_sdk.managers.config_manager import EnvironmentConfigManager
 from devcycle_python_sdk.managers.event_queue_manager import EventQueueManager
 from devcycle_python_sdk.models.bucketed_config import BucketedConfig
-from devcycle_python_sdk.models.event import Event
+from devcycle_python_sdk.models.event import Event, EventType
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.platform_data import default_platform_data
 from devcycle_python_sdk.models.user import User
@@ -81,8 +81,13 @@ class DevCycleLocalClient:
 
         if not self.is_initialized():
             logger.debug("variable called before client has initialized")
-            # TODO track aggregate event for default variable
-            # need event queue setup for this
+            try:
+                self.event_queue_manager.queue_aggregate_event(
+                    event=Event(type=EventType.AggVariableDefaulted, target=key),
+                    bucketed_config=None,
+                )
+            except Exception as e:
+                logger.error("Unable to track AggVariableDefaulted event for Variable %s: %s", key, e)
             return Variable.create_default_variable(key, default_value)
 
         try:
@@ -145,9 +150,8 @@ class DevCycleLocalClient:
             logger.debug("track called before client has initialized")
             return
 
-        # events = [user_event]
         try:
-            # TODO delegate to local bucketing api
+            self.event_queue_manager.queue_event(user, user_event)
             pass
         except Exception as e:
             logger.error("Error tracking event: %s", e)
