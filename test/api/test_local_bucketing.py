@@ -257,7 +257,6 @@ class LocalBucketingTest(unittest.TestCase):
         )
         self.assertEqual(result.known_variable_keys, [])
 
-
     def test_get_event_queue_size(self):
         self.local_bucketing.store_config(small_config())
         platform_json = json.dumps(default_platform_data().to_json())
