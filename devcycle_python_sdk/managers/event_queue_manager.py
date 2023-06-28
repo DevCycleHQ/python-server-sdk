@@ -1,7 +1,8 @@
 import threading
-import time
 import logging
 import json
+import time
+from typing import Any
 
 from devcycle_python_sdk.dvc_options import DevCycleLocalOptions
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
@@ -14,15 +15,18 @@ from devcycle_python_sdk.exceptions import (
 from devcycle_python_sdk.models.event import FlushPayload, EventType
 
 
+from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.event import Event
+
 logger = logging.getLogger(__name__)
 
 
 class EventQueueManager(threading.Thread):
     def __init__(
-        self,
-        sdk_key: str,
-        options: DevCycleLocalOptions,
-        local_bucketing: LocalBucketing,
+            self,
+            sdk_key: str,
+            options: DevCycleLocalOptions,
+            local_bucketing: LocalBucketing,
     ):
         super().__init__()
 
@@ -115,3 +119,37 @@ class EventQueueManager(threading.Thread):
     def close(self):
         self._processing_enabled = False
         self.join(timeout=1)
+
+    def queue_event(self, user: User, event: Event) -> None:
+        if user is None:
+            raise ValueError("user cannot be None")
+
+        if event is None:
+            raise ValueError("event cannot be None")
+
+        if self.is_queue_full():
+            logger.warning("Event queue is full, dropping event")
+        else:
+            user_json = json.dumps(user.to_json())
+            event_json = json.dumps(event.to_json())
+            self.local_bucketing.queue_event(user_json, event_json)
+            logger.info("Event queued")
+
+    def queue_aggregate_event(self, event: Event, bucketed_config: Any) -> None:
+        if event is None:
+            raise ValueError("event cannot be None")
+
+        if self.is_queue_full():
+            pass
+        else:
+            # clone the event
+            event.value = 1
+            event.date = int(time.time())
+
+            event_json = json.dumps(event.to_json())
+            variation_map_json = "{}"
+            self.local_bucketing.queue_aggregate_event(event_json, variation_map_json)
+
+    def is_queue_full(self) -> bool:
+        # TODO check if queue is full
+        return False
