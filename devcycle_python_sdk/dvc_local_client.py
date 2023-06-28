@@ -83,7 +83,9 @@ class DevCycleLocalClient:
             logger.debug("variable called before client has initialized")
             try:
                 self.event_queue_manager.queue_aggregate_event(
-                    event=Event(type=EventType.AggVariableDefaulted, target=key),
+                    event=Event(
+                        type=EventType.AggVariableDefaulted, target=key, value=1
+                    ),
                     bucketed_config=None,
                 )
             except Exception as e:

@@ -2,7 +2,7 @@ import threading
 import logging
 import json
 import time
-from typing import Any
+from typing import Optional
 
 from devcycle_python_sdk.dvc_options import DevCycleLocalOptions
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
@@ -12,13 +12,20 @@ from devcycle_python_sdk.exceptions import (
     APIClientUnauthorizedError,
     NotFoundError,
 )
-from devcycle_python_sdk.models.event import FlushPayload, EventType
-
-
+from devcycle_python_sdk.models.event import (
+    FlushPayload,
+    Event,
+    EventType,
+)
 from devcycle_python_sdk.models.user import User
-from devcycle_python_sdk.models.event import Event
+from devcycle_python_sdk.models.bucketed_config import BucketedConfig
+
 
 logger = logging.getLogger(__name__)
+
+
+class QueueFullError(Exception):
+    pass
 
 
 class EventQueueManager(threading.Thread):
@@ -127,29 +134,55 @@ class EventQueueManager(threading.Thread):
         if event is None:
             raise ValueError("event cannot be None")
 
-        if self.is_queue_full():
-            logger.warning("Event queue is full, dropping event")
-        else:
-            user_json = json.dumps(user.to_json())
-            event_json = json.dumps(event.to_json())
-            self.local_bucketing.queue_event(user_json, event_json)
-            logger.info("Event queued")
+        if not event.type:
+            raise ValueError("event type not set")
 
-    def queue_aggregate_event(self, event: Event, bucketed_config: Any) -> None:
+        try:
+            self._check_queue_status()
+        except QueueFullError:
+            logger.warning(f"Event queue is full, dropping event: {event}")
+            return
+
+        user_json = json.dumps(user.to_json())
+        event_json = json.dumps(event.to_json())
+        self._local_bucketing.queue_event(user_json, event_json)
+
+    def queue_aggregate_event(
+        self, event: Event, bucketed_config: Optional[BucketedConfig]
+    ) -> None:
         if event is None:
             raise ValueError("event cannot be None")
 
-        if self.is_queue_full():
-            pass
+        if not event.type:
+            raise ValueError("event type not set")
+
+        if not event.target:
+            raise ValueError("event target not set")
+
+        try:
+            self._check_queue_status()
+        except QueueFullError:
+            logger.warning("Event queue is full, dropping event")
+            return
+
+        event_json = json.dumps(event.to_json())
+        if bucketed_config and bucketed_config.variable_variation_map:
+            variation_map_json = json.dumps(bucketed_config.variable_variation_map)
         else:
-            # clone the event
-            event.value = 1
-            event.date = int(time.time())
-
-            event_json = json.dumps(event.to_json())
             variation_map_json = "{}"
-            self.local_bucketing.queue_aggregate_event(event_json, variation_map_json)
+        self._local_bucketing.queue_aggregate_event(event_json, variation_map_json)
 
-    def is_queue_full(self) -> bool:
-        # TODO check if queue is full
-        return False
+    def _check_queue_status(self) -> None:
+        if self._flush_needed() and not self._flush_lock.locked():
+            self._flush_events()
+
+        if self._queue_full():
+            raise QueueFullError()
+
+    def _flush_needed(self) -> bool:
+        queue_size = self._local_bucketing.get_event_queue_size()
+        return queue_size >= self._options.flush_event_queue_size
+
+    def _queue_full(self) -> bool:
+        queue_size = self._local_bucketing.get_event_queue_size()
+        return queue_size >= self._options.max_event_queue_size
