@@ -55,8 +55,6 @@ class DVCCloudClientTest(unittest.TestCase):
         option_with_data = DevCycleCloudOptions(
             enable_edge_db=False,
             bucketing_api_uri="https://localhost:8080",
-            config_cdn_uri="https://localhost:8080",
-            events_api_uri="https://localhost:8080",
         )
         client = DevCycleCloudClient(sdk_key, option_with_data)
         self.assertIsNotNone(client)

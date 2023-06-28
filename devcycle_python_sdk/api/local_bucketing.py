@@ -386,12 +386,9 @@ class LocalBucketing:
         """
         with self.wasm_lock:
             result_addr = self.flushEventQueue(self.wasm_store, self.sdk_key_addr)
-            if result_addr != 0:
-                result_str = self._read_assembly_script_string(result_addr)
-                result_json = json.loads(result_str)
-                return [FlushPayload.from_json(element) for element in result_json]
-            else:
-                return []
+            result_str = self._read_assembly_script_string(result_addr)
+            result_json = json.loads(result_str)
+            return [FlushPayload.from_json(element) for element in result_json]
 
     def on_event_payload_success(self, payload_id: str) -> None:
         """

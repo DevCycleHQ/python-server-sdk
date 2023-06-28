@@ -33,7 +33,7 @@ class BucketingAPIClient:
         self.session.max_redirects = 0
 
     def _url(self, *path_args: str) -> str:
-        return join(self.options.bucketing_API_URI, "v1", *path_args)
+        return join(self.options.bucketing_api_uri, "v1", *path_args)
 
     def request(self, method: str, url: str, **kwargs) -> dict:
         retries_remaining = self.options.request_retries + 1
