@@ -26,13 +26,12 @@ def determine_variable_type(value: Any) -> str:
 @dataclass(order=False)
 class Variable:
     _id: Optional[str]
-    key: Optional[str]
-    type: Optional[str]
-    value: Optional[Any] = None
+    key: str
+    type: str
+    value: Any = None
     isDefaulted: Optional[bool] = False
-    defaultValue: Optional[Any] = None
-
-    # evalReason: Optional[str] = None
+    defaultValue: Any = None
+    evalReason: Optional[str] = None
 
     def to_json(self):
         return {
@@ -40,6 +39,18 @@ class Variable:
             for key in self.__dataclass_fields__
             if getattr(self, key) is not None
         }
+
+    @classmethod
+    def from_json(cls, data: dict) -> "Variable":
+        return cls(
+            _id=data["_id"],
+            key=data["key"],
+            type=data["type"],
+            value=data["value"],
+            isDefaulted=data.get("isDefaulted", None),
+            defaultValue=data.get("defaultValue"),
+            evalReason=data.get("evalReason"),
+        )
 
     @staticmethod
     def create_default_variable(key: str, default_value: Any) -> "Variable":

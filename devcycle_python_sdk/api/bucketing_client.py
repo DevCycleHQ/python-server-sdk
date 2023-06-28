@@ -93,8 +93,8 @@ class BucketingAPIClient:
 
         return Variable(
             _id=data.get("_id"),
-            key=data.get("key"),
-            type=data.get("type"),
+            key=data.get("key", ""),
+            type=data.get("type", ""),
             value=data.get("value"),
         )
 

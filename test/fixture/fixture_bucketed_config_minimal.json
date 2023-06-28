@@ -1,0 +1,15 @@
+{
+    "project": {
+        "_id": "638680c459f1b81cc9e6c557",
+        "key": "test-harness-data",
+        "a0_organization": "org_fakeorg"
+    },
+    "environment": {
+        "_id": "638680c459f1b81cc9e6c559",
+        "key": "development"
+    },
+    "features": {},
+    "featureVariationMap": {},
+    "variableVariationMap": {},
+    "variables": {}
+}

@@ -8,6 +8,7 @@ from devcycle_python_sdk.api.local_bucketing import LocalBucketing
 from devcycle_python_sdk.exceptions import VariableTypeMismatchError
 from devcycle_python_sdk.managers.config_manager import EnvironmentConfigManager
 from devcycle_python_sdk.managers.event_queue_manager import EventQueueManager
+from devcycle_python_sdk.models.bucketed_config import BucketedConfig
 from devcycle_python_sdk.models.event import Event
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.platform_data import default_platform_data
@@ -97,20 +98,25 @@ class DevCycleLocalClient:
 
         return Variable.create_default_variable(key, default_value)
 
+    def _generate_bucketed_config(self, user: User) -> BucketedConfig:
+        _validate_user(user)
+
+        return self.local_bucketing.generate_bucketed_config(user)
+
     def all_variables(self, user: User) -> Dict[str, Variable]:
         _validate_user(user)
 
         if not self.is_initialized():
-            logger.debug("all_variables called before client has initialized")
+            logger.warning("all_variables called before client has initialized")
             return {}
 
         variable_map: Dict[str, Variable] = {}
 
         try:
-            # TODO delegate to local bucketing api
-            pass
+            return self.local_bucketing.generate_bucketed_config(user).variables
         except Exception as e:
-            logger.error("Error retrieving all features for a user: %s", e)
+            logger.exception("Error retrieving all variables for a user: %s", e)
+            return {}
 
         return variable_map
 
@@ -118,15 +124,14 @@ class DevCycleLocalClient:
         _validate_user(user)
 
         if not self.is_initialized():
-            logger.debug("all_features called before client has initialized")
+            logger.warning("all_features called before client has initialized")
             return {}
 
         feature_map: Dict[str, Feature] = {}
         try:
-            # TODO delegate to local bucketing api
-            pass
+            return self.local_bucketing.generate_bucketed_config(user).features
         except Exception as e:
-            logger.error("Error retrieving all features for a user: %s", e)
+            logger.exception("Error retrieving all features for a user: %s", e)
 
         return feature_map
 

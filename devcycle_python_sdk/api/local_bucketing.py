@@ -1,9 +1,10 @@
-import logging
-import random
-import time
 from pathlib import Path
 from threading import Lock
 from typing import Any, cast, Optional
+import json
+import logging
+import random
+import time
 
 import wasmtime
 from wasmtime import (
@@ -20,7 +21,11 @@ from wasmtime import (
 import devcycle_python_sdk.protobuf.utils as pb_utils
 import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
 
-from devcycle_python_sdk.exceptions import VariableTypeMismatchError
+from devcycle_python_sdk.exceptions import (
+    VariableTypeMismatchError,
+    MalformedConfigError,
+)
+from devcycle_python_sdk.models.bucketed_config import BucketedConfig
 from devcycle_python_sdk.models.user import User
 from devcycle_python_sdk.models.variable import Variable, determine_variable_type
 
@@ -328,6 +333,32 @@ class LocalBucketing:
                         f"Variable returned does not match requested type: {pb_variable_type}"
                     )
                 return pb_utils.create_variable(sdk_variable, default_value)
+
+    def generate_bucketed_config(self, user: User) -> BucketedConfig:
+        user_json = json.dumps(user.to_json())
+
+        with self.wasm_lock:
+            user_json_addr = self._new_assembly_script_byte_array(
+                user_json.encode("utf-8")
+            )
+            config_addr = self.generateBucketedConfigForUserUTF8(
+                self.wasm_store, self.sdk_key_addr, user_json_addr
+            )
+
+            config_bytes = self._read_assembly_script_byte_array(config_addr)
+
+            config_data = json.loads(config_bytes.decode("utf-8"))
+
+            try:
+                config = BucketedConfig.from_json(config_data)
+            except KeyError as e:
+                raise MalformedConfigError(
+                    f"Failed to parse bucketed config: missing key {e}"
+                ) from e
+
+            config.user = user
+
+            return config
 
     def store_config(self, config_json: str) -> None:
         with self.wasm_lock:
