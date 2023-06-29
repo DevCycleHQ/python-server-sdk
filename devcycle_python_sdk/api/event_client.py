@@ -28,7 +28,7 @@ class EventAPIClient:
             "Authorization": sdk_key,
         }
         self.session.max_redirects = 0
-        self.max_batch_retries = 1
+        self.max_batch_retries = 0 # we don't retry events batches
         self.batch_url = join(self.options.events_api_uri, "v1/events/batch")
 
     def publish_events(self, batch: List[UserEventsBatchRecord]) -> str:
