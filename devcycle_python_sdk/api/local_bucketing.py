@@ -32,7 +32,7 @@ from devcycle_python_sdk.models.event import FlushPayload
 
 logger = logging.getLogger(__name__)
 
-wasm_path = Path(__file__).parent.parent / "bucketing-lib.debug.wasm"
+wasm_path = Path(__file__).parent.parent / "bucketing-lib.release.wasm"
 
 
 class WASMError(Exception):
