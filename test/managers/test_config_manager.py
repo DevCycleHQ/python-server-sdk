@@ -22,9 +22,6 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
         self.test_config_json = small_config_json()
         self.test_config_string = json.dumps(self.test_config_json)
 
-    def tearDown(self) -> None:
-        pass
-
     @patch("devcycle_python_sdk.api.config_client.ConfigAPIClient.get_config")
     def test_init(self, mock_get_config):
         mock_get_config.return_value = (self.test_config_json, self.test_etag)

@@ -80,9 +80,6 @@ class EventQueueManagerTest(unittest.TestCase):
             eventCount=1,
         )
 
-    def tearDown(self) -> None:
-        pass
-
     def test_init(self):
         self.test_local_bucketing.flush_event_queue.return_value = []
         self.test_options.event_flush_interval_ms = 100
