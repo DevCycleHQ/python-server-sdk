@@ -144,7 +144,7 @@ class EventQueueManager(threading.Thread):
         try:
             self._check_queue_status()
         except QueueFullError:
-            logger.warning(f"Event queue is full, dropping event")
+            logger.warning("Event queue is full, dropping event")
             return
 
         user_json = json.dumps(user.to_json())
@@ -177,7 +177,7 @@ class EventQueueManager(threading.Thread):
         self._local_bucketing.queue_aggregate_event(event_json, variation_map_json)
 
     def _check_queue_status(self) -> None:
-        if self._flush_needed() and not self._flush_lock.locked():
+        if self._flush_needed():
             self._flush_events()
 
         if self._queue_full():
