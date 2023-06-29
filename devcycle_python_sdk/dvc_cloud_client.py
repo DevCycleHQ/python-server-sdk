@@ -47,11 +47,13 @@ class DevCycleCloudClient:
 
     def _validate_sdk_key(self, sdk_key: str) -> None:
         if sdk_key is None or len(sdk_key) == 0:
-            raise ValueError("Missing SDK key! Call build with a valid server SDK key")
+            raise ValueError(
+                "Invalid SDK key provided. Please call initialize with a valid server SDK key"
+            )
 
         if not sdk_key.startswith("server") and not sdk_key.startswith("dvc_server"):
             raise ValueError(
-                "Invalid SDK key provided. Call build with a valid server SDK key"
+                "Invalid SDK key provided. Please call initialize with a valid server SDK key"
             )
 
     def _validate_user(self, user: User) -> None:

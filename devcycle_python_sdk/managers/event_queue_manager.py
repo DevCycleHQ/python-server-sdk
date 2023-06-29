@@ -125,6 +125,10 @@ class EventQueueManager(threading.Thread):
 
     def close(self):
         self._processing_enabled = False
+        try:
+            self._flush_events()
+        except Exception as e:
+            logger.info(f"DVC Error flushing events when closing client: {str(e)}")
         self.join(timeout=1)
 
     def queue_event(self, user: User, event: Event) -> None:
