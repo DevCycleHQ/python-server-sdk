@@ -1,6 +1,6 @@
 # ruff: noqa: N815
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Optional
 
 
@@ -32,9 +32,9 @@ class User:
         }
 
         if self.createdDate:
-            json_dict["createdDate"] = f"{self.createdDate.isoformat()}Z"
+            json_dict["createdDate"] = self.createdDate.astimezone(tz=timezone.utc).isoformat()
         if self.lastSeenDate:
-            json_dict["lastSeenDate"] = f"{self.lastSeenDate.isoformat()}Z"
+            json_dict["lastSeenDate"] = self.lastSeenDate.astimezone(tz=timezone.utc).isoformat()
         return json_dict
 
     @classmethod
