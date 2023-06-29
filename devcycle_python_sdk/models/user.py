@@ -40,13 +40,17 @@ class User:
     @classmethod
     def from_json(cls, data: dict) -> "User":
         if "createdDate" in data:
-            created_date = datetime.fromisoformat(data["createdDate"])
+            created_date = datetime.fromisoformat(
+                data["createdDate"].replace("Z", "+00:00")
+            )
         else:
             created_date = datetime.utcnow()
 
         last_seen_date = None
         if "lastSeenDate" in data:
-            last_seen_date = datetime.fromisoformat(data["lastSeenDate"])
+            last_seen_date = datetime.fromisoformat(
+                data["lastSeenDate"].replace("Z", "+00:00")
+            )
 
         return cls(
             user_id=data["user_id"],
