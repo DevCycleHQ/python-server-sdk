@@ -63,8 +63,9 @@ class LocalBucketing:
         wasm_store.set_wasi(wasi_cfg)
         wasm_linker.define_wasi()
 
+        # Needs to return the current time since Epoch in milliseconds
         def __date_now_func():
-            return time.time()
+            return time.time() / 1000
 
         wasm_linker.define_func(
             "env", "Date.now", FuncType([], [ValType.f64()]), __date_now_func
@@ -417,3 +418,24 @@ class LocalBucketing:
         with self.wasm_lock:
             val = self.eventQueueSize(self.wasm_store, self.sdk_key_addr)
             return int(val)
+
+    def queue_event(self, user_json: str, event_json: str) -> None:
+        with self.wasm_lock:
+            user_addr = self._new_assembly_script_string(user_json)
+            event_addr = self._new_assembly_script_string(event_json)
+            self.queueEvent(self.wasm_store, self.sdk_key_addr, user_addr, event_addr)
+
+    def queue_aggregate_event(
+        self, event_json: str, variable_variation_map_json: str
+    ) -> None:
+        with self.wasm_lock:
+            event_addr = self._new_assembly_script_string(event_json)
+            variable_variation_map_addr = self._new_assembly_script_string(
+                variable_variation_map_json
+            )
+            self.queueAggregateEvent(
+                self.wasm_store,
+                self.sdk_key_addr,
+                event_addr,
+                variable_variation_map_addr,
+            )

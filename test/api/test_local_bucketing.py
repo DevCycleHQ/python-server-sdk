@@ -16,6 +16,7 @@ from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.variable import Variable
 from devcycle_python_sdk.models.platform_data import default_platform_data
 from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.event import Event, EventType
 from devcycle_python_sdk.models.variable import TypeEnum
 from test.fixture.data import small_config, large_config, special_character_config
 
@@ -262,6 +263,7 @@ class LocalBucketingTest(unittest.TestCase):
         platform_json = json.dumps(default_platform_data().to_json())
         self.local_bucketing.set_platform_data(platform_json)
         self.local_bucketing.init_event_queue("{}")
+
         result = self.local_bucketing.get_event_queue_size()
         self.assertEqual(result, 0)
 
@@ -350,6 +352,40 @@ class LocalBucketingTest(unittest.TestCase):
 
         with self.assertRaises(WASMAbortError):
             self.local_bucketing.on_event_payload_success("test_payload_id")
+
+    def test_queue_event(self):
+        self.local_bucketing.store_config(small_config())
+        platform_json = json.dumps(default_platform_data().to_json())
+        self.local_bucketing.set_platform_data(platform_json)
+        self.local_bucketing.init_event_queue("{}")
+        user = User(user_id="test_user_id")
+        event = Event(
+            type=EventType.CustomEvent,
+            target="string-var",
+            value=1,
+            metaData={"test": "test"},
+        )
+        user_json = json.dumps(user.to_json())
+        event_json = json.dumps(event.to_json())
+        self.local_bucketing.queue_event(user_json, event_json)
+
+    def test_queue_aggregate_event(self):
+        self.local_bucketing.store_config(small_config())
+        platform_json = json.dumps(default_platform_data().to_json())
+        self.local_bucketing.set_platform_data(platform_json)
+        self.local_bucketing.init_event_queue("{}")
+
+        event = Event(
+            type=EventType.AggVariableDefaulted,
+            target="string-var",
+            value=1,
+            metaData={"test": "test"},
+        )
+        event_json = json.dumps(event.to_json())
+        variable_variation_map_json = "{}"
+        self.local_bucketing.queue_aggregate_event(
+            event_json, variable_variation_map_json
+        )
 
 
 if __name__ == "__main__":

@@ -237,7 +237,6 @@ class DVCCloudClientTest(unittest.TestCase):
         event = Event(
             type=None,
             target="test_target",
-            date=time(),
             value=42,
             metaData={"key": "value"},
         )
@@ -248,7 +247,6 @@ class DVCCloudClientTest(unittest.TestCase):
         event = Event(
             type="",
             target="test_target",
-            date=time(),
             value=42,
             metaData={"key": "value"},
         )
@@ -266,7 +264,6 @@ class DVCCloudClientTest(unittest.TestCase):
                 Event(
                     type="user",
                     target="test_target",
-                    date=time(),
                     value=42,
                     metaData={"key": "value"},
                 ),
@@ -279,7 +276,6 @@ class DVCCloudClientTest(unittest.TestCase):
             Event(
                 type="user",
                 target="test_target",
-                date=time(),
                 value=42,
                 metaData={"key": "value"},
             ),

@@ -25,7 +25,7 @@ class DevCycleCloudClient:
     sdk_version: str
 
     def __init__(self, sdk_key: str, options: DevCycleCloudOptions):
-        self._validate_sdk_key(sdk_key)
+        _validate_sdk_key(sdk_key)
 
         if options is None:
             self.options = DevCycleCloudOptions()
@@ -45,27 +45,11 @@ class DevCycleCloudClient:
         user.sdkType = self.sdk_type
         return user
 
-    def _validate_sdk_key(self, sdk_key: str) -> None:
-        if sdk_key is None or len(sdk_key) == 0:
-            raise ValueError("Missing SDK key! Call build with a valid server SDK key")
-
-        if not sdk_key.startswith("server") and not sdk_key.startswith("dvc_server"):
-            raise ValueError(
-                "Invalid SDK key provided. Call build with a valid server SDK key"
-            )
-
-    def _validate_user(self, user: User) -> None:
-        if user is None:
-            raise ValueError("User cannot be None")
-
-        if user.user_id is None or len(user.user_id) == 0:
-            raise ValueError("userId cannot be empty")
-
     def variable_value(self, user: User, key: str, default_value: Any) -> Any:
         return self.variable(user, key, default_value).value
 
     def variable(self, user: User, key: str, default_value: Any) -> Variable:
-        self._validate_user(user)
+        _validate_user(user)
         user = self._add_platform_data_to_user(user)
 
         if not key:
@@ -107,7 +91,7 @@ class DevCycleCloudClient:
         return variable
 
     def all_variables(self, user: User) -> Dict[str, Variable]:
-        self._validate_user(user)
+        _validate_user(user)
         user = self._add_platform_data_to_user(user)
 
         variable_map: Dict[str, Variable] = {}
@@ -122,7 +106,7 @@ class DevCycleCloudClient:
         return variable_map
 
     def all_features(self, user: User) -> Dict[str, Feature]:
-        self._validate_user(user)
+        _validate_user(user)
         user = self._add_platform_data_to_user(user)
 
         feature_map: Dict[str, Feature] = {}
@@ -140,7 +124,7 @@ class DevCycleCloudClient:
         if user_event is None or not user_event.type:
             raise ValueError("Invalid Event")
 
-        self._validate_user(user)
+        _validate_user(user)
         user = self._add_platform_data_to_user(user)
 
         if user_event is None or not user_event.type:
@@ -154,3 +138,21 @@ class DevCycleCloudClient:
             raise e
         except Exception as e:
             logger.error("Error tracking event: %s", e)
+
+
+def _validate_sdk_key(sdk_key: str) -> None:
+    if sdk_key is None or len(sdk_key) == 0:
+        raise ValueError("Missing SDK key! Call initialize with a valid SDK key")
+
+    if not sdk_key.startswith("server") and not sdk_key.startswith("dvc_server"):
+        raise ValueError(
+            "Invalid SDK key provided. Please call initialize with a valid server SDK key"
+        )
+
+
+def _validate_user(user: User) -> None:
+    if user is None:
+        raise ValueError("User cannot be None")
+
+    if user.user_id is None or len(user.user_id) == 0:
+        raise ValueError("userId cannot be empty")

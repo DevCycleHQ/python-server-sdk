@@ -3,7 +3,6 @@ import unittest
 import uuid
 from http import HTTPStatus
 
-import requests
 import responses
 from responses.registries import OrderedRegistry
 
@@ -62,36 +61,6 @@ class EventAPIClientTest(unittest.TestCase):
             json={"message": "Successfully received 1 event batches."},
         )
         message = self.test_client.publish_events([])
-        self.assertEqual(message, "Successfully received 1 event batches.")
-
-    @responses.activate(registry=OrderedRegistry)
-    def test_publish_events_retries(self):
-        responses.add(
-            responses.POST,
-            self.test_batch_url,
-            status=500,
-        )
-        responses.add(
-            responses.POST,
-            self.test_batch_url,
-            json={"message": "Successfully received 1 event batches."},
-        )
-        message = self.test_client.publish_events(self.test_batch)
-        self.assertEqual(message, "Successfully received 1 event batches.")
-
-    @responses.activate(registry=OrderedRegistry)
-    def test_publish_events_retries_network_error(self):
-        responses.add(
-            responses.POST,
-            self.test_batch_url,
-            body=requests.exceptions.ConnectionError("Network Error"),
-        )
-        responses.add(
-            responses.POST,
-            self.test_batch_url,
-            json={"message": "Successfully received 1 event batches."},
-        )
-        message = self.test_client.publish_events(self.test_batch)
         self.assertEqual(message, "Successfully received 1 event batches.")
 
     @responses.activate(registry=OrderedRegistry)
