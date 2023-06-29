@@ -144,7 +144,7 @@ class EventQueueManager(threading.Thread):
         try:
             self._check_queue_status()
         except QueueFullError:
-            logger.warning(f"Event queue is full, dropping event: {event}")
+            logger.warning(f"Event queue is full, dropping event")
             return
 
         user_json = json.dumps(user.to_json())
