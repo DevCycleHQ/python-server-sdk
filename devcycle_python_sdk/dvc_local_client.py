@@ -175,11 +175,11 @@ class DevCycleLocalClient:
 
 def _validate_sdk_key(sdk_key: str) -> None:
     if sdk_key is None or len(sdk_key) == 0:
-        raise ValueError("Missing SDK key! Call build with a valid server SDK key")
+        raise ValueError("Missing environment key! Call initialize with a valid environment key")
 
     if not sdk_key.startswith("server") and not sdk_key.startswith("dvc_server"):
         raise ValueError(
-            "Invalid SDK key provided. Call build with a valid server SDK key"
+            "Missing environment key! Call initialize with a valid environment key"
         )
 
 
