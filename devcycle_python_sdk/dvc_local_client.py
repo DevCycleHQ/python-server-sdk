@@ -149,8 +149,11 @@ class DevCycleLocalClient:
     def track(self, user: User, user_event: Event) -> None:
         _validate_user(user)
 
-        if user_event is None or not user_event.type:
+        if user_event is None:
             raise ValueError("Invalid Event")
+
+        if user_event.type is None or len(user_event.type) == 0:
+            raise ValueError("Missing parameter: type")
 
         if not self.is_initialized():
             logger.debug("track called before client has initialized")

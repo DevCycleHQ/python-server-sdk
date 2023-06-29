@@ -133,7 +133,6 @@ class DVCLocalClientTest(unittest.TestCase):
         event = Event(
             type="user",
             target="test_target",
-            date=time.time(),
             value=42,
             metaData={"key": "value"},
         )
@@ -154,7 +153,6 @@ class DVCLocalClientTest(unittest.TestCase):
         event = Event(
             type=None,
             target="test_target",
-            date=time.time(),
             value=42,
             metaData={"key": "value"},
         )
@@ -164,7 +162,6 @@ class DVCLocalClientTest(unittest.TestCase):
         event = Event(
             type="",
             target="test_target",
-            date=time.time(),
             value=42,
             metaData={"key": "value"},
         )

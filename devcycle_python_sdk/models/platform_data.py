@@ -24,7 +24,7 @@ class PlatformData:
 
 def default_platform_data() -> PlatformData:
     return PlatformData(
-        sdkType="local",
+        sdkType="server",
         sdkVersion=sdk_version(),
         platformVersion=platform.python_version(),
         deviceModel=platform.platform(),

@@ -63,8 +63,9 @@ class LocalBucketing:
         wasm_store.set_wasi(wasi_cfg)
         wasm_linker.define_wasi()
 
+        # Needs to return the current time since Epoch in milliseconds
         def __date_now_func():
-            return time.time()
+            return time.time() / 1000
 
         wasm_linker.define_func(
             "env", "Date.now", FuncType([], [ValType.f64()]), __date_now_func
