@@ -1,7 +1,7 @@
 # ruff: noqa: N815
 from dataclasses import dataclass, field
 from typing import Dict, Optional, Any, List
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .user import User
 
@@ -29,7 +29,8 @@ class Event:
             if getattr(self, key) is not None and key != "date"
         }
         if self.date:
-            json_dict["date"] = f"{self.date.isoformat()}Z"
+            # convert to UTC and format as ISO string
+            json_dict["date"] = self.date.astimezone(tz=timezone.utc).isoformat()
         return json_dict
 
 
