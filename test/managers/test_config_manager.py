@@ -102,7 +102,6 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
 
         config_manager.close()
         self.assertFalse(config_manager._polling_enabled)
-        self.assertFalse(config_manager.is_alive())
 
     @patch("devcycle_python_sdk.api.config_client.ConfigAPIClient.get_config")
     def test_get_config_unchanged(self, mock_get_config):

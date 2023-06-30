@@ -84,9 +84,10 @@ class EnvironmentConfigManager(threading.Thread):
             try:
                 self._get_config()
             except Exception as e:
-                logger.info(f"Error polling for config changes: {str(e)}")
+                if self._polling_enabled:
+                    # Only log a warning if we're still polling
+                    logger.warning(f"Error polling for config changes: {str(e)}")
             time.sleep(self._options.config_polling_interval_ms / 1000.0)
 
     def close(self):
         self._polling_enabled = False
-        self.join(timeout=1)

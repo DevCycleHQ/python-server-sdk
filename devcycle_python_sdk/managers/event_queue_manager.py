@@ -1,7 +1,6 @@
 import threading
 import logging
 import json
-import time
 from typing import Optional
 
 from devcycle_python_sdk.dvc_options import DevCycleLocalOptions
@@ -45,6 +44,8 @@ class EventQueueManager(threading.Thread):
         self._local_bucketing = local_bucketing
         self._event_api_client = EventAPIClient(self._sdk_key, self._options)
         self._flush_lock = threading.Lock()
+        self._exit = threading.Event()
+        self._exited = threading.Event()
 
         # Setup the event queue inside the WASM module
         event_options_json = json.dumps(self._options.event_queue_options())
@@ -55,11 +56,32 @@ class EventQueueManager(threading.Thread):
             self._options.disable_custom_event_logging
             and self._options.disable_automatic_event_logging
         ):
-            self._processing_enabled = True
             self.daemon = True
             self.start()
         else:
-            self._processing_enabled = False
+            self._stop_running()
+            self._mark_exited()
+
+    def _should_run(self) -> bool:
+        # Returns true if the thread should continue running, false otherwise
+        return not self._exit.is_set()
+
+    def _stop_running(self) -> None:
+        # Indicate to the thread that it should stop running, interrupting any sleep
+        self._exit.set()
+
+    def _sleep(self) -> bool:
+        # Returns true if the sleep was interrupted, false otherwise
+        return self._exit.wait(self._options.event_flush_interval_ms / 1000.0)
+
+    def _mark_exited(self) -> None:
+        # Indicate to the thread calling close that the thread has exited
+        self._exited.set()
+
+    def _wait_for_exit(self, timeout_seconds: float) -> bool:
+        # Wait up to timeout_seconds for the thread to exit
+        # This works whether the thread was actually started or not
+        return self._exited.wait(timeout_seconds)
 
     def _flush_events(self) -> int:
         if self._flush_lock.locked():
@@ -92,13 +114,13 @@ class EventQueueManager(threading.Thread):
                     "Unauthorized to publish events, please check your SDK key"
                 )
                 # stop the thread
-                self._processing_enabled = False
+                self._stop_running()
                 self._local_bucketing.on_event_payload_failure(payload.payloadId, False)
             except NotFoundError as e:
                 logger.error(
                     f"Unable to reach the DevCycle Events API service: {str(e)}"
                 )
-                self._processing_enabled = False
+                self._stop_running()
                 self._local_bucketing.on_event_payload_failure(payload.payloadId, False)
             except APIClientError as e:
                 logger.warning(f"Error publishing events: {str(e)}")
@@ -116,20 +138,29 @@ class EventQueueManager(threading.Thread):
             return self._options.disable_custom_event_logging
 
     def run(self):
-        while self._processing_enabled:
+        while self._should_run():
             try:
                 self._flush_events()
             except Exception as e:
                 logger.info(f"DVC Error flushing events: {str(e)}")
-            time.sleep(self._options.event_flush_interval_ms / 1000.0)
+
+            self._sleep()
+
+        self._mark_exited()
 
     def close(self):
-        self._processing_enabled = False
+        self._stop_running()
+
+        # Wait up to 1s for the thread to exit.
+        # Because the sleeping between batches is interruptible, this is only
+        # providing time for an in-flight batch to finish.
+        if not self._wait_for_exit(1.0):
+            logger.error("Timed out waiting for event flushing thread to stop")
+
         try:
             self._flush_events()
         except Exception as e:
             logger.info(f"DVC Error flushing events when closing client: {str(e)}")
-        self.join(timeout=1)
 
     def queue_event(self, user: User, event: Event) -> None:
         if user is None:

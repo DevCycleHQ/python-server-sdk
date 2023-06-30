@@ -36,7 +36,10 @@ class DVCLocalClientTest(unittest.TestCase):
         )
 
         self.options = DevCycleLocalOptions(
-            config_polling_interval_ms=500, config_cdn_uri="http://localhost/"
+            config_polling_interval_ms=5000,
+            config_cdn_uri="http://localhost/",
+            disable_custom_event_logging=True,
+            disable_automatic_event_logging=True,
         )
         self.test_user = User(user_id="test_user_id")
         self.test_user_empty_id = User(user_id="")
@@ -235,6 +238,14 @@ class DVCLocalClientTest(unittest.TestCase):
                 self.assertDictEqual(result.value, expected, msg="Test key: " + key)
             else:
                 self.assertEqual(result.value, expected, msg="Test key: " + key)
+
+    @responses.activate
+    def test_variable_with_events(self):
+        self.options.disable_automatic_event_logging = False
+        self.options.disable_custom_event_logging = False
+        self.setup_client()
+        user = User(user_id="1234")
+        self.client.variable(user, "string-var", "default_value")
 
     @responses.activate
     def test_all_features(self):
