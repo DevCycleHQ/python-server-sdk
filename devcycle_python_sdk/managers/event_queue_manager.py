@@ -109,7 +109,7 @@ class EventQueueManager(threading.Thread):
             try:
                 self._event_api_client.publish_events(payload.records)
                 self._local_bucketing.on_event_payload_success(payload.payloadId)
-            except (APIClientUnauthorizedError, NotFoundError):
+            except APIClientUnauthorizedError:
                 logger.error(
                     "Unauthorized to publish events, please check your SDK key"
                 )
