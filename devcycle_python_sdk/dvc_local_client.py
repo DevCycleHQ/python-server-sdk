@@ -161,7 +161,6 @@ class DevCycleLocalClient:
 
         try:
             self.event_queue_manager.queue_event(user, user_event)
-            pass
         except Exception as e:
             logger.error("Error tracking event: %s", e)
 

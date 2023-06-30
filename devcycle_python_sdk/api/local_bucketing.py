@@ -65,7 +65,8 @@ class LocalBucketing:
 
         # Needs to return the current time since Epoch in milliseconds
         def __date_now_func():
-            return time.time() / 1000
+            # convert from seconds to milliseconds
+            return time.time() * 1000
 
         wasm_linker.define_func(
             "env", "Date.now", FuncType([], [ValType.f64()]), __date_now_func
@@ -154,9 +155,7 @@ class LocalBucketing:
             ]
         }
 
-        # TODO: preallocate header
-
-        # Set and pin the SDK key so it can be reused
+        # Set and pin the SDK key so it can be reused multiple times
         self.sdk_key = sdk_key
         self.sdk_key_addr = self._new_assembly_script_string(sdk_key)
         self.__pin(self.wasm_store, self.sdk_key_addr)
