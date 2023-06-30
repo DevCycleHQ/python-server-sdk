@@ -160,6 +160,19 @@ class LocalBucketing:
         self.sdk_key_addr = self._new_assembly_script_string(sdk_key)
         self.__pin(self.wasm_store, self.sdk_key_addr)
 
+        # Allocate memory for header.
+        object_id_uint8_array = 9
+        header_pointer = cast(
+            int, self.__new(self.wasm_store, 12, object_id_uint8_array)
+        )
+
+        # An external object that is not referenced from within WebAssembly
+        # must be pinned whenever an allocation might happen in between
+        # allocating it and passing it to WebAssembly.
+        self.__pin(self.wasm_store, header_pointer)
+
+        self._header_pointer = header_pointer
+
     def _get_export(self, export_name: str):
         return self.wasm_instance.exports(self.wasm_store)[export_name]
 
@@ -220,22 +233,8 @@ class LocalBucketing:
         Allocates memory for a byte array in AssemblyScript and writes the byte
         array into memory, then returns a pointer to the byte array.
         """
-        object_id_uint8_array = 9
         object_id_byte_array = 1
         data_length = len(param)
-        try:
-            # Allocate memory for header.
-            header_pointer = cast(
-                int, self.__new(self.wasm_store, 12, object_id_uint8_array)
-            )
-
-            # An external object that is not referenced from within WebAssembly
-            # must be pinned whenever an allocation might happen in between
-            # allocating it and passing it to WebAssembly.
-            pinned_addr = self.__pin(self.wasm_store, header_pointer)
-        except Exception as err:
-            raise WASMError(f"Error allocating byte array in WASM: {err}")
-
         try:
             # Allocate memory for buffer.
             buffer_pointer = cast(
@@ -247,25 +246,22 @@ class LocalBucketing:
 
             # Write the buffer pointer value into the first 4 bytes of the header, little endian.
             for i, b in enumerate(buffer_pointer.to_bytes(4, byteorder="little")):
-                data[header_pointer + i] = b
-                data[header_pointer + i + 4] = b
+                data[self._header_pointer + i] = b
+                data[self._header_pointer + i + 4] = b
 
             little_endian_buffer_len = data_length.to_bytes(4, byteorder="little")
 
             # Write the buffer length into bytes 8-12 of the header, little endian.
             for i, b in enumerate(little_endian_buffer_len):
-                data[header_pointer + 8 + i] = b
+                data[self._header_pointer + 8 + i] = b
 
             # Write the byte array data into the WASM buffer.
             for i, b in enumerate(param):
                 data[buffer_pointer + i] = b
 
-            return header_pointer
+            return self._header_pointer
         except Exception as err:
             raise WASMError(f"Error writing byte array to WASM: {err}")
-        finally:
-            # Unpin the header pointer.
-            self.__unpin(self.wasm_store, pinned_addr)
 
     def _read_assembly_script_byte_array(self, pointer: int) -> bytes:
         """
