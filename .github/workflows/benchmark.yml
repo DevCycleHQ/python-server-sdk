@@ -28,5 +28,6 @@ jobs:
             echo "### Benchmark Results" >> $GITHUB_STEP_SUMMARY
             echo "
             Benchmark|Min (uS)|Median (uS)|Mean (uS)|Max (uS)|Iterations
+            ---|---|---|---|---|---
             $(jq -r '.benchmarks[] | [.name,(.stats.min*1000000000 | round / 1000),(.stats.median*1000000000 | round / 1000),(.stats.mean*1000000000 | round / 1000),(.stats.max*1000000000 | round / 1000),.stats.rounds] | join("|")' benchmarks.json)
             " >> $GITHUB_STEP_SUMMARY
