@@ -8,6 +8,7 @@ class DevCycleCloudOptions:
     """
     Options for configuring the DevCycle Cloud SDK.
     """
+
     def __init__(
         self,
         enable_edge_db: bool = False,
@@ -27,6 +28,7 @@ class DevCycleLocalOptions:
     """
     Options for configuring the DevCycle Local Bucketing SDK.
     """
+
     def __init__(
         self,
         config_cdn_uri: str = "https://config-cdn.devcycle.com/",
