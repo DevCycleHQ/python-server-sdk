@@ -65,3 +65,7 @@ target/
 
 .idea
 .DS_STORE
+
+# Benchmark output
+.benchmarks
+benchmark.json

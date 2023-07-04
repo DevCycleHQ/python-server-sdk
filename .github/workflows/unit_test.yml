@@ -21,4 +21,18 @@ jobs:
           pip install -r requirements.test.txt
       - name: Run unit tests
         run: |
-          python -m unittest --verbose --buffer --locals
+          pytest
+      - name: Run benchmarks
+        run: |
+          pytest --benchmark-only --benchmark-json=benchmarks.json
+      - name: Store benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'pytest'
+          # GitHub API token to make a commit comment
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Enable alert commit comment
+          comment-on-alert: true
+          # Enable Job Summary for PRs
+          summary-always: true
+          output-file-path: benchmarks.json

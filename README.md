@@ -86,7 +86,7 @@ black --target-version py37 --extend-exclude '_pb2\.pyi?$' .
 
 To run the unit tests, run:
 ```bash
-python -m unittest -v
+pytest
 ```
 
 ### Protobuf Code Generation
