@@ -243,6 +243,7 @@ class DVCLocalClientTest(unittest.TestCase):
     def test_variable_with_events(self):
         self.options.disable_automatic_event_logging = False
         self.options.disable_custom_event_logging = False
+        self.options.event_flush_interval_ms = 0
         self.setup_client()
         user = User(user_id="1234")
         self.client.variable(user, "string-var", "default_value")
