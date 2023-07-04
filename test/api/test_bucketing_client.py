@@ -226,7 +226,7 @@ class BucketingClientTest(unittest.TestCase):
         data = json.loads(responses.calls[0].request.body)
         self.assertTrue(type(data["events"][0]["date"]) == int)
         self.assertEqual(len(data["events"]), 1)
-        self.assertEqual(data["events"][0]["type"],"sample-event")
+        self.assertEqual(data["events"][0]["type"], "sample-event")
 
 
 if __name__ == "__main__":
