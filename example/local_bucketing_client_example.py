@@ -59,7 +59,9 @@ def main():
 
         # Post a custom event to DevCycle for user
         event = Event(
-            type=EventType.CustomEvent, target="some.variable.key", date=datetime.datetime.now()
+            type=EventType.CustomEvent,
+            target="some.variable.key",
+            date=datetime.datetime.now(),
         )
         client.track(user, event)
     except Exception as e:

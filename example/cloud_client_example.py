@@ -52,7 +52,11 @@ def main():
         logger.info(f"All features:\n{all_features_response}")
 
         # Post a custom event to DevCycle for user
-        event = Event(type=EventType.CustomEvent, target="some.variable.key", date=datetime.datetime.now())
+        event = Event(
+            type=EventType.CustomEvent,
+            target="some.variable.key",
+            date=datetime.datetime.now(),
+        )
         client.track(user, event)
 
     except Exception as e:
