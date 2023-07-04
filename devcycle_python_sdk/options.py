@@ -63,39 +63,31 @@ class DevCycleLocalOptions:
 
         if self.flush_event_queue_size >= self.max_event_queue_size:
             logger.warning(
-                "flush_event_queue_size: %d must be smaller than max_event_queue_size: %d",
-                self.flush_event_queue_size,
-                self.max_event_queue_size,
+                f"flush_event_queue_size: {self.flush_event_queue_size} must be smaller than max_event_queue_size: {self.max_event_queue_size}"
             )
             self.flush_event_queue_size = self.max_event_queue_size - 1
 
         if self.event_request_chunk_size > self.flush_event_queue_size:
             logger.warning(
-                "event_request_chunk_size: %d must be smaller than flush_event_queue_size: %d",
-                self.event_request_chunk_size,
-                self.flush_event_queue_size,
+                f"event_request_chunk_size: {self.event_request_chunk_size} must be smaller than flush_event_queue_size: {self.flush_event_queue_size}"
             )
             self.event_request_chunk_size = 100
 
         if self.event_request_chunk_size > self.max_event_queue_size:
             logger.warning(
-                "event_request_chunk_size: %d must be smaller than max_event_queue_size: %d",
-                self.event_request_chunk_size,
-                self.max_event_queue_size,
+                f"event_request_chunk_size: {self.event_request_chunk_size} must be smaller than max_event_queue_size: { self.max_event_queue_size}"
             )
             self.event_request_chunk_size = 100
 
         if self.flush_event_queue_size > 20000:
             logger.warning(
-                "flush_event_queue_size: %d must be smaller than 20,000",
-                self.flush_event_queue_size,
+                f"flush_event_queue_size: {self.flush_event_queue_size} must be smaller than 20,000"
             )
             self.flush_event_queue_size = 20000
 
         if self.max_event_queue_size > 20000:
             logger.warning(
-                "max_event_queue_size: %d must be smaller than 20,000",
-                self.max_event_queue_size,
+                f"max_event_queue_size: {self.max_event_queue_size} must be smaller than 20,000"
             )
             self.max_event_queue_size = 20000
 

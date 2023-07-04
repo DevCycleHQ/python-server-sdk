@@ -102,9 +102,7 @@ class DevCycleLocalClient:
                 )
             except Exception as e:
                 logger.warning(
-                    "Unable to track AggVariableDefaulted event for Variable %s: %s",
-                    key,
-                    e,
+                    f"Unable to track AggVariableDefaulted event for Variable {key}: {e}"
                 )
             return Variable.create_default_variable(key, default_value)
 
@@ -117,7 +115,7 @@ class DevCycleLocalClient:
         except VariableTypeMismatchError:
             logger.debug("Variable type mismatch, returning default value")
         except Exception as e:
-            logger.warning("Error retrieving variable for user: %s", e)
+            logger.warning(f"Error retrieving variable for user: {e}")
 
         return Variable.create_default_variable(key, default_value)
 
@@ -147,7 +145,7 @@ class DevCycleLocalClient:
         try:
             return self.local_bucketing.generate_bucketed_config(user).variables
         except Exception as e:
-            logger.exception("Error retrieving all variables for a user: %s", e)
+            logger.exception(f"Error retrieving all variables for a user: {e}")
             return {}
 
         return variable_map
@@ -168,7 +166,7 @@ class DevCycleLocalClient:
         try:
             return self.local_bucketing.generate_bucketed_config(user).features
         except Exception as e:
-            logger.exception("Error retrieving all features for a user: %s", e)
+            logger.exception(f"Error retrieving all features for a user: {e}")
 
         return feature_map
 
@@ -194,7 +192,7 @@ class DevCycleLocalClient:
         try:
             self.event_queue_manager.queue_event(user, user_event)
         except Exception as e:
-            logger.error("Error tracking event: %s", e)
+            logger.error(f"Error tracking event: {e}")
 
     def close(self) -> None:
         """

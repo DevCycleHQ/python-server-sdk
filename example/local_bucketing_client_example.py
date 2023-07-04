@@ -65,7 +65,7 @@ def main():
         )
         client.track(user, event)
     except Exception as e:
-        logger.exception("Exception when calling DevCycle API: %s\n" % e)
+        logger.exception(f"Exception when calling DevCycle API: {e}")
     finally:
         client.close()
 

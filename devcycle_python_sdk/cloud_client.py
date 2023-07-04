@@ -76,12 +76,12 @@ class DevCycleCloudClient:
             logger.warning("DevCycle SDK key is invalid, unable to make cloud request")
             raise e
         except NotFoundError:
-            logger.warning("Variable not found: %s", key)
+            logger.warning(f"Variable not found: {key}")
             return Variable.create_default_variable(
                 key=key, default_value=default_value
             )
         except Exception as e:
-            logger.error("Error evaluating variable: %s", e)
+            logger.error(f"Error evaluating variable: {e}")
             return Variable.create_default_variable(
                 key=key, default_value=default_value
             )
@@ -91,10 +91,7 @@ class DevCycleCloudClient:
         # Allow default value to be a subclass of the same type as the variable
         if not isinstance(default_value, type(variable.value)):
             logger.warning(
-                "Variable %s is type %s, but default value is type %s",
-                key,
-                type(variable.value),
-                type(default_value),
+                f"Variable {key} is type {type(variable.value)}, but default value is type {type(default_value)}",
             )
             return Variable.create_default_variable(
                 key=key, default_value=default_value
@@ -118,7 +115,7 @@ class DevCycleCloudClient:
             logger.warning("SDK key is invalid, unable to make cloud request")
             raise e
         except Exception as e:
-            logger.error("Error retrieving all features for a user: %s", e)
+            logger.error(f"Error retrieving all features for a user: {e}")
 
         return variable_map
 
@@ -138,7 +135,7 @@ class DevCycleCloudClient:
             logger.warning("SDK key is invalid, unable to make cloud request")
             raise e
         except Exception as e:
-            logger.error("Error retrieving all features for a user: %s", e)
+            logger.error(f"Error retrieving all features for a user: {e}")
 
         return feature_map
 
@@ -166,7 +163,7 @@ class DevCycleCloudClient:
             logger.warning("SDK key is invalid, unable to make cloud request")
             raise e
         except Exception as e:
-            logger.error("Error tracking event: %s", e)
+            logger.error(f"Error tracking event: {e}")
 
 
 def _validate_sdk_key(sdk_key: str) -> None:
