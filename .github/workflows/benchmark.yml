@@ -15,6 +15,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
       - name: Install dependencies
         run: |
           pip install --upgrade pip
@@ -22,14 +23,10 @@ jobs:
       - name: Run benchmarks
         run: |
           pytest --benchmark-only --benchmark-json=benchmarks.json
-      - name: Store benchmark result
-        uses: benchmark-action/github-action-benchmark@v1
-        with:
-          tool: 'pytest'
-          output-file-path: benchmarks.json
-          external-data-json-path: benchmarks.json
-          # GitHub API token to make a commit comment
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          skip-fetch-gh-pages: true
-          # Enable Job Summary for PRs
-          summary-always: true
+      - name: Print summary
+        run: |
+            echo "### Benchmark Results" >> $GITHUB_STEP_SUMMARY
+            echo "
+            Benchmark|Min (uS)|Median (uS)|Mean (uS)|Max (uS)|Iterations
+            $(jq -r '.benchmarks[] | [.name,(.stats.min*1000000000 | round / 1000),(.stats.median*1000000000 | round / 1000),(.stats.mean*1000000000 | round / 1000),(.stats.max*1000000000 | round / 1000),.stats.rounds] | join("|")' benchmarks.json)
+            " >> $GITHUB_STEP_SUMMARY
