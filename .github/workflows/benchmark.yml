@@ -1,0 +1,36 @@
+name: Benchmark
+
+on: [ push ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.11" ]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.test.txt
+      - name: Run benchmarks
+        run: |
+          pytest --benchmark-only --benchmark-json=benchmarks.json
+      - name: Store benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'pytest'
+          # GitHub API token to make a commit comment
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          gh-pages-branch: main
+          # Enable alert commit comment
+          comment-on-alert: true
+          # Enable Job Summary for PRs
+          summary-always: true
+          output-file-path: benchmarks.json
