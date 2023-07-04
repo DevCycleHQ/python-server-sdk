@@ -26,7 +26,7 @@ from devcycle_python_sdk.exceptions import (
     MalformedConfigError,
 )
 from devcycle_python_sdk.models.bucketed_config import BucketedConfig
-from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.variable import Variable, determine_variable_type
 from devcycle_python_sdk.models.event import FlushPayload
 
@@ -295,7 +295,7 @@ class LocalBucketing:
             self.initEventQueue(self.wasm_store, self.sdk_key_addr, options_addr)
 
     def get_variable_for_user_protobuf(
-        self, user: User, key: str, default_value: Any
+        self, user: DevCycleUser, key: str, default_value: Any
     ) -> Optional[Variable]:
         var_type = determine_variable_type(default_value)
         pb_variable_type = pb_utils.convert_type_enum_to_variable_type(var_type)
@@ -330,7 +330,7 @@ class LocalBucketing:
                     )
                 return pb_utils.create_variable(sdk_variable, default_value)
 
-    def generate_bucketed_config(self, user: User) -> BucketedConfig:
+    def generate_bucketed_config(self, user: DevCycleUser) -> BucketedConfig:
         user_json = json.dumps(user.to_json())
 
         with self.wasm_lock:

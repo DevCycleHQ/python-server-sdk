@@ -13,10 +13,10 @@ from devcycle_python_sdk.models.event import (
     FlushPayload,
     UserEventsBatchRecord,
     RequestEvent,
-    Event,
+    DevCycleEvent,
     EventType,
 )
-from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.user import DevCycleUser
 
 from devcycle_python_sdk.exceptions import APIClientError, APIClientUnauthorizedError
 
@@ -46,7 +46,7 @@ class EventQueueManagerTest(unittest.TestCase):
             payloadId="123",
             records=[
                 UserEventsBatchRecord(
-                    user=User.from_json(
+                    user=DevCycleUser.from_json(
                         {
                             "user_id": "999-000-111",
                             "createdDate": "1970-01-20T12:50:19.871Z",
@@ -175,11 +175,13 @@ class EventQueueManagerTest(unittest.TestCase):
             manager.queue_event(user=None, event=None)
 
         with self.assertRaises(ValueError):
-            manager.queue_event(user=User(user_id="test"), event=None)
+            manager.queue_event(user=DevCycleUser(user_id="test"), event=None)
 
         # Events must have a type
         with self.assertRaises(ValueError):
-            manager.queue_event(user=User(user_id="test"), event=Event())
+            manager.queue_event(
+                user=DevCycleUser(user_id="test"), event=DevCycleEvent()
+            )
 
     def test_queue_event(self):
         self.test_local_bucketing.queue_event = MagicMock()
@@ -188,14 +190,14 @@ class EventQueueManagerTest(unittest.TestCase):
         manager = EventQueueManager(
             self.sdk_key, self.test_options_no_thread, self.test_local_bucketing
         )
-        User(user_id="test_user_id")
-        event = Event(
+        DevCycleUser(user_id="test_user_id")
+        event = DevCycleEvent(
             type=EventType.CustomEvent,
             target="string-var",
             value=1,
             metaData={"test": "test"},
         )
-        manager.queue_event(User(user_id="test"), event)
+        manager.queue_event(DevCycleUser(user_id="test"), event)
 
         self.test_local_bucketing.queue_event.assert_called_once()
         self.assertEqual(self.test_local_bucketing.get_event_queue_size.call_count, 2)
@@ -236,12 +238,13 @@ class EventQueueManagerTest(unittest.TestCase):
 
         # agg event must have a type
         with self.assertRaises(ValueError):
-            manager.queue_aggregate_event(event=Event(), bucketed_config=None)
+            manager.queue_aggregate_event(event=DevCycleEvent(), bucketed_config=None)
 
         # agg event must have a target
         with self.assertRaises(ValueError):
             manager.queue_aggregate_event(
-                event=Event(type=EventType.AggVariableDefaulted), bucketed_config=None
+                event=DevCycleEvent(type=EventType.AggVariableDefaulted),
+                bucketed_config=None,
             )
 
     def test_queue_aggregate_event(self):
@@ -251,7 +254,7 @@ class EventQueueManagerTest(unittest.TestCase):
         manager = EventQueueManager(
             self.sdk_key, self.test_options_no_thread, self.test_local_bucketing
         )
-        event = Event(
+        event = DevCycleEvent(
             type=EventType.AggVariableDefaulted,
             target="string-var",
             value=1,

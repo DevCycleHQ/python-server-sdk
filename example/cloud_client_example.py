@@ -3,8 +3,9 @@ import logging
 import os
 
 from devcycle_python_sdk import DevCycleCloudClient, DevCycleCloudOptions
-from devcycle_python_sdk.models.user import User
-from devcycle_python_sdk.models.event import Event, EventType
+
+from devcycle_python_sdk.models.user import DevCycleUser
+from devcycle_python_sdk.models.event import DevCycleEvent, EventType
 
 VARIABLE_KEY = "test-boolean-variable"
 
@@ -23,7 +24,7 @@ def main():
     options = DevCycleCloudOptions(enable_edge_db=True)
     client = DevCycleCloudClient(server_sdk_key, options)
 
-    user = User(user_id="test-1234", email="test-user@domain.com", country="US")
+    user = DevCycleUser(user_id="test-1234", email="test-user@domain.com", country="US")
 
     # Use variable_value to access the value of a variable directly
     if client.variable_value(user, VARIABLE_KEY, False):
@@ -52,7 +53,7 @@ def main():
         logger.info(f"All features:\n{all_features_response}")
 
         # Post a custom event to DevCycle for user
-        event = Event(
+        event = DevCycleEvent(
             type=EventType.CustomEvent,
             target="some.variable.key",
             date=datetime.datetime.now(),

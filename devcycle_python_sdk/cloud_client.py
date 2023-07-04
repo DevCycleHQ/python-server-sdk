@@ -9,8 +9,8 @@ from devcycle_python_sdk.exceptions import (
     NotFoundError,
     CloudClientUnauthorizedError,
 )
-from devcycle_python_sdk.models.user import User
-from devcycle_python_sdk.models.event import Event
+from devcycle_python_sdk.models.user import DevCycleUser
+from devcycle_python_sdk.models.event import DevCycleEvent
 from devcycle_python_sdk.models.variable import Variable
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.util.version import sdk_version
@@ -38,17 +38,17 @@ class DevCycleCloudClient:
         self.sdk_type = "server"
         self.bucketing_api = BucketingAPIClient(sdk_key, self.options)
 
-    def _add_platform_data_to_user(self, user: User) -> User:
+    def _add_platform_data_to_user(self, user: DevCycleUser) -> DevCycleUser:
         user.platform = self.platform
         user.platformVersion = self.platform_version
         user.sdkVersion = self.sdk_version
         user.sdkType = self.sdk_type
         return user
 
-    def variable_value(self, user: User, key: str, default_value: Any) -> Any:
+    def variable_value(self, user: DevCycleUser, key: str, default_value: Any) -> Any:
         return self.variable(user, key, default_value).value
 
-    def variable(self, user: User, key: str, default_value: Any) -> Variable:
+    def variable(self, user: DevCycleUser, key: str, default_value: Any) -> Variable:
         _validate_user(user)
         user = self._add_platform_data_to_user(user)
 
@@ -90,7 +90,7 @@ class DevCycleCloudClient:
 
         return variable
 
-    def all_variables(self, user: User) -> Dict[str, Variable]:
+    def all_variables(self, user: DevCycleUser) -> Dict[str, Variable]:
         _validate_user(user)
         user = self._add_platform_data_to_user(user)
 
@@ -105,7 +105,7 @@ class DevCycleCloudClient:
 
         return variable_map
 
-    def all_features(self, user: User) -> Dict[str, Feature]:
+    def all_features(self, user: DevCycleUser) -> Dict[str, Feature]:
         _validate_user(user)
         user = self._add_platform_data_to_user(user)
 
@@ -120,7 +120,7 @@ class DevCycleCloudClient:
 
         return feature_map
 
-    def track(self, user: User, user_event: Event) -> None:
+    def track(self, user: DevCycleUser, user_event: DevCycleEvent) -> None:
         if user_event is None or not user_event.type:
             raise ValueError("Invalid Event")
 
@@ -150,7 +150,7 @@ def _validate_sdk_key(sdk_key: str) -> None:
         )
 
 
-def _validate_user(user: User) -> None:
+def _validate_user(user: DevCycleUser) -> None:
     if user is None:
         raise ValueError("User cannot be None")
 

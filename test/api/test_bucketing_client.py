@@ -12,10 +12,10 @@ from devcycle_python_sdk.exceptions import (
     CloudClientUnauthorizedError,
     NotFoundError,
 )
-from devcycle_python_sdk.dvc_options import DevCycleCloudOptions
-from devcycle_python_sdk.models.event import Event
+from devcycle_python_sdk.options import DevCycleCloudOptions
+from devcycle_python_sdk.models.event import DevCycleEvent
 from devcycle_python_sdk.models.feature import Feature
-from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.variable import Variable
 
 logger = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ class BucketingClientTest(unittest.TestCase):
         sdk_key = "dvc_server_" + str(uuid.uuid4())
         options = DevCycleCloudOptions(retry_delay=0)
         self.test_client = BucketingAPIClient(sdk_key, options)
-        self.test_user = User(user_id="test_user_id")
+        self.test_user = DevCycleUser(user_id="test_user_id")
 
     @responses.activate
     def test_variable(self):
@@ -217,7 +217,7 @@ class BucketingClientTest(unittest.TestCase):
         result = self.test_client.track(
             self.test_user,
             events=[
-                Event(
+                DevCycleEvent(
                     type="sample-event",
                 )
             ],

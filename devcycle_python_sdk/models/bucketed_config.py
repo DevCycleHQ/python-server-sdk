@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Dict, List
 from typing import Optional
 
-from .user import User
+from .user import DevCycleUser
 from .variable import Variable
 from .feature import Feature
 
@@ -121,7 +121,7 @@ class BucketedConfig:
     variables: Dict[str, Variable]
     known_variable_keys: List[float]
 
-    user: Optional[User] = None
+    user: Optional[DevCycleUser] = None
 
     def to_json(self):
         return {

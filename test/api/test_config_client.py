@@ -9,7 +9,7 @@ import responses
 from responses.registries import OrderedRegistry
 
 from devcycle_python_sdk.api.config_client import ConfigAPIClient
-from devcycle_python_sdk.dvc_options import DevCycleLocalOptions
+from devcycle_python_sdk.options import DevCycleLocalOptions
 from devcycle_python_sdk.exceptions import (
     APIClientError,
     APIClientUnauthorizedError,
