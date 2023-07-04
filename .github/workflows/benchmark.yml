@@ -26,11 +26,9 @@ jobs:
         uses: benchmark-action/github-action-benchmark@v1
         with:
           tool: 'pytest'
+          output-file-path: benchmarks.json
           # GitHub API token to make a commit comment
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          gh-pages-branch: main
-          # Enable alert commit comment
-          comment-on-alert: true
+          skip-fetch-gh-pages: true
           # Enable Job Summary for PRs
           summary-always: true
-          output-file-path: benchmarks.json
