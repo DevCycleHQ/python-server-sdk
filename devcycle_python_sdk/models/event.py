@@ -22,15 +22,19 @@ class Event:
     value: Optional[int] = None
     metaData: Optional[Dict[str, str]] = None
 
-    def to_json(self):
+    def to_json(self, use_bucketing_api_format: bool = False) -> Dict[str, Any]:
         json_dict = {
             key: getattr(self, key)
             for key in self.__dataclass_fields__
             if getattr(self, key) is not None and key != "date"
         }
         if self.date:
-            # convert to UTC and format as ISO string
-            json_dict["date"] = self.date.astimezone(tz=timezone.utc).isoformat()
+            if use_bucketing_api_format:
+                # convert to timestamp in milliseconds as required by the bucketing API
+                json_dict["date"] = int(self.date.timestamp() * 1000)
+            else:
+                # convert to UTC and format as ISO string
+                json_dict["date"] = self.date.astimezone(tz=timezone.utc).isoformat()
         return json_dict
 
 

@@ -1,9 +1,10 @@
+import datetime
 import logging
 import os
 
 from devcycle_python_sdk import DevCycleCloudClient, DevCycleCloudOptions
 from devcycle_python_sdk.models.user import User
-from devcycle_python_sdk.models.event import Event
+from devcycle_python_sdk.models.event import Event, EventType
 
 VARIABLE_KEY = "test-boolean-variable"
 
@@ -12,37 +13,34 @@ logger = logging.getLogger(__name__)
 
 def main():
     """
-    Sample generic usage of the Python SDK.
+    Sample usage of the Python Server SDK using Cloud Bucketing.
     For a Django specific sample app, please see https://github.com/DevCycleHQ/python-django-example-app/
-
     """
     logging.basicConfig(level="INFO", format="%(levelname)s: %(message)s")
 
-    options = DevCycleCloudOptions(enable_edge_db=True)
-
-    # create an instance of the API class
+    # create an instance of the DevCycle Client object
     server_sdk_key = os.environ["DVC_SERVER_SDK_KEY"]
-    dvc = DevCycleCloudClient(server_sdk_key, options)
+    options = DevCycleCloudOptions(enable_edge_db=True)
+    client = DevCycleCloudClient(server_sdk_key, options)
 
-    user = User(user_id="test", email="yo@yo.ca", country="CA")
-    event = Event(type="customEvent", target="somevariable.key")
+    user = User(user_id="test-1234", email="test-user@domain.com", country="US")
 
     # Use variable_value to access the value of a variable directly
-    if dvc.variable_value(user, VARIABLE_KEY, False):
+    if client.variable_value(user, VARIABLE_KEY, False):
         logger.info(f"Variable {VARIABLE_KEY} is enabled")
     else:
         logger.info(f"Variable {VARIABLE_KEY} is not enabled")
 
     # DevCycle handles missing or wrongly typed variables by returning the default value
     # You can check this explicitly by using the variable method
-    variable = dvc.variable(user, VARIABLE_KEY + "-does-not-exist", False)
+    variable = client.variable(user, VARIABLE_KEY + "-does-not-exist", False)
     if variable.isDefaulted:
         logger.info(f"Variable {variable.key} is defaulted to {variable.value}")
 
     try:
         # Get all variables by key for user data
-        all_variables_response = dvc.all_variables(user)
-        logger.info("All variables:\n%s", all_variables_response)
+        all_variables_response = client.all_variables(user)
+        logger.info(f"All variables:\n{all_variables_response}")
 
         if VARIABLE_KEY not in all_variables_response:
             logger.warning(
@@ -50,14 +48,19 @@ def main():
             )
 
         # Get all features by key for user data
-        all_features_response = dvc.all_features(user)
-        logger.info("All features:\n%s", all_features_response)
+        all_features_response = client.all_features(user)
+        logger.info(f"All features:\n{all_features_response}")
 
-        # Post events to DevCycle for user
-        track_response = dvc.track(user, event)
-        logger.info(track_response)
+        # Post a custom event to DevCycle for user
+        event = Event(
+            type=EventType.CustomEvent,
+            target="some.variable.key",
+            date=datetime.datetime.now(),
+        )
+        client.track(user, event)
+
     except Exception as e:
-        logger.exception("Exception when calling Devcycle API: %s\n" % e)
+        logger.exception(f"Exception when calling Devcycle API: {e}\n")
 
 
 if __name__ == "__main__":
