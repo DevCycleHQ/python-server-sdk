@@ -3,7 +3,7 @@ name: Benchmark
 on: [ push ]
 
 jobs:
-  build:
+  benchmark:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -27,6 +27,7 @@ jobs:
         with:
           tool: 'pytest'
           output-file-path: benchmarks.json
+          external-data-json-path: benchmarks_baseline.json
           # GitHub API token to make a commit comment
           github-token: ${{ secrets.GITHUB_TOKEN }}
           skip-fetch-gh-pages: true
