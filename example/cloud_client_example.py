@@ -20,7 +20,7 @@ def main():
     logging.basicConfig(level="INFO", format="%(levelname)s: %(message)s")
 
     # create an instance of the DevCycle Client object
-    server_sdk_key = os.environ["DVC_SERVER_SDK_KEY"]
+    server_sdk_key = os.environ["DEVCYCLE_SERVER_SDK_KEY"]
     options = DevCycleCloudOptions(enable_edge_db=True)
     client = DevCycleCloudClient(server_sdk_key, options)
 

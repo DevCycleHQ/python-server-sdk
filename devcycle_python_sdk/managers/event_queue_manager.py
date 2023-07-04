@@ -95,13 +95,11 @@ class EventQueueManager(threading.Thread):
 
             event_count = 0
             if payloads:
-                logger.info(f"DVC Flush {len(payloads)} event payloads")
+                logger.debug(f"Flush {len(payloads)} event payloads")
                 for payload in payloads:
                     event_count += payload.eventCount
                     self._publish_event_payload(payload)
-                logger.info(
-                    f"DVC Flush {event_count} events, for {len(payloads)} users"
-                )
+                logger.debug(f"Flush {event_count} events, for {len(payloads)} users")
             return event_count
 
     def _publish_event_payload(self, payload: FlushPayload) -> None:
@@ -123,7 +121,9 @@ class EventQueueManager(threading.Thread):
                 self._stop_running()
                 self._local_bucketing.on_event_payload_failure(payload.payloadId, False)
             except APIClientError as e:
-                logger.warning(f"Error publishing events: {str(e)}")
+                logger.warning(
+                    f"Error publishing events to DevCycle Events API service: {str(e)}"
+                )
                 self._local_bucketing.on_event_payload_failure(payload.payloadId, True)
 
     def is_event_logging_disabled(self, event_type: str) -> bool:
@@ -142,7 +142,7 @@ class EventQueueManager(threading.Thread):
             try:
                 self._flush_events()
             except Exception as e:
-                logger.info(f"DVC Error flushing events: {str(e)}")
+                logger.warning(f"Error flushing events: {str(e)}")
 
             self._sleep()
 
@@ -160,7 +160,7 @@ class EventQueueManager(threading.Thread):
         try:
             self._flush_events()
         except Exception as e:
-            logger.info(f"DVC Error flushing events when closing client: {str(e)}")
+            logger.warning(f"DVC Error flushing events when closing client: {str(e)}")
 
     def queue_event(self, user: DevCycleUser, event: DevCycleEvent) -> None:
         if user is None:
@@ -175,7 +175,7 @@ class EventQueueManager(threading.Thread):
         try:
             self._check_queue_status()
         except QueueFullError:
-            logger.warning("Event queue is full, dropping event")
+            logger.warning("Event queue is full, dropping user event")
             return
 
         user_json = json.dumps(user.to_json())
@@ -197,7 +197,7 @@ class EventQueueManager(threading.Thread):
         try:
             self._check_queue_status()
         except QueueFullError:
-            logger.warning("Event queue is full, dropping event")
+            logger.warning("Event queue is full, dropping aggregate event")
             return
 
         event_json = json.dumps(event.to_json())

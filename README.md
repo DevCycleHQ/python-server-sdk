@@ -26,7 +26,7 @@ from devcycle_python_sdk.models.user import DevCycleUser
 options = DevCycleLocalOptions()
 
 # create an instance of the client class
-client = DevCycleLocalClient('YOUR_DVC_SERVER_SDK_KEY', options)
+client = DevCycleLocalClient('DEVCYCLE_SERVER_SDK_KEY', options)
 
 user = DevCycleUser(
     user_id='test',

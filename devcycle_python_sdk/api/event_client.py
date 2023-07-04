@@ -77,7 +77,7 @@ class EventAPIClient:
             if not request_error:
                 break
 
-            logger.error(
+            logger.debug(
                 f"DevCycle event batch request failed (attempt {attempts}): {request_error}"
             )
             retries_remaining -= 1

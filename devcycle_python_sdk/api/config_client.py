@@ -96,7 +96,7 @@ class ConfigAPIClient:
             if not request_error:
                 break
 
-            logger.warning(
+            logger.debug(
                 f"DevCycle config CDN request failed (attempt {attempts}): {request_error}"
             )
             retries_remaining -= 1
