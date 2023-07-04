@@ -7,7 +7,7 @@ import responses
 from responses.registries import OrderedRegistry
 
 from devcycle_python_sdk.api.event_client import EventAPIClient
-from devcycle_python_sdk.dvc_options import DevCycleLocalOptions
+from devcycle_python_sdk.options import DevCycleLocalOptions
 from devcycle_python_sdk.exceptions import (
     APIClientError,
     APIClientUnauthorizedError,
@@ -18,7 +18,7 @@ from devcycle_python_sdk.models.event import (
     RequestEvent,
     EventType,
 )
-from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.user import DevCycleUser
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class EventAPIClientTest(unittest.TestCase):
         self.test_client = EventAPIClient(self.sdk_key, options)
         self.test_batch_url = "http://localhost:8080/v1/events/batch"
 
-        self.test_user = User(user_id="123")
+        self.test_user = DevCycleUser(user_id="123")
         events = [
             RequestEvent(
                 type=EventType.VariableDefaulted,

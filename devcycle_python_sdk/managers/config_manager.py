@@ -4,7 +4,7 @@ import logging
 import json
 from typing import Optional
 
-from devcycle_python_sdk.dvc_options import DevCycleLocalOptions
+from devcycle_python_sdk.options import DevCycleLocalOptions
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
 from devcycle_python_sdk.api.config_client import ConfigAPIClient
 from devcycle_python_sdk.exceptions import (

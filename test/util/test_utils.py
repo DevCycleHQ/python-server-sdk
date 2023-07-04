@@ -3,7 +3,7 @@ import logging
 import unittest
 
 from devcycle_python_sdk.models.variable import TypeEnum
-from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.user import DevCycleUser
 import devcycle_python_sdk.protobuf.utils as utils
 import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
 
@@ -132,7 +132,7 @@ class VersionTest(unittest.TestCase):
         self.assertFalse(var.isDefaulted)
 
     def test_create_dvcuser_pb_bad_app_build(self):
-        user = User(
+        user = DevCycleUser(
             user_id="test id",
             appBuild=None,
         )
@@ -142,7 +142,7 @@ class VersionTest(unittest.TestCase):
         self.assertEqual(result.user_id, user.user_id)
         self.assertTrue(result.appBuild.isNull)
 
-        user = User(
+        user = DevCycleUser(
             user_id="test id",
             appBuild="NotANumberAtAll",
         )
@@ -153,7 +153,7 @@ class VersionTest(unittest.TestCase):
         self.assertTrue(result.appBuild.isNull)
 
     def test_create_dvcuser_pb(self):
-        user = User(
+        user = DevCycleUser(
             user_id="test id",
             name="test name",
             email="test email",

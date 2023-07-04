@@ -15,8 +15,8 @@ from devcycle_python_sdk.models.bucketed_config import (
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.variable import Variable
 from devcycle_python_sdk.models.platform_data import default_platform_data
-from devcycle_python_sdk.models.user import User
-from devcycle_python_sdk.models.event import Event, EventType
+from devcycle_python_sdk.models.user import DevCycleUser
+from devcycle_python_sdk.models.event import DevCycleEvent, EventType
 from devcycle_python_sdk.models.variable import TypeEnum
 from test.fixture.data import small_config, large_config, special_character_config
 
@@ -97,7 +97,7 @@ class LocalBucketingTest(unittest.TestCase):
         platform_json = json.dumps(default_platform_data().to_json())
         self.local_bucketing.set_platform_data(platform_json)
         self.local_bucketing.init_event_queue("{}")
-        user = User(user_id="test_user_id")
+        user = DevCycleUser(user_id="test_user_id")
         result = self.local_bucketing.get_variable_for_user_protobuf(
             user=user, key="string-var", default_value="default value"
         )
@@ -112,7 +112,7 @@ class LocalBucketingTest(unittest.TestCase):
         platform_json = json.dumps(default_platform_data().to_json())
         self.local_bucketing.set_platform_data(platform_json)
         self.local_bucketing.init_event_queue("{}")
-        user = User(user_id="test_user_id")
+        user = DevCycleUser(user_id="test_user_id")
         result = self.local_bucketing.get_variable_for_user_protobuf(
             user=user, key="string-var", default_value="default value"
         )
@@ -127,7 +127,7 @@ class LocalBucketingTest(unittest.TestCase):
         platform_json = json.dumps(default_platform_data().to_json())
         self.local_bucketing.set_platform_data(platform_json)
         self.local_bucketing.init_event_queue("{}")
-        user = User(user_id="test_user_id")
+        user = DevCycleUser(user_id="test_user_id")
 
         # type mismatch is handled inside the WASM and will return
         # no data if the type is not correct
@@ -141,7 +141,7 @@ class LocalBucketingTest(unittest.TestCase):
         platform_json = json.dumps(default_platform_data().to_json())
         self.local_bucketing.set_platform_data(platform_json)
         self.local_bucketing.init_event_queue("{}")
-        user = User(user_id="test_user_id")
+        user = DevCycleUser(user_id="test_user_id")
 
         result = self.local_bucketing.generate_bucketed_config(user=user)
 
@@ -301,7 +301,7 @@ class LocalBucketingTest(unittest.TestCase):
         )
 
         # trigger two events for a single user
-        user = User(user_id="test_user_id")
+        user = DevCycleUser(user_id="test_user_id")
         self.local_bucketing.get_variable_for_user_protobuf(
             user=user, key="string-var", default_value="default value"
         )
@@ -358,8 +358,8 @@ class LocalBucketingTest(unittest.TestCase):
         platform_json = json.dumps(default_platform_data().to_json())
         self.local_bucketing.set_platform_data(platform_json)
         self.local_bucketing.init_event_queue("{}")
-        user = User(user_id="test_user_id")
-        event = Event(
+        user = DevCycleUser(user_id="test_user_id")
+        event = DevCycleEvent(
             type=EventType.CustomEvent,
             target="string-var",
             value=1,
@@ -375,7 +375,7 @@ class LocalBucketingTest(unittest.TestCase):
         self.local_bucketing.set_platform_data(platform_json)
         self.local_bucketing.init_event_queue("{}")
 
-        event = Event(
+        event = DevCycleEvent(
             type=EventType.AggVariableDefaulted,
             target="string-var",
             value=1,

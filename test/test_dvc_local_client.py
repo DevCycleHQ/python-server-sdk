@@ -7,12 +7,12 @@ from unittest.mock import patch
 import responses
 
 from devcycle_python_sdk import DevCycleLocalClient, DevCycleLocalOptions
-from devcycle_python_sdk.dvc_local_client import _validate_user, _validate_sdk_key
+from devcycle_python_sdk.local_client import _validate_user, _validate_sdk_key
 from devcycle_python_sdk.exceptions import MalformedConfigError
-from devcycle_python_sdk.models.event import Event
+from devcycle_python_sdk.models.event import DevCycleEvent
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
-from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.variable import Variable, TypeEnum
 from test.fixture.data import small_config_json
 
@@ -41,8 +41,8 @@ class DVCLocalClientTest(unittest.TestCase):
             disable_custom_event_logging=True,
             disable_automatic_event_logging=True,
         )
-        self.test_user = User(user_id="test_user_id")
-        self.test_user_empty_id = User(user_id="")
+        self.test_user = DevCycleUser(user_id="test_user_id")
+        self.test_user_empty_id = DevCycleUser(user_id="")
         self.client = None
 
     def tearDown(self) -> None:
@@ -133,7 +133,7 @@ class DVCLocalClientTest(unittest.TestCase):
     def test_track_event_bad_user(self):
         self.setup_client()
 
-        event = Event(
+        event = DevCycleEvent(
             type="user",
             target="test_target",
             value=42,
@@ -153,7 +153,7 @@ class DVCLocalClientTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.client.track(self.test_user, None)
 
-        event = Event(
+        event = DevCycleEvent(
             type=None,
             target="test_target",
             value=42,
@@ -162,7 +162,7 @@ class DVCLocalClientTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.client.track(self.test_user, event)
 
-        event = Event(
+        event = DevCycleEvent(
             type="",
             target="test_target",
             value=42,
@@ -211,7 +211,7 @@ class DVCLocalClientTest(unittest.TestCase):
     def test_variable_with_bucketing(self):
         self.setup_client()
 
-        user = User(user_id="1234")
+        user = DevCycleUser(user_id="1234")
 
         tests = [
             ("string-var", "default_value", "variationOn", TypeEnum.STRING),
@@ -244,14 +244,14 @@ class DVCLocalClientTest(unittest.TestCase):
         self.options.disable_automatic_event_logging = False
         self.options.disable_custom_event_logging = False
         self.setup_client()
-        user = User(user_id="1234")
+        user = DevCycleUser(user_id="1234")
         self.client.variable(user, "string-var", "default_value")
 
     @responses.activate
     def test_all_features(self):
         self.setup_client()
 
-        user = User(user_id="1234")
+        user = DevCycleUser(user_id="1234")
 
         result = self.client.all_features(user)
         self.assertEqual(
@@ -278,7 +278,7 @@ class DVCLocalClientTest(unittest.TestCase):
     def test_all_features_exception(self, _):
         self.setup_client()
 
-        user = User(user_id="1234")
+        user = DevCycleUser(user_id="1234")
 
         result = self.client.all_features(user)
         self.assertEqual(result, {})
@@ -287,7 +287,7 @@ class DVCLocalClientTest(unittest.TestCase):
     def test_all_variables(self):
         self.setup_client()
 
-        user = User(user_id="1234")
+        user = DevCycleUser(user_id="1234")
 
         result = self.client.all_variables(user)
 
@@ -344,7 +344,7 @@ class DVCLocalClientTest(unittest.TestCase):
     def test_all_variables_exception(self, _):
         self.setup_client()
 
-        user = User(user_id="1234")
+        user = DevCycleUser(user_id="1234")
 
         result = self.client.all_variables(user)
         self.assertEqual(result, {})

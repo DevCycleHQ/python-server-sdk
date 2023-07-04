@@ -5,7 +5,7 @@ import math
 from typing import Any, Optional
 
 from devcycle_python_sdk.models.variable import TypeEnum, Variable
-from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.user import DevCycleUser
 
 import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
 
@@ -63,7 +63,7 @@ def convert_type_enum_to_variable_type(var_type: str) -> pb2.VariableType_PB:
         raise ValueError("Unknown type: " + str(var_type))
 
 
-def create_dvcuser_pb(user: User) -> pb2.DVCUser_PB:  # type: ignore
+def create_dvcuser_pb(user: DevCycleUser) -> pb2.DVCUser_PB:  # type: ignore
     app_build = float("nan")
     if user.appBuild:
         try:

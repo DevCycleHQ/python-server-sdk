@@ -6,9 +6,9 @@ from time import time
 from unittest.mock import patch
 
 from devcycle_python_sdk import DevCycleCloudClient, DevCycleCloudOptions
-from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.variable import Variable, TypeEnum
-from devcycle_python_sdk.models.event import Event
+from devcycle_python_sdk.models.event import DevCycleEvent
 from devcycle_python_sdk.exceptions import (
     CloudClientUnauthorizedError,
     NotFoundError,
@@ -22,9 +22,9 @@ class DVCCloudClientTest(unittest.TestCase):
         sdk_key = "dvc_server_" + str(uuid.uuid4())
         options = DevCycleCloudOptions()
         self.test_client = DevCycleCloudClient(sdk_key, options)
-        self.test_user = User(user_id="test_user_id")
-        self.test_user_no_id = User(user_id=None)  # type: ignore
-        self.test_user_empty_id = User(user_id="")
+        self.test_user = DevCycleUser(user_id="test_user_id")
+        self.test_user_no_id = DevCycleUser(user_id=None)  # type: ignore
+        self.test_user_empty_id = DevCycleUser(user_id="")
 
     def tearDown(self) -> None:
         pass
@@ -208,7 +208,7 @@ class DVCCloudClientTest(unittest.TestCase):
 
     @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.track")
     def test_track_event_bad_user(self, mock_track_call):
-        event = Event(
+        event = DevCycleEvent(
             type="user",
             target="test_target",
             date=time(),
@@ -234,7 +234,7 @@ class DVCCloudClientTest(unittest.TestCase):
             self.test_client.track(self.test_user, None)
         mock_track_call.assert_not_called()
 
-        event = Event(
+        event = DevCycleEvent(
             type=None,
             target="test_target",
             value=42,
@@ -244,7 +244,7 @@ class DVCCloudClientTest(unittest.TestCase):
             self.test_client.track(self.test_user, event)
         mock_track_call.assert_not_called()
 
-        event = Event(
+        event = DevCycleEvent(
             type="",
             target="test_target",
             value=42,
@@ -261,7 +261,7 @@ class DVCCloudClientTest(unittest.TestCase):
         with self.assertRaises(CloudClientUnauthorizedError):
             self.test_client.track(
                 self.test_user,
-                Event(
+                DevCycleEvent(
                     type="user",
                     target="test_target",
                     value=42,
@@ -273,7 +273,7 @@ class DVCCloudClientTest(unittest.TestCase):
         mock_track_call.side_effect = Exception("Some error")
         self.test_client.track(
             self.test_user,
-            Event(
+            DevCycleEvent(
                 type="user",
                 target="test_target",
                 value=42,

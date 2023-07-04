@@ -7,7 +7,7 @@ from typing import Optional, List
 import requests
 
 from devcycle_python_sdk.api.backoff import exponential_backoff
-from devcycle_python_sdk.dvc_options import DevCycleLocalOptions
+from devcycle_python_sdk.options import DevCycleLocalOptions
 from devcycle_python_sdk.exceptions import (
     APIClientError,
     NotFoundError,

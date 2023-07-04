@@ -3,7 +3,7 @@ import logging
 import json
 from typing import Optional
 
-from devcycle_python_sdk.dvc_options import DevCycleLocalOptions
+from devcycle_python_sdk.options import DevCycleLocalOptions
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
 from devcycle_python_sdk.api.event_client import EventAPIClient
 from devcycle_python_sdk.exceptions import (
@@ -13,10 +13,10 @@ from devcycle_python_sdk.exceptions import (
 )
 from devcycle_python_sdk.models.event import (
     FlushPayload,
-    Event,
+    DevCycleEvent,
     EventType,
 )
-from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.bucketed_config import BucketedConfig
 
 
@@ -162,7 +162,7 @@ class EventQueueManager(threading.Thread):
         except Exception as e:
             logger.info(f"DVC Error flushing events when closing client: {str(e)}")
 
-    def queue_event(self, user: User, event: Event) -> None:
+    def queue_event(self, user: DevCycleUser, event: DevCycleEvent) -> None:
         if user is None:
             raise ValueError("user cannot be None")
 
@@ -183,7 +183,7 @@ class EventQueueManager(threading.Thread):
         self._local_bucketing.queue_event(user_json, event_json)
 
     def queue_aggregate_event(
-        self, event: Event, bucketed_config: Optional[BucketedConfig]
+        self, event: DevCycleEvent, bucketed_config: Optional[BucketedConfig]
     ) -> None:
         if event is None:
             raise ValueError("event cannot be None")

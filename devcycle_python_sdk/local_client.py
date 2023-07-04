@@ -9,10 +9,10 @@ from devcycle_python_sdk.exceptions import VariableTypeMismatchError
 from devcycle_python_sdk.managers.config_manager import EnvironmentConfigManager
 from devcycle_python_sdk.managers.event_queue_manager import EventQueueManager
 from devcycle_python_sdk.models.bucketed_config import BucketedConfig
-from devcycle_python_sdk.models.event import Event, EventType
+from devcycle_python_sdk.models.event import DevCycleEvent, EventType
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.platform_data import default_platform_data
-from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.variable import Variable
 
 logger = logging.getLogger(__name__)
@@ -67,10 +67,10 @@ class DevCycleLocalClient:
             except Exception as e:
                 logger.error("Error setting custom data: " + str(e))
 
-    def variable_value(self, user: User, key: str, default_value: Any) -> Any:
+    def variable_value(self, user: DevCycleUser, key: str, default_value: Any) -> Any:
         return self.variable(user, key, default_value).value
 
-    def variable(self, user: User, key: str, default_value: Any) -> Variable:
+    def variable(self, user: DevCycleUser, key: str, default_value: Any) -> Variable:
         _validate_user(user)
 
         if not key:
@@ -83,7 +83,7 @@ class DevCycleLocalClient:
             logger.debug("variable called before client has initialized")
             try:
                 self.event_queue_manager.queue_aggregate_event(
-                    event=Event(
+                    event=DevCycleEvent(
                         type=EventType.AggVariableDefaulted, target=key, value=1
                     ),
                     bucketed_config=None,
@@ -109,12 +109,12 @@ class DevCycleLocalClient:
 
         return Variable.create_default_variable(key, default_value)
 
-    def _generate_bucketed_config(self, user: User) -> BucketedConfig:
+    def _generate_bucketed_config(self, user: DevCycleUser) -> BucketedConfig:
         _validate_user(user)
 
         return self.local_bucketing.generate_bucketed_config(user)
 
-    def all_variables(self, user: User) -> Dict[str, Variable]:
+    def all_variables(self, user: DevCycleUser) -> Dict[str, Variable]:
         _validate_user(user)
 
         if not self.is_initialized():
@@ -131,7 +131,7 @@ class DevCycleLocalClient:
 
         return variable_map
 
-    def all_features(self, user: User) -> Dict[str, Feature]:
+    def all_features(self, user: DevCycleUser) -> Dict[str, Feature]:
         _validate_user(user)
 
         if not self.is_initialized():
@@ -146,7 +146,7 @@ class DevCycleLocalClient:
 
         return feature_map
 
-    def track(self, user: User, user_event: Event) -> None:
+    def track(self, user: DevCycleUser, user_event: DevCycleEvent) -> None:
         _validate_user(user)
 
         if user_event is None:
@@ -182,7 +182,7 @@ def _validate_sdk_key(sdk_key: str) -> None:
         )
 
 
-def _validate_user(user: User) -> None:
+def _validate_user(user: DevCycleUser) -> None:
     if user is None:
         raise ValueError("User cannot be None")
 

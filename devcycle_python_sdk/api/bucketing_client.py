@@ -6,15 +6,15 @@ from typing import Dict, List, Optional
 import requests
 
 from devcycle_python_sdk.api.backoff import exponential_backoff
-from devcycle_python_sdk.dvc_options import DevCycleCloudOptions
+from devcycle_python_sdk.options import DevCycleCloudOptions
 from devcycle_python_sdk.exceptions import (
     CloudClientError,
     NotFoundError,
     CloudClientUnauthorizedError,
 )
-from devcycle_python_sdk.models.event import Event
+from devcycle_python_sdk.models.event import DevCycleEvent
 from devcycle_python_sdk.models.feature import Feature
-from devcycle_python_sdk.models.user import User
+from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.variable import Variable
 
 logger = logging.getLogger(__name__)
@@ -88,7 +88,7 @@ class BucketingAPIClient:
         data: dict = res.json()
         return data
 
-    def variable(self, key: str, user: User) -> Variable:
+    def variable(self, key: str, user: DevCycleUser) -> Variable:
         data = self.request("POST", self._url("variables", key), json=user.to_json())
 
         return Variable(
@@ -98,7 +98,7 @@ class BucketingAPIClient:
             value=data.get("value"),
         )
 
-    def variables(self, user: User) -> Dict[str, Variable]:
+    def variables(self, user: DevCycleUser) -> Dict[str, Variable]:
         data = self.request("POST", self._url("variables"), json=user.to_json())
 
         result: Dict[str, Variable] = {}
@@ -113,7 +113,7 @@ class BucketingAPIClient:
 
         return result
 
-    def features(self, user: User) -> Dict[str, Feature]:
+    def features(self, user: DevCycleUser) -> Dict[str, Feature]:
         data = self.request("POST", self._url("features"), json=user.to_json())
 
         result: Dict[str, Feature] = {}
@@ -130,7 +130,7 @@ class BucketingAPIClient:
 
         return result
 
-    def track(self, user: User, events: List[Event]) -> str:
+    def track(self, user: DevCycleUser, events: List[DevCycleEvent]) -> str:
         data = self.request(
             "POST",
             self._url("track"),

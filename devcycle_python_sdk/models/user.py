@@ -5,7 +5,7 @@ from typing import Dict, Optional
 
 
 @dataclass(order=False)
-class User:
+class DevCycleUser:
     user_id: str
     email: Optional[str] = None
     name: Optional[str] = None
@@ -42,7 +42,7 @@ class User:
         return json_dict
 
     @classmethod
-    def from_json(cls, data: dict) -> "User":
+    def from_json(cls, data: dict) -> "DevCycleUser":
         if "createdDate" in data:
             created_date = datetime.fromisoformat(
                 data["createdDate"].replace("Z", "+00:00")
