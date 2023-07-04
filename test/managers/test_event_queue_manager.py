@@ -86,7 +86,7 @@ class EventQueueManagerTest(unittest.TestCase):
         manager = EventQueueManager(
             self.sdk_key, self.test_options, self.test_local_bucketing
         )
-        self.assertTrue(manager._processing_enabled)
+        self.assertTrue(manager._should_run())
         self.assertTrue(manager.is_alive())
         self.assertTrue(manager.daemon)
 
@@ -100,7 +100,7 @@ class EventQueueManagerTest(unittest.TestCase):
         manager.close()
         # let the thread wake up from sleep and react to the close
         time.sleep(0.5)
-        self.assertFalse(manager._processing_enabled)
+        self.assertFalse(manager._should_run())
         self.assertFalse(manager.is_alive())
 
     @patch("devcycle_python_sdk.api.event_client.EventAPIClient.publish_events")
