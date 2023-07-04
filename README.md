@@ -89,6 +89,13 @@ To run the unit tests, run:
 pytest
 ```
 
+### Benchmarks
+
+To run the benchmarks, run:
+```bash
+pytest --benchmark-only
+```
+
 ### Protobuf Code Generation
 
 To generate the protobuf source files run the following from the root of the project. Ensure you have `protoc` installed.
