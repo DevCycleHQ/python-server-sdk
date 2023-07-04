@@ -1,3 +1,4 @@
+import json
 import logging
 import requests
 import responses
@@ -222,6 +223,10 @@ class BucketingClientTest(unittest.TestCase):
             ],
         )
         self.assertEqual(result, "success")
+        data = json.loads(responses.calls[0].request.body)
+        self.assertTrue(type(data["events"][0]["date"]) == int)
+        self.assertEqual(len(data["events"]), 1)
+        self.assertEqual(data["events"][0]["type"],"sample-event")
 
 
 if __name__ == "__main__":

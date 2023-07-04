@@ -30,7 +30,7 @@ class Event:
         }
         if self.date:
             if use_bucketing_api_format:
-                # convert to timestamp in milliseconds
+                # convert to timestamp in milliseconds as required by the bucketing API
                 json_dict["date"] = int(self.date.timestamp() * 1000)
             else:
                 # convert to UTC and format as ISO string
