@@ -136,7 +136,7 @@ class BucketingAPIClient:
             self._url("track"),
             json={
                 "user": user.to_json(),
-                "events": [event.to_json() for event in events],
+                "events": [event.to_json(use_bucketing_api_format=True) for event in events],
             },
         )
         message = data.get("message", "")
