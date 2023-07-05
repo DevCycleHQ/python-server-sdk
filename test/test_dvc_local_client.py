@@ -351,7 +351,7 @@ class DVCLocalClientTest(unittest.TestCase):
         self.assertEqual(result, {})
 
 
-def _benchmark_variable_call(client: DevCycleLocalClient, user: User, key: str):
+def _benchmark_variable_call(client: DevCycleLocalClient, user: DevCycleUser, key: str):
     return client.variable(user, key, "default_value")
 
 
@@ -377,7 +377,7 @@ def test_benchmark_variable_call(benchmark):
         disable_custom_event_logging=True,
         disable_automatic_event_logging=True,
     )
-    user = User(user_id="test_user_id")
+    user = DevCycleUser(user_id="test_user_id")
 
     client = DevCycleLocalClient(sdk_key, options)
     while not client.is_initialized():
