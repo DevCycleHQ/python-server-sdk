@@ -83,7 +83,14 @@ black --target-version py37 --extend-exclude '_pb2\.pyi?$' .
 
 To run the unit tests, run:
 ```bash
-python -m unittest -v
+pytest
+```
+
+### Benchmarks
+
+To run the benchmarks, run:
+```bash
+pytest --benchmark-only
 ```
 
 ### Protobuf Code Generation

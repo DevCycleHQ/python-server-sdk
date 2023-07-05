@@ -1,0 +1,33 @@
+name: Benchmark
+
+on: [ push ]
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.11" ]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.test.txt
+      - name: Run benchmarks
+        run: |
+          pytest --benchmark-only --benchmark-json=benchmarks.json
+      - name: Print summary
+        run: |
+            echo "### Benchmark Results" >> $GITHUB_STEP_SUMMARY
+            echo "
+            Benchmark|Min (uS)|Median (uS)|Mean (uS)|Max (uS)|Iterations
+            ---|---|---|---|---|---
+            $(jq -r '.benchmarks[] | [.name,(.stats.min*1000000000 | round / 1000),(.stats.median*1000000000 | round / 1000),(.stats.mean*1000000000 | round / 1000),(.stats.max*1000000000 | round / 1000),.stats.rounds] | join("|")' benchmarks.json)
+            " >> $GITHUB_STEP_SUMMARY
