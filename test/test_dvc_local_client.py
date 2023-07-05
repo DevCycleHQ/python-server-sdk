@@ -243,6 +243,7 @@ class DVCLocalClientTest(unittest.TestCase):
     def test_variable_with_events(self):
         self.options.disable_automatic_event_logging = False
         self.options.disable_custom_event_logging = False
+        self.options.event_flush_interval_ms = 0
         self.setup_client()
         user = DevCycleUser(user_id="1234")
         self.client.variable(user, "string-var", "default_value")
@@ -348,6 +349,48 @@ class DVCLocalClientTest(unittest.TestCase):
 
         result = self.client.all_variables(user)
         self.assertEqual(result, {})
+
+
+def _benchmark_variable_call(client: DevCycleLocalClient, user: DevCycleUser, key: str):
+    return client.variable(user, key, "default_value")
+
+
+@responses.activate
+def test_benchmark_variable_call(benchmark):
+    sdk_key = "dvc_server_949e4962-c624-4d20-a1ea-7f2501b2ba79"
+    test_config_json = small_config_json()
+    test_etag = "2f71454e-3279-4ca7-a8e7-802ce97bef43"
+
+    config_url = "http://localhost/config/v1/server/" + sdk_key + ".json"
+
+    responses.add(
+        responses.GET,
+        config_url,
+        headers={"ETag": test_etag},
+        json=test_config_json,
+        status=200,
+    )
+
+    options = DevCycleLocalOptions(
+        config_polling_interval_ms=5000,
+        config_cdn_uri="http://localhost/",
+        disable_custom_event_logging=True,
+        disable_automatic_event_logging=True,
+    )
+    user = DevCycleUser(user_id="test_user_id")
+
+    client = DevCycleLocalClient(sdk_key, options)
+    while not client.is_initialized():
+        time.sleep(0.05)
+
+    # benchmark is a pytest fixture provided by pytest-benchmark that handles timing the provided callable
+    result = benchmark(_benchmark_variable_call, client, user, "string-var")
+
+    assert result is not None
+    assert result.key == "string-var"
+    assert result.isDefaulted is False
+    assert result.value == "variationOn"
+    assert result.type == TypeEnum.STRING
 
 
 if __name__ == "__main__":
