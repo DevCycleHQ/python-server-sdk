@@ -68,9 +68,21 @@ class DevCycleLocalClient:
                 logger.error("Error setting custom data: " + str(e))
 
     def variable_value(self, user: DevCycleUser, key: str, default_value: Any) -> Any:
+        """
+        Evaluates a variable for a user and returns the value.  If the user is not bucketed into the variable, the default value will be returned
+
+        :param user: The user to evaluate the variable for
+        """
         return self.variable(user, key, default_value).value
 
     def variable(self, user: DevCycleUser, key: str, default_value: Any) -> Variable:
+        """
+        Evaluates a variable for a user.
+
+        :param user: The user to evaluate the variable for
+        :param key: The key of the variable to evaluate
+        :param default_value: The default value to return if the user is not bucketed into the variable
+        """
         _validate_user(user)
 
         if not key:
@@ -89,10 +101,8 @@ class DevCycleLocalClient:
                     bucketed_config=None,
                 )
             except Exception as e:
-                logger.error(
-                    "Unable to track AggVariableDefaulted event for Variable %s: %s",
-                    key,
-                    e,
+                logger.warning(
+                    f"Unable to track AggVariableDefaulted event for Variable {key}: {e}"
                 )
             return Variable.create_default_variable(key, default_value)
 
@@ -103,18 +113,27 @@ class DevCycleLocalClient:
             if variable:
                 return variable
         except VariableTypeMismatchError:
-            logger.info("Variable type mismatch, returning default value")
+            logger.debug("Variable type mismatch, returning default value")
         except Exception as e:
-            logger.error("Error retrieving variable for user: %s", e)
+            logger.warning(f"Error retrieving variable for user: {e}")
 
         return Variable.create_default_variable(key, default_value)
 
     def _generate_bucketed_config(self, user: DevCycleUser) -> BucketedConfig:
+        """
+        Generates a bucketed config for a user.  This method will return an empty config if the client has not been initialized or if the user is not bucketed into any features or variables
+        """
+
         _validate_user(user)
 
         return self.local_bucketing.generate_bucketed_config(user)
 
     def all_variables(self, user: DevCycleUser) -> Dict[str, Variable]:
+        """
+        Returns all segmented and bucketed variables for a user.  This method will return an empty map if the client has not been initialized or if the user is not bucketed into any variables
+
+        :param user: The user to retrieve variables for
+        """
         _validate_user(user)
 
         if not self.is_initialized():
@@ -126,12 +145,17 @@ class DevCycleLocalClient:
         try:
             return self.local_bucketing.generate_bucketed_config(user).variables
         except Exception as e:
-            logger.exception("Error retrieving all variables for a user: %s", e)
+            logger.exception(f"Error retrieving all variables for a user: {e}")
             return {}
 
         return variable_map
 
     def all_features(self, user: DevCycleUser) -> Dict[str, Feature]:
+        """
+        Returns all segmented and bucketed features for a user.  This method will return an empty map if the client has not been initialized or if the user is not bucketed into any features
+
+        :param user: The user to retrieve features for
+        """
         _validate_user(user)
 
         if not self.is_initialized():
@@ -142,11 +166,17 @@ class DevCycleLocalClient:
         try:
             return self.local_bucketing.generate_bucketed_config(user).features
         except Exception as e:
-            logger.exception("Error retrieving all features for a user: %s", e)
+            logger.exception(f"Error retrieving all features for a user: {e}")
 
         return feature_map
 
     def track(self, user: DevCycleUser, user_event: DevCycleEvent) -> None:
+        """
+        Tracks a custom event for a user.  This method will return immediately and the event will be queued for processing in the background.  If the client has not been initialized, this method will return immediately and the event will be discarded.
+
+        :param user: The user to track the event for
+        :param user_event: The event to track
+        """
         _validate_user(user)
 
         if user_event is None:
@@ -162,7 +192,7 @@ class DevCycleLocalClient:
         try:
             self.event_queue_manager.queue_event(user, user_event)
         except Exception as e:
-            logger.error("Error tracking event: %s", e)
+            logger.error(f"Error tracking event: {e}")
 
     def close(self) -> None:
         """

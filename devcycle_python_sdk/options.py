@@ -5,6 +5,10 @@ logger = logging.getLogger(__name__)
 
 
 class DevCycleCloudOptions:
+    """
+    Options for configuring the DevCycle Cloud SDK.
+    """
+
     def __init__(
         self,
         enable_edge_db: bool = False,
@@ -21,6 +25,10 @@ class DevCycleCloudOptions:
 
 
 class DevCycleLocalOptions:
+    """
+    Options for configuring the DevCycle Local Bucketing SDK.
+    """
+
     def __init__(
         self,
         config_cdn_uri: str = "https://config-cdn.devcycle.com/",
@@ -55,39 +63,31 @@ class DevCycleLocalOptions:
 
         if self.flush_event_queue_size >= self.max_event_queue_size:
             logger.warning(
-                "flushEventQueueSize: %d must be smaller than maxEventQueueSize: %d",
-                self.flush_event_queue_size,
-                self.max_event_queue_size,
+                f"flush_event_queue_size: {self.flush_event_queue_size} must be smaller than max_event_queue_size: {self.max_event_queue_size}"
             )
             self.flush_event_queue_size = self.max_event_queue_size - 1
 
         if self.event_request_chunk_size > self.flush_event_queue_size:
             logger.warning(
-                "eventRequestChunkSize: %d must be smaller than flushEventQueueSize: %d",
-                self.event_request_chunk_size,
-                self.flush_event_queue_size,
+                f"event_request_chunk_size: {self.event_request_chunk_size} must be smaller than flush_event_queue_size: {self.flush_event_queue_size}"
             )
             self.event_request_chunk_size = 100
 
         if self.event_request_chunk_size > self.max_event_queue_size:
             logger.warning(
-                "eventRequestChunkSize: %d must be smaller than maxEventQueueSize: %d",
-                self.event_request_chunk_size,
-                self.max_event_queue_size,
+                f"event_request_chunk_size: {self.event_request_chunk_size} must be smaller than max_event_queue_size: { self.max_event_queue_size}"
             )
             self.event_request_chunk_size = 100
 
         if self.flush_event_queue_size > 20000:
             logger.warning(
-                "flushEventQueueSize: %d must be smaller than 20,000",
-                self.flush_event_queue_size,
+                f"flush_event_queue_size: {self.flush_event_queue_size} must be smaller than 20,000"
             )
             self.flush_event_queue_size = 20000
 
         if self.max_event_queue_size > 20000:
             logger.warning(
-                "maxEventQueueSize: %d must be smaller than 20,000",
-                self.max_event_queue_size,
+                f"max_event_queue_size: {self.max_event_queue_size} must be smaller than 20,000"
             )
             self.max_event_queue_size = 20000
 

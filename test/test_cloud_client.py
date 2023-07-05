@@ -17,7 +17,7 @@ from devcycle_python_sdk.exceptions import (
 logger = logging.getLogger(__name__)
 
 
-class DVCCloudClientTest(unittest.TestCase):
+class DevCycleCloudClientTest(unittest.TestCase):
     def setUp(self) -> None:
         sdk_key = "dvc_server_" + str(uuid.uuid4())
         options = DevCycleCloudOptions()

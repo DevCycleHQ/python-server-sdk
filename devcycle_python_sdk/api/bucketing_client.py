@@ -71,7 +71,7 @@ class BucketingAPIClient:
             if not request_error:
                 break
 
-            logger.error(
+            logger.debug(
                 f"DevCycle cloud bucketing request failed (attempt {attempts}): {request_error}"
             )
             retries_remaining -= 1

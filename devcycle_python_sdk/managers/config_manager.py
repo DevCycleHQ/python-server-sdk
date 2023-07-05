@@ -52,7 +52,7 @@ class EnvironmentConfigManager(threading.Thread):
                 return
             elif new_config is None:
                 logger.warning(
-                    "Config fetch returned no data but returned different etag"
+                    "Config CDN fetch returned no data with a different etag"
                 )
                 return
 
@@ -72,7 +72,9 @@ class EnvironmentConfigManager(threading.Thread):
                     self._options.on_client_initialized()
                 except Exception as e:
                     # consume any error
-                    logger.warning(f"Error in on_client_initialized callback: {str(e)}")
+                    logger.warning(
+                        f"Error received from on_client_initialized callback: {str(e)}"
+                    )
         except CloudClientError as e:
             logger.warning(f"Config fetch failed. Status: {str(e)}")
         except CloudClientUnauthorizedError:

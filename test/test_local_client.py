@@ -19,7 +19,7 @@ from test.fixture.data import small_config_json
 logger = logging.getLogger(__name__)
 
 
-class DVCLocalClientTest(unittest.TestCase):
+class DevCycleLocalClientTest(unittest.TestCase):
     def setUp(self) -> None:
         self.sdk_key = "dvc_server_949e4962-c624-4d20-a1ea-7f2501b2ba79"
         self.test_config_json = small_config_json()
