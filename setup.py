@@ -25,7 +25,10 @@ setup(
     keywords=["DevCycle"],
     install_requires=REQUIRES,
     packages=find_packages(),
-    package_data={"": ["VERSION.txt"], "devcycle_python_sdk": ["py.typed"]},
+    package_data={
+        "": ["VERSION.txt"],
+        "devcycle_python_sdk": ["py.typed", "bucketing-lib.release.wasm"],
+    },
     include_package_data=True,
     long_description="""\
     The DevCycle Python SDK used for feature management.
