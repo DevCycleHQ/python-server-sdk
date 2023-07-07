@@ -25,9 +25,14 @@ def main():
     client = DevCycleLocalClient(server_sdk_key, options)
 
     # Wait for DevCycle to initialize and load the configuration
-    while not client.is_initialized():
+    for i in range(10):
+        if client.is_initialized():
+            break
         logger.info("Waiting for DevCycle to initialize...")
-        time.sleep(1)
+        time.sleep(0.5)
+    else:
+        logger.error("DevCycle failed to initialize")
+        exit(1)
 
     user = DevCycleUser(user_id="test-1234", email="test-user@domain.com", country="US")
 
