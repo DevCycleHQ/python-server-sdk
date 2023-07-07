@@ -1,3 +1,39 @@
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = "--benchmark-skip --showlocals"
+
+[tool.black]
+target-version = ['py37']
+extend-exclude = '_pb2\.pyi?$'
+
+[tool.mypy]
+exclude = "django-app"
+
+[[tool.mypy.overrides]]
+module = 'devcycle_python_sdk.protobuf.*'
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = 'setuptools'
+ignore_missing_imports = true
+
+[tool.ruff]
+# https://beta.ruff.rs/docs/rules/
+select = [
+	"F", # PyFlakes
+	"E", # pycodestyle error
+	"W", # pycodestyle warning
+	"N", # pep8-naming
+	"T20", # flake8-print
+	"RUF100", # ensure noqa comments actually match an error
+]
+ignore = [
+	"E501", # line too long
+]
+exclude = [
+  "variableForUserParams_pb2.pyi"
+]
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+"variableForUserParams_pb2.py" = ["F821", "N999", "E712"]
+
