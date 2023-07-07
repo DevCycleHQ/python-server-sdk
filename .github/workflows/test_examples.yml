@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.test.txt
+          pip install -e .
       - name: Run local bucketing example
         run: |
           cd example && python local_bucketing_client_example.py
