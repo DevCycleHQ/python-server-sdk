@@ -76,7 +76,7 @@ ruff check . --fix
 Formatting checks on PRs are done using [black](https://github.com/psf/black). To run the formatter locally, run this command from the top level of the repo:
 
 ```
-black --target-version py37 --extend-exclude '_pb2\.pyi?$' .
+black .
 ```
 
 ### Unit Tests
