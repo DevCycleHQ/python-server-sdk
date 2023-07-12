@@ -1,4 +1,5 @@
 name: Release
+
 on:
   workflow_dispatch:
     inputs:
@@ -12,15 +13,22 @@ on:
         required: true
         default: false
         type: boolean
+
 permissions:
   contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.7" ]
+
     steps:
       - uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Get latest non-prerelease release
         id: latestrelease
         uses: cardinalby/git-get-release-action@v1
@@ -29,38 +37,63 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Get next minor version
         id: semverbump
         uses: WyriHaximus/github-action-next-semvers@v1.2.1
         with:
           version: ${{ steps.latestrelease.outputs.tag_name }}
+
       - name: Update version in code
         run: |
           echo "${{steps.semverbump.outputs.minor}}" > devcycle_python_sdk/VERSION.txt
+
       - name: Commit version change
         run: |
           git config --global user.email "github-tracker-bot@taplytics.com"
           git config --global user.name "DevCycle Automation"
           git add ./devcycle_python_sdk/VERSION.txt
           git commit -m "Release $(cat ./devcycle_python_sdk/VERSION.txt)"
+
       - name: Push version change
         run: |
           git push origin main
         if: inputs.prerelease != true && inputs.draft != true
+
       - name: Push version change (prerelease)
         run: |
           git checkout -B prerelease
           git push origin prerelease
-        if: inputs.prerelease == true && inputs.draft != true
+        if: inputs.prerelease == true && inputs.draft != true && false # FIXME
 
-      # TODO: build python release
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install twine wheel
+
+      - name: Build and validate package
+        run: |
+          python setup.py sdist bdist_wheel
+          twine check dist/*
 
       - uses: DevCycleHQ/release-action/gh-release@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: ${{ github.event.inputs.prerelease }}
           draft: ${{ github.event.inputs.draft }}
-        # only run on main branch
-          # TODO: upload python release artifacts
 
-      # TODO: upload to pypi on main release
+      - name: Upload build package to PyPI
+        run: |
+          twine upload --non-interactive dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        if: inputs.prerelease != true && inputs.draft != true
+
+      # TODO: upload python release artifacts
