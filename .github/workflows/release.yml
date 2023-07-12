@@ -1,0 +1,66 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      prerelease:
+        description: "Prerelease"
+        required: true
+        default: false
+        type: boolean
+      draft:
+        description: "Draft"
+        required: true
+        default: false
+        type: boolean
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get latest non-prerelease release
+        id: latestrelease
+        uses: cardinalby/git-get-release-action@v1
+        with:
+          latest: true
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get next minor version
+        id: semverbump
+        uses: WyriHaximus/github-action-next-semvers@v1.2.1
+        with:
+          version: ${{ steps.latestrelease.outputs.tag_name }}
+      - name: Update version in code
+        run: |
+          echo "${{steps.semverbump.outputs.minor}}" > devcycle_python_sdk/VERSION.txt
+      - name: Commit version change
+        run: |
+          git config --global user.email "github-tracker-bot@taplytics.com"
+          git config --global user.name "DevCycle Automation"
+          git add ./devcycle_python_sdk/VERSION.txt
+          git commit -m "Release $(cat ./devcycle_python_sdk/VERSION.txt)"
+      - name: Push version change
+        run: |
+          git push origin main
+        if: inputs.prerelease != true && inputs.draft != true
+      - name: Push version change (prerelease)
+        run: |
+          git checkout -B prerelease
+          git push origin prerelease
+        if: inputs.prerelease == true && inputs.draft != true
+
+      # TODO: build python release
+
+      - uses: DevCycleHQ/release-action/gh-release@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: ${{ github.event.inputs.prerelease }}
+          draft: ${{ github.event.inputs.draft }}
+        # only run on main branch
+          # TODO: upload python release artifacts
+
+      # TODO: upload to pypi on main release
