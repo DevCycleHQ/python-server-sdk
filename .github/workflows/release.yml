@@ -35,6 +35,7 @@ jobs:
         with:
           latest: true
           prerelease: false
+          draft: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -62,9 +63,11 @@ jobs:
 
       - name: Push version change (prerelease)
         run: |
-          git checkout -B prerelease
-          git push origin prerelease
-        if: inputs.prerelease == true && inputs.draft != true && false # FIXME
+          git branch --force --track ${BRANCH}
+          git push origin ${BRANCH}
+        env:
+          BRANCH: prerelease-${{ steps.semverbump.outputs.minor }}
+        if: inputs.prerelease == true && inputs.draft != true
 
       - name: Set up Python
         uses: actions/setup-python@v4
