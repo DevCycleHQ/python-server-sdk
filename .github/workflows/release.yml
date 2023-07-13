@@ -58,7 +58,7 @@ jobs:
 
       - name: Push version change
         run: |
-          git push origin main
+          git push origin HEAD:main
         if: inputs.prerelease != true && inputs.draft != true
 
       - name: Push version change (prerelease)
