@@ -86,12 +86,6 @@ jobs:
           python setup.py sdist bdist_wheel
           twine check dist/*
 
-      - uses: DevCycleHQ/release-action/gh-release@main
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: ${{ github.event.inputs.prerelease }}
-          draft: ${{ github.event.inputs.draft }}
-
       - name: Upload build package to PyPI
         run: |
           twine upload --non-interactive dist/*
@@ -99,5 +93,11 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         if: inputs.prerelease != true && inputs.draft != true
+
+      - uses: DevCycleHQ/release-action/gh-release@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: ${{ github.event.inputs.prerelease }}
+          draft: ${{ github.event.inputs.draft }}
 
       # TODO: upload python release artifacts
