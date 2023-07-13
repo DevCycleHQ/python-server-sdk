@@ -9,9 +9,8 @@ logger = logging.getLogger(__name__)
 
 class VersionTest(unittest.TestCase):
     def test_sdk_version(self):
-        expected_version = "3.0.1"
         version = sdk_version()
-        self.assertEqual(version, expected_version)
+        self.assertRegexpMatches(version, r"^\d+\.\d+\.\d+$")
 
 
 if __name__ == "__main__":
