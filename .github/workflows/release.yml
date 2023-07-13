@@ -58,6 +58,10 @@ jobs:
 
       - name: Push version change
         run: |
+          echo 'current HEAD:'
+          git log -4 HEAD
+          echo 'origin/main:'
+          git log -4 origin/main
           git push origin HEAD:main
         if: inputs.prerelease != true && inputs.draft != true
 
