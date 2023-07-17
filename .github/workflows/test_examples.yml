@@ -3,7 +3,8 @@ name: Test Examples
 on: [ push ]
 
 jobs:
-  build:
+  test_examples:
+    name: Test Examples
     runs-on: ubuntu-latest
     strategy:
       matrix:
