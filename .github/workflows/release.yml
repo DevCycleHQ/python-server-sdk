@@ -13,6 +13,15 @@ on:
         required: true
         default: false
         type: boolean
+      version-increment-type:
+          description: 'Which part of the version to increment:'
+          required: true
+          type: choice
+          options:
+            - major
+            - minor
+            - patch
+          default: 'patch'
 
 permissions:
   contents: write
@@ -25,50 +34,35 @@ jobs:
         python-version: [ "3.7" ]
 
     steps:
+      # Check out the repo with credentials that can bypass branch protection, and fetch git history instead of just latest commit
       - uses: actions/checkout@v3
         with:
           token: ${{ secrets.AUTOMATION_USER_TOKEN }}
           fetch-depth: 0
 
-      - name: Get latest non-prerelease release
-        id: latestrelease
-        uses: cardinalby/git-get-release-action@v1
+      - uses: DevCycleHQ/release-action/prepare-release@main
+        id: prepare-release
         with:
-          latest: true
-          prerelease: false
-          draft: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Get next minor version
-        id: semverbump
-        uses: WyriHaximus/github-action-next-semvers@v1.2.1
-        with:
-          version: ${{ steps.latestrelease.outputs.tag_name }}
+          github-token: ${{ secrets.AUTOMATION_USER_TOKEN }}
+          prerelease: ${{ github.event.inputs.prerelease }}
+          draft: ${{ github.event.inputs.draft }}
+          version-increment-type: ${{ github.event.inputs.version-increment-type }}
 
       - name: Update version in code
         run: |
-          echo "${{steps.semverbump.outputs.minor}}" > devcycle_python_sdk/VERSION.txt
+          echo "${{steps.prepare-release.outputs.next-release-tag}}" > devcycle_python_sdk/VERSION.txt
 
       - name: Commit version change
         run: |
           git config --global user.email "github-tracker-bot@taplytics.com"
           git config --global user.name "DevCycle Automation"
           git add ./devcycle_python_sdk/VERSION.txt
-          git commit -m "Release $(cat ./devcycle_python_sdk/VERSION.txt)"
+          git commit -m "Release ${{steps.prepare-release.outputs.next-release-tag}}"
 
       - name: Push version change
         run: |
           git push origin HEAD:main
-        if: inputs.prerelease != true && inputs.draft != true
-
-      - name: Push version change (prerelease)
-        run: |
-          git branch --force --track ${BRANCH}
-          git push origin ${BRANCH}
-        env:
-          BRANCH: prerelease-${{ steps.semverbump.outputs.minor }}
-        if: inputs.prerelease == true && inputs.draft != true
+        if: inputs.draft != true
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -94,10 +88,19 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         if: inputs.prerelease != true && inputs.draft != true
 
-      - uses: DevCycleHQ/release-action/gh-release@main
+      - uses: DevCycleHQ/release-action/create-release@main
+        id: create-release
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.prepare-release.outputs.next-release-tag }}
+          target: main
           prerelease: ${{ github.event.inputs.prerelease }}
           draft: ${{ github.event.inputs.draft }}
+          changelog: ${{ steps.prepare-release.outputs.changelog }}
 
       # TODO: upload python release artifacts
+
+      - name: Display link to release
+        run: |
+          echo "::notice title=Release ID::${{ steps.create-release.outputs.release-id }}"
+          echo "::notice title=Release URL::${{ steps.create-release.outputs.release-url }}"
