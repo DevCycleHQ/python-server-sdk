@@ -73,15 +73,15 @@ class DevCycleCloudClient:
         try:
             variable = self.bucketing_api.variable(key, user)
         except CloudClientUnauthorizedError as e:
-            logger.warning("DevCycle SDK key is invalid, unable to make cloud request")
+            logger.warning("DevCycle: SDK key is invalid, unable to make cloud request")
             raise e
         except NotFoundError:
-            logger.warning(f"Variable not found: {key}")
+            logger.warning(f"DevCycle: Variable not found: {key}")
             return Variable.create_default_variable(
                 key=key, default_value=default_value
             )
         except Exception as e:
-            logger.error(f"Error evaluating variable: {e}")
+            logger.error(f"DevCycle: Error evaluating variable: {e}")
             return Variable.create_default_variable(
                 key=key, default_value=default_value
             )
@@ -91,7 +91,7 @@ class DevCycleCloudClient:
         # Allow default value to be a subclass of the same type as the variable
         if not isinstance(default_value, type(variable.value)):
             logger.warning(
-                f"Variable {key} is type {type(variable.value)}, but default value is type {type(default_value)}",
+                f"DevCycle: Variable {key} is type {type(variable.value)}, but default value is type {type(default_value)}",
             )
             return Variable.create_default_variable(
                 key=key, default_value=default_value
@@ -112,10 +112,10 @@ class DevCycleCloudClient:
         try:
             variable_map = self.bucketing_api.variables(user)
         except CloudClientUnauthorizedError as e:
-            logger.warning("SDK key is invalid, unable to make cloud request")
+            logger.warning("DevCycle: SDK key is invalid, unable to make cloud request")
             raise e
         except Exception as e:
-            logger.error(f"Error retrieving all features for a user: {e}")
+            logger.error(f"DevCycle: Error retrieving all features for a user: {e}")
 
         return variable_map
 
@@ -132,10 +132,10 @@ class DevCycleCloudClient:
         try:
             feature_map = self.bucketing_api.features(user)
         except CloudClientUnauthorizedError as e:
-            logger.warning("SDK key is invalid, unable to make cloud request")
+            logger.warning("DevCycle: SDK key is invalid, unable to make cloud request")
             raise e
         except Exception as e:
-            logger.error(f"Error retrieving all features for a user: {e}")
+            logger.error(f"DevCycle: Error retrieving all features for a user: {e}")
 
         return feature_map
 
@@ -160,10 +160,10 @@ class DevCycleCloudClient:
         try:
             self.bucketing_api.track(user, events)
         except CloudClientUnauthorizedError as e:
-            logger.warning("SDK key is invalid, unable to make cloud request")
+            logger.warning("DevCycle: SDK key is invalid, unable to make cloud request")
             raise e
         except Exception as e:
-            logger.error(f"Error tracking event: {e}")
+            logger.error(f"DevCycle: Error tracking event: {e}")
 
 
 def _validate_sdk_key(sdk_key: str) -> None:

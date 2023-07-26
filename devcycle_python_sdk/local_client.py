@@ -57,7 +57,7 @@ class DevCycleLocalClient:
         are not permitted
         """
         if not self.is_initialized():
-            logger.debug("set_client_custom_data called before client has initialized")
+            logger.debug("DevCycle: set_client_custom_data called before client has initialized")
             return
 
         if custom_data:
@@ -65,7 +65,7 @@ class DevCycleLocalClient:
                 custom_data_json = json.dumps(custom_data)
                 self.local_bucketing.set_client_custom_data(custom_data_json)
             except Exception as e:
-                logger.error("Error setting custom data: " + str(e))
+                logger.error("DevCycle: Error setting custom data: " + str(e))
 
     def variable_value(self, user: DevCycleUser, key: str, default_value: Any) -> Any:
         """
@@ -92,7 +92,7 @@ class DevCycleLocalClient:
             raise ValueError("Missing parameter: defaultValue")
 
         if not self.is_initialized():
-            logger.debug("variable called before client has initialized")
+            logger.debug("DevCycle: variable called before client has initialized")
             try:
                 self.event_queue_manager.queue_aggregate_event(
                     event=DevCycleEvent(
@@ -102,7 +102,7 @@ class DevCycleLocalClient:
                 )
             except Exception as e:
                 logger.warning(
-                    f"Unable to track AggVariableDefaulted event for Variable {key}: {e}"
+                    f"DevCycle: Unable to track AggVariableDefaulted event for Variable {key}: {e}"
                 )
             return Variable.create_default_variable(key, default_value)
 
@@ -113,9 +113,9 @@ class DevCycleLocalClient:
             if variable:
                 return variable
         except VariableTypeMismatchError:
-            logger.debug("Variable type mismatch, returning default value")
+            logger.debug("DevCycle: Variable type mismatch, returning default value")
         except Exception as e:
-            logger.warning(f"Error retrieving variable for user: {e}")
+            logger.warning(f"DevCycle: Error retrieving variable for user: {e}")
 
         return Variable.create_default_variable(key, default_value)
 
@@ -137,7 +137,7 @@ class DevCycleLocalClient:
         _validate_user(user)
 
         if not self.is_initialized():
-            logger.warning("all_variables called before client has initialized")
+            logger.warning("DevCycle: all_variables called before client has initialized")
             return {}
 
         variable_map: Dict[str, Variable] = {}
@@ -145,7 +145,7 @@ class DevCycleLocalClient:
         try:
             return self.local_bucketing.generate_bucketed_config(user).variables
         except Exception as e:
-            logger.exception(f"Error retrieving all variables for a user: {e}")
+            logger.exception(f"DevCycle: Error retrieving all variables for a user: {e}")
             return {}
 
         return variable_map
@@ -159,14 +159,14 @@ class DevCycleLocalClient:
         _validate_user(user)
 
         if not self.is_initialized():
-            logger.warning("all_features called before client has initialized")
+            logger.warning("DevCycle: all_features called before client has initialized")
             return {}
 
         feature_map: Dict[str, Feature] = {}
         try:
             return self.local_bucketing.generate_bucketed_config(user).features
         except Exception as e:
-            logger.exception(f"Error retrieving all features for a user: {e}")
+            logger.exception(f"DevCycle: Error retrieving all features for a user: {e}")
 
         return feature_map
 
@@ -186,13 +186,13 @@ class DevCycleLocalClient:
             raise ValueError("Missing parameter: type")
 
         if not self.is_initialized():
-            logger.debug("track called before client has initialized")
+            logger.debug("DevCycle: track called before client has initialized")
             return
 
         try:
             self.event_queue_manager.queue_event(user, user_event)
         except Exception as e:
-            logger.error(f"Error tracking event: {e}")
+            logger.error(f"DevCycle: Error tracking event: {e}")
 
     def close(self) -> None:
         """

@@ -105,7 +105,7 @@ class LocalBucketing:
 
         def __console_log_func(message_ptr) -> None:
             message: str = self._read_assembly_script_string(message_ptr)
-            logger.warning(f"WASM console: {message!r}")
+            logger.warning(f"DevCycle: WASM console: {message!r}")
 
         wasm_linker.define_func(
             "env", "console.log", FuncType([ValType.i32()], []), __console_log_func
