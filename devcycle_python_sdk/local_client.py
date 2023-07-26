@@ -57,7 +57,9 @@ class DevCycleLocalClient:
         are not permitted
         """
         if not self.is_initialized():
-            logger.debug("DevCycle: set_client_custom_data called before client has initialized")
+            logger.debug(
+                "DevCycle: set_client_custom_data called before client has initialized"
+            )
             return
 
         if custom_data:
@@ -137,7 +139,9 @@ class DevCycleLocalClient:
         _validate_user(user)
 
         if not self.is_initialized():
-            logger.warning("DevCycle: all_variables called before client has initialized")
+            logger.warning(
+                "DevCycle: all_variables called before client has initialized"
+            )
             return {}
 
         variable_map: Dict[str, Variable] = {}
@@ -145,7 +149,9 @@ class DevCycleLocalClient:
         try:
             return self.local_bucketing.generate_bucketed_config(user).variables
         except Exception as e:
-            logger.exception(f"DevCycle: Error retrieving all variables for a user: {e}")
+            logger.exception(
+                f"DevCycle: Error retrieving all variables for a user: {e}"
+            )
             return {}
 
         return variable_map
@@ -159,7 +165,9 @@ class DevCycleLocalClient:
         _validate_user(user)
 
         if not self.is_initialized():
-            logger.warning("DevCycle: all_features called before client has initialized")
+            logger.warning(
+                "DevCycle: all_features called before client has initialized"
+            )
             return {}
 
         feature_map: Dict[str, Feature] = {}

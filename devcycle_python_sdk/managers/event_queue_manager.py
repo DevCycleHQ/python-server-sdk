@@ -99,7 +99,9 @@ class EventQueueManager(threading.Thread):
                 for payload in payloads:
                     event_count += payload.eventCount
                     self._publish_event_payload(payload)
-                logger.debug(f"DevCycle: Flush {event_count} events, for {len(payloads)} users")
+                logger.debug(
+                    f"DevCycle: Flush {event_count} events, for {len(payloads)} users"
+                )
             return event_count
 
     def _publish_event_payload(self, payload: FlushPayload) -> None:
@@ -155,7 +157,9 @@ class EventQueueManager(threading.Thread):
         # Because the sleeping between batches is interruptible, this is only
         # providing time for an in-flight batch to finish.
         if not self._wait_for_exit(1.0):
-            logger.error("DevCycle: Timed out waiting for event flushing thread to stop")
+            logger.error(
+                "DevCycle: Timed out waiting for event flushing thread to stop"
+            )
 
         try:
             self._flush_events()

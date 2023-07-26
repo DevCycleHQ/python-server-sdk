@@ -78,7 +78,9 @@ class EnvironmentConfigManager(threading.Thread):
         except CloudClientError as e:
             logger.warning(f"DevCycle: Config fetch failed. Status: {str(e)}")
         except CloudClientUnauthorizedError:
-            logger.error("DevCycle: Unauthorized to get config. Aborting config polling.")
+            logger.error(
+                "DevCycle: Unauthorized to get config. Aborting config polling."
+            )
             self._polling_enabled = False
 
     def run(self):
@@ -88,7 +90,9 @@ class EnvironmentConfigManager(threading.Thread):
             except Exception as e:
                 if self._polling_enabled:
                     # Only log a warning if we're still polling
-                    logger.warning(f"DevCycle: Error polling for config changes: {str(e)}")
+                    logger.warning(
+                        f"DevCycle: Error polling for config changes: {str(e)}"
+                    )
             time.sleep(self._options.config_polling_interval_ms / 1000.0)
 
     def close(self):
