@@ -91,15 +91,17 @@ class EventQueueManager(threading.Thread):
             try:
                 payloads = self._local_bucketing.flush_event_queue()
             except Exception as e:
-                logger.error(f"Error flushing event payloads: {str(e)}")
+                logger.error(f"DevCycle: Error flushing event payloads: {str(e)}")
 
             event_count = 0
             if payloads:
-                logger.debug(f"Flush {len(payloads)} event payloads")
+                logger.debug(f"DevCycle: Flush {len(payloads)} event payloads")
                 for payload in payloads:
                     event_count += payload.eventCount
                     self._publish_event_payload(payload)
-                logger.debug(f"Flush {event_count} events, for {len(payloads)} users")
+                logger.debug(
+                    f"DevCycle: Flush {event_count} events, for {len(payloads)} users"
+                )
             return event_count
 
     def _publish_event_payload(self, payload: FlushPayload) -> None:
@@ -109,20 +111,20 @@ class EventQueueManager(threading.Thread):
                 self._local_bucketing.on_event_payload_success(payload.payloadId)
             except APIClientUnauthorizedError:
                 logger.error(
-                    "Unauthorized to publish events, please check your SDK key"
+                    "DevCycle: Unauthorized to publish events, please check your SDK key"
                 )
                 # stop the thread
                 self._stop_running()
                 self._local_bucketing.on_event_payload_failure(payload.payloadId, False)
             except NotFoundError as e:
                 logger.error(
-                    f"Unable to reach the DevCycle Events API service: {str(e)}"
+                    f"DevCycle: Unable to reach the DevCycle Events API service: {str(e)}"
                 )
                 self._stop_running()
                 self._local_bucketing.on_event_payload_failure(payload.payloadId, False)
             except APIClientError as e:
                 logger.warning(
-                    f"Error publishing events to DevCycle Events API service: {str(e)}"
+                    f"DevCycle: Error publishing events to DevCycle Events API service: {str(e)}"
                 )
                 self._local_bucketing.on_event_payload_failure(payload.payloadId, True)
 
@@ -142,7 +144,7 @@ class EventQueueManager(threading.Thread):
             try:
                 self._flush_events()
             except Exception as e:
-                logger.warning(f"Error flushing events: {str(e)}")
+                logger.warning(f"DevCycle: flushing events: {str(e)}")
 
             self._sleep()
 
@@ -155,12 +157,14 @@ class EventQueueManager(threading.Thread):
         # Because the sleeping between batches is interruptible, this is only
         # providing time for an in-flight batch to finish.
         if not self._wait_for_exit(1.0):
-            logger.error("Timed out waiting for event flushing thread to stop")
+            logger.error(
+                "DevCycle: Timed out waiting for event flushing thread to stop"
+            )
 
         try:
             self._flush_events()
         except Exception as e:
-            logger.warning(f"DVC Error flushing events when closing client: {str(e)}")
+            logger.warning(f"DevCycle: flushing events when closing client: {str(e)}")
 
     def queue_event(self, user: DevCycleUser, event: DevCycleEvent) -> None:
         if user is None:
@@ -175,7 +179,7 @@ class EventQueueManager(threading.Thread):
         try:
             self._check_queue_status()
         except QueueFullError:
-            logger.warning("Event queue is full, dropping user event")
+            logger.warning("DevCycle: Event queue is full, dropping user event")
             return
 
         user_json = json.dumps(user.to_json())
@@ -197,7 +201,7 @@ class EventQueueManager(threading.Thread):
         try:
             self._check_queue_status()
         except QueueFullError:
-            logger.warning("Event queue is full, dropping aggregate event")
+            logger.warning("DevCycle: Event queue is full, dropping aggregate event")
             return
 
         event_json = json.dumps(event.to_json())

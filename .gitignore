@@ -69,3 +69,5 @@ target/
 # Benchmark output
 .benchmarks
 benchmark.json
+
+pip-wheel-metadata/
