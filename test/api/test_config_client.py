@@ -1,7 +1,6 @@
 import logging
 import unittest
 import uuid
-from os.path import join
 from http import HTTPStatus
 
 import requests
@@ -15,6 +14,7 @@ from devcycle_python_sdk.exceptions import (
     APIClientUnauthorizedError,
     NotFoundError,
 )
+from devcycle_python_sdk.util.strings import slash_join
 from test.fixture.data import small_config_json
 
 logger = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ class ConfigAPIClientTest(unittest.TestCase):
     def setUp(self) -> None:
         self.sdk_key = "dvc_server_" + str(uuid.uuid4())
         self.config_url = (
-            join(
+            slash_join(
                 "https://config-cdn.devcycle.com/",
                 "config",
                 "v1",
@@ -38,6 +38,9 @@ class ConfigAPIClientTest(unittest.TestCase):
         self.test_client = ConfigAPIClient(self.sdk_key, options)
         self.test_etag = str(uuid.uuid4())
         self.test_config_json: dict = small_config_json()
+
+    def test_url(self):
+        self.assertEqual(self.test_client.config_file_url, self.config_url)
 
     @responses.activate
     def test_get_config(self):

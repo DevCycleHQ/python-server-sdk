@@ -1,7 +1,6 @@
 import logging
 import time
 from http import HTTPStatus
-from os.path import join
 from typing import Optional, Tuple
 
 import requests
@@ -13,6 +12,7 @@ from devcycle_python_sdk.exceptions import (
     NotFoundError,
     APIClientUnauthorizedError,
 )
+from devcycle_python_sdk.util.strings import slash_join
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ class ConfigAPIClient:
         self.session.max_redirects = 0
         self.max_config_retries = 2
         self.config_file_url = (
-            join(self.options.config_cdn_uri, "config", "v1", "server", self.sdk_key)
+            slash_join(self.options.config_cdn_uri, "config", "v1", "server", self.sdk_key)
             + ".json"
         )
 

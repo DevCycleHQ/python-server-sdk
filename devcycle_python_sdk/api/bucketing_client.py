@@ -1,6 +1,5 @@
 import logging
 import time
-from os.path import join
 from typing import Dict, List, Optional
 
 import requests
@@ -16,6 +15,7 @@ from devcycle_python_sdk.models.event import DevCycleEvent
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.variable import Variable
+from devcycle_python_sdk.util.strings import slash_join
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class BucketingAPIClient:
         self.session.max_redirects = 0
 
     def _url(self, *path_args: str) -> str:
-        return join(self.options.bucketing_api_uri, "v1", *path_args)
+        return slash_join(self.options.bucketing_api_uri, "v1", *path_args)
 
     def request(self, method: str, url: str, **kwargs) -> dict:
         retries_remaining = self.options.request_retries + 1
