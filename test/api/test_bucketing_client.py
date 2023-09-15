@@ -28,6 +28,10 @@ class BucketingClientTest(unittest.TestCase):
         self.test_client = BucketingAPIClient(sdk_key, options)
         self.test_user = DevCycleUser(user_id="test_user_id")
 
+    def test_url(self):
+        result = self.test_client._url("variable", "ABC")
+        self.assertEqual(result, "https://bucketing-api.devcycle.com/v1/variable/ABC")
+
     @responses.activate
     def test_variable(self):
         responses.add(
@@ -224,7 +228,7 @@ class BucketingClientTest(unittest.TestCase):
         )
         self.assertEqual(result, "success")
         data = json.loads(responses.calls[0].request.body)
-        self.assertTrue(type(data["events"][0]["date"]) == int)
+        self.assertTrue(isinstance(data["events"][0]["date"], int))
         self.assertEqual(len(data["events"]), 1)
         self.assertEqual(data["events"][0]["type"], "sample-event")
 

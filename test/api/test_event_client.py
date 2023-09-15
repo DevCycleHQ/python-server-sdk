@@ -42,6 +42,9 @@ class EventAPIClientTest(unittest.TestCase):
         ]
         self.test_batch = [UserEventsBatchRecord(user=self.test_user, events=events)]
 
+    def test_url(self):
+        self.assertEqual(self.test_client.batch_url, self.test_batch_url)
+
     @responses.activate
     def test_publish_events(self):
         responses.add(

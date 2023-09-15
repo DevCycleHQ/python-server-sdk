@@ -1,7 +1,6 @@
 import json
 import logging
 import time
-from os.path import join
 from typing import Optional, List
 
 import requests
@@ -14,6 +13,7 @@ from devcycle_python_sdk.exceptions import (
     APIClientUnauthorizedError,
 )
 from devcycle_python_sdk.models.event import UserEventsBatchRecord
+from devcycle_python_sdk.util.strings import slash_join
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ class EventAPIClient:
         }
         self.session.max_redirects = 0
         self.max_batch_retries = 0  # we don't retry events batches
-        self.batch_url = join(self.options.events_api_uri, "v1/events/batch")
+        self.batch_url = slash_join(self.options.events_api_uri, "v1/events/batch")
 
     def publish_events(self, batch: List[UserEventsBatchRecord]) -> str:
         """
