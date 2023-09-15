@@ -1,4 +1,3 @@
-
 def slash_join(*args) -> str:
     """
     Assembles a string, concatenating the arguments with a single slash between them

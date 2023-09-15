@@ -2,7 +2,7 @@ import logging
 
 import unittest
 
-from devcycle_python_sdk.util.strings import  slash_join
+from devcycle_python_sdk.util.strings import slash_join
 
 logger = logging.getLogger(__name__)
 

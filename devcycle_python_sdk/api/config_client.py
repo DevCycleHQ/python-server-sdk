@@ -29,7 +29,9 @@ class ConfigAPIClient:
         self.session.max_redirects = 0
         self.max_config_retries = 2
         self.config_file_url = (
-            slash_join(self.options.config_cdn_uri, "config", "v1", "server", self.sdk_key)
+            slash_join(
+                self.options.config_cdn_uri, "config", "v1", "server", self.sdk_key
+            )
             + ".json"
         )
 
