@@ -6,7 +6,7 @@ This SDK allows your application to interface with the [DevCycle Bucketing API](
 
 ## Requirements.
 
-* Python 3.7+
+* Python 3.8+
 
 ## Installation
 
@@ -45,7 +45,7 @@ To find usage documentation, visit our [docs](https://docs.devcycle.com/docs/sdk
 
 ## Development
 
-When developing the SDK it is recommended that you have both a 3.7 and 3.11 python interpreter installed in order to verify changes across different versions of python.
+When developing the SDK it is recommended that you have both a 3.8 and 3.12 python interpreter installed in order to verify changes across different versions of python.
 
 ### Dependencies
 

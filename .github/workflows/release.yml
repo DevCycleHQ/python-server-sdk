@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.7" ]
+        python-version: [ "3.8" ]
 
     steps:
       # Check out the repo with credentials that can bypass branch protection, and fetch git history instead of just latest commit
