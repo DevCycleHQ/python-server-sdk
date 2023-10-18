@@ -3,7 +3,7 @@ import logging
 from numbers import Real
 from typing import Any, Dict, Union
 
-from devcycle_python_sdk import DevCycleLocalOptions
+from devcycle_python_sdk import DevCycleLocalOptions, AbstractDevCycleClient
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
 from devcycle_python_sdk.exceptions import VariableTypeMismatchError
 from devcycle_python_sdk.managers.config_manager import EnvironmentConfigManager
@@ -18,7 +18,7 @@ from devcycle_python_sdk.models.variable import Variable
 logger = logging.getLogger(__name__)
 
 
-class DevCycleLocalClient:
+class DevCycleLocalClient(AbstractDevCycleClient):
     def __init__(self, sdk_key: str, options: DevCycleLocalOptions):
         _validate_sdk_key(sdk_key)
         self._sdk_key = sdk_key

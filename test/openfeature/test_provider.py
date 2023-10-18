@@ -4,25 +4,34 @@ from unittest.mock import MagicMock
 
 from openfeature.provider.provider import EvaluationContext
 from openfeature.flag_evaluation import Reason
-from openfeature.exception import ErrorCode
+from openfeature.exception import (
+    ErrorCode,
+    TargetingKeyMissingError,
+    InvalidContextError,
+)
+
+from devcycle_python_sdk.models.variable import Variable, TypeEnum
 
 from devcycle_python_sdk.openfeature.provider import (
     _set_custom_value,
     _create_user_from_context,
-    UserDataError,
     DevCycleProvider,
 )
+
 
 logger = logging.getLogger(__name__)
 
 
 class DevCycleProviderTest(unittest.TestCase):
-    def test_resolve_details_client_not_ready(self):
-        client = MagicMock()
-        client.is_initialized.return_value = False
-        provider = DevCycleProvider(client)
+    def setUp(self):
+        self.client = MagicMock()
+        self.client.is_initialized.return_value = True
+        self.provider = DevCycleProvider(self.client)
 
-        details = provider._resolve_details(
+    def test_resolve_details_client_not_ready(self):
+        self.client.is_initialized.return_value = False
+
+        details = self.provider._resolve(
             "test-flag", False, EvaluationContext("test-user")
         )
 
@@ -32,47 +41,79 @@ class DevCycleProviderTest(unittest.TestCase):
         self.assertEqual(details.error_code, ErrorCode.PROVIDER_NOT_READY)
 
     def test_resolve_details_client_no_user_in_context(self):
-        client = MagicMock()
-        client.is_initialized.return_value = True
-        provider = DevCycleProvider(client)
         context = EvaluationContext(targeting_key=None, attributes={})
-        details = provider._resolve_details("test-flag", False, context)
+
+        with self.assertRaises(TargetingKeyMissingError):
+            self.provider._resolve("test-flag", False, context)
+
+    def test_resolve_details_no_key(self):
+        self.client.variable.side_effect = ValueError("test error")
+        context = EvaluationContext(targeting_key="user-1234")
+        with self.assertRaises(InvalidContextError):
+            self.provider._resolve(None, False, context)
+
+    def test_resolve_details_no_default_value(self):
+        self.client.variable.side_effect = ValueError("test error")
+        context = EvaluationContext(targeting_key="user-1234")
+        with self.assertRaises(InvalidContextError):
+            self.provider._resolve("test-flag", None, context)
+
+    def test_resolve_details_client_returns_none(self):
+        self.client.variable.return_value = None
+        context = EvaluationContext(targeting_key="user-1234")
+
+        details = self.provider._resolve("test-flag", False, context)
 
         self.assertIsNotNone(details)
         self.assertEqual(details.value, False)
-        self.assertEqual(details.reason, Reason.ERROR)
-        self.assertEqual(details.error_code, ErrorCode.TARGETING_KEY_MISSING)
+        self.assertEqual(details.reason, Reason.DEFAULT)
 
-    def test_resolve_details_client_no_key(self):
-        client = MagicMock()
-        client.is_initialized.return_value = True
-        provider = DevCycleProvider(client)
-        context = EvaluationContext(targeting_key=None, attributes={})
-        details = provider._resolve_details(None, False, context)
+    def test_resolve_details_client_returns_default_variable(self):
+        self.client.variable.return_value = Variable.create_default_variable(
+            key="test-flag", default_value=False
+        )
+        context = EvaluationContext(targeting_key="user-1234")
+        details = self.provider._resolve("test-flag", False, context)
 
         self.assertIsNotNone(details)
         self.assertEqual(details.value, False)
-        self.assertEqual(details.reason, Reason.ERROR)
-        self.assertEqual(details.error_code, ErrorCode.TARGETING_KEY_MISSING)
+        self.assertEqual(details.reason, Reason.DEFAULT)
+
+    def test_resolve_details_client_returns_targeted_variable(self):
+        self.client.variable.return_value = Variable(
+            _id=None,
+            value=True,
+            key="test-flag",
+            type=TypeEnum.BOOLEAN,
+            isDefaulted=False,
+            defaultValue=False,
+        )
+
+        context = EvaluationContext(targeting_key="user-1234")
+        details = self.provider._resolve("test-flag", False, context)
+
+        self.assertIsNotNone(details)
+        self.assertEqual(details.value, True)
+        self.assertEqual(details.reason, Reason.TARGETING_MATCH)
 
 
 class UserDataFromContextTest(unittest.TestCase):
     def test_create_user_from_context_no_context(self):
-        with self.assertRaises(UserDataError):
+        with self.assertRaises(TargetingKeyMissingError):
             _create_user_from_context(None)
 
     def test_create_user_from_context_no_user_id(self):
-        with self.assertRaises(UserDataError):
+        with self.assertRaises(TargetingKeyMissingError):
             _create_user_from_context(
                 EvaluationContext(targeting_key=None, attributes={})
             )
 
-        with self.assertRaises(UserDataError):
+        with self.assertRaises(TargetingKeyMissingError):
             _create_user_from_context(
                 EvaluationContext(targeting_key=None, attributes=None)
             )
 
-        with self.assertRaises(UserDataError):
+        with self.assertRaises(TargetingKeyMissingError):
             _create_user_from_context(
                 EvaluationContext(targeting_key=None, attributes={"userId": None})
             )

@@ -1,24 +1,31 @@
 import typing
 import logging
 
-from devcycle_python_sdk import DevCycleLocalClient
+from devcycle_python_sdk import AbstractDevCycleClient
 from devcycle_python_sdk.models.user import DevCycleUser
 
 from openfeature.provider.provider import AbstractProvider
 from openfeature.evaluation_context import EvaluationContext
 from openfeature.flag_evaluation import FlagResolutionDetails, Reason
-from openfeature.exception import ErrorCode
+from openfeature.exception import (
+    ErrorCode,
+    TargetingKeyMissingError,
+    InvalidContextError,
+)
 from openfeature.hook import Hook
 from openfeature.provider.metadata import Metadata
 
 logger = logging.getLogger(__name__)
 
 
-class UserDataError(Exception):
-    pass
-
-
 def _set_custom_value(custom_data: dict, key: str, value: typing.Optional[typing.Any]):
+    """
+    Sets a custom value in the custom data dictionary.  Custom data properties can
+    only be strings, numbers, or booleans.  Nested dictionaries and lists are
+    not permitted.
+
+    Invalid values are ignored
+    """
     if (
         custom_data is not None
         and key
@@ -38,8 +45,8 @@ def _create_user_from_context(context: EvaluationContext) -> DevCycleUser:
             user_id = context.attributes["userId"]
 
     if not user_id:
-        raise UserDataError(
-            "DevCycle: Evaluation context does not contain a targeting key or userId attribute"
+        raise TargetingKeyMissingError(
+            "DevCycle: Evaluation context does not contain a valid targeting key or userId attribute"
         )
 
     user = DevCycleUser(user_id=user_id)
@@ -79,7 +86,13 @@ def _create_user_from_context(context: EvaluationContext) -> DevCycleUser:
 
 
 class DevCycleProvider(AbstractProvider):
-    def __init__(self, devcycle_client: DevCycleLocalClient):
+    """
+    Openfeature provider wrapper for the DevCycle SDK.
+
+    Can be initialized with either a DevCycleLocalClient or DevCycleCloudClient instance.
+    """
+
+    def __init__(self, devcycle_client: AbstractDevCycleClient):
         self.client = devcycle_client
         self.meta_data = Metadata(name="DevCycle Provider")
 
@@ -89,7 +102,7 @@ class DevCycleProvider(AbstractProvider):
     def get_provider_hooks(self) -> typing.List[Hook]:
         return []
 
-    def _resolve_details(
+    def _resolve(
         self,
         flag_key: str,
         default_value: typing.Any,
@@ -104,6 +117,8 @@ class DevCycleProvider(AbstractProvider):
                 )
 
                 if variable is None:
+                    # this technically should never happen
+                    # as the DevCycle client should at least return a default Variable instance
                     return FlagResolutionDetails(
                         value=default_value,
                         reason=Reason.DEFAULT,
@@ -116,30 +131,9 @@ class DevCycleProvider(AbstractProvider):
                         else Reason.TARGETING_MATCH,
                     )
             except ValueError as e:
-                return FlagResolutionDetails(
-                    value=default_value,
-                    reason=Reason.ERROR,
-                    error_code=ErrorCode.INVALID_CONTEXT,
-                    error_message=str(e),
-                )
-            except UserDataError as e:
-                return FlagResolutionDetails(
-                    value=default_value,
-                    reason=Reason.ERROR,
-                    error_code=ErrorCode.TARGETING_KEY_MISSING,
-                    error_message=str(e),
-                )
-            except Exception as e:
-                return FlagResolutionDetails(
-                    value=default_value,
-                    reason=Reason.ERROR,
-                    error_code=ErrorCode.PARSE_ERROR,
-                    error_message=str(e),
-                )
+                # occurs if the key or default value is None
+                raise InvalidContextError(str(e))
         else:
-            logger.debug(
-                "DevCycle: variable evaluation called before client has initialized"
-            )
             return FlagResolutionDetails(
                 value=default_value,
                 reason=Reason.ERROR,
@@ -152,7 +146,7 @@ class DevCycleProvider(AbstractProvider):
         default_value: bool,
         evaluation_context: typing.Optional[EvaluationContext] = None,
     ) -> FlagResolutionDetails[bool]:
-        return self._resolve_details(flag_key, default_value, evaluation_context)
+        return self._resolve(flag_key, default_value, evaluation_context)
 
     def resolve_string_details(
         self,
@@ -160,7 +154,7 @@ class DevCycleProvider(AbstractProvider):
         default_value: str,
         evaluation_context: typing.Optional[EvaluationContext] = None,
     ) -> FlagResolutionDetails[str]:
-        return self._resolve_details(flag_key, default_value, evaluation_context)
+        return self._resolve(flag_key, default_value, evaluation_context)
 
     def resolve_integer_details(
         self,
@@ -168,7 +162,7 @@ class DevCycleProvider(AbstractProvider):
         default_value: int,
         evaluation_context: typing.Optional[EvaluationContext] = None,
     ) -> FlagResolutionDetails[int]:
-        return self._resolve_details(flag_key, default_value, evaluation_context)
+        return self._resolve(flag_key, default_value, evaluation_context)
 
     def resolve_float_details(
         self,
@@ -176,7 +170,7 @@ class DevCycleProvider(AbstractProvider):
         default_value: float,
         evaluation_context: typing.Optional[EvaluationContext] = None,
     ) -> FlagResolutionDetails[float]:
-        return self._resolve_details(flag_key, default_value, evaluation_context)
+        return self._resolve(flag_key, default_value, evaluation_context)
 
     def resolve_object_details(
         self,
@@ -184,4 +178,4 @@ class DevCycleProvider(AbstractProvider):
         default_value: typing.Union[dict, list],
         evaluation_context: typing.Optional[EvaluationContext] = None,
     ) -> FlagResolutionDetails[typing.Union[dict, list]]:
-        return self._resolve_details(flag_key, default_value, evaluation_context)
+        return self._resolve(flag_key, default_value, evaluation_context)
