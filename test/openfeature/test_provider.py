@@ -1,27 +1,30 @@
 import logging
 import unittest
-
+from unittest.mock import MagicMock
 
 from openfeature.provider.provider import EvaluationContext
-from openfeature.flag_evaluation import FlagResolutionDetails, Reason
+from openfeature.flag_evaluation import Reason
 from openfeature.exception import ErrorCode
 
 from devcycle_python_sdk.openfeature.provider import (
     _set_custom_value,
     _create_user_from_context,
     UserDataError,
-    DevCycleProvider
+    DevCycleProvider,
 )
 
 logger = logging.getLogger(__name__)
 
+
 class DevCycleProviderTest(unittest.TestCase):
     def test_resolve_details_client_not_ready(self):
-        client = unittest.MagicMock()
+        client = MagicMock()
         client.is_initialized.return_value = False
         provider = DevCycleProvider(client)
 
-        details = provider._resolve_details("test-flag", False, EvaluationContext("test-user"))
+        details = provider._resolve_details(
+            "test-flag", False, EvaluationContext("test-user")
+        )
 
         self.assertIsNotNone(details)
         self.assertEqual(details.value, False)
@@ -29,7 +32,7 @@ class DevCycleProviderTest(unittest.TestCase):
         self.assertEqual(details.error_code, ErrorCode.PROVIDER_NOT_READY)
 
     def test_resolve_details_client_no_user_in_context(self):
-        client = unittest.MagicMock()
+        client = MagicMock()
         client.is_initialized.return_value = True
         provider = DevCycleProvider(client)
         context = EvaluationContext(targeting_key=None, attributes={})
@@ -41,7 +44,7 @@ class DevCycleProviderTest(unittest.TestCase):
         self.assertEqual(details.error_code, ErrorCode.TARGETING_KEY_MISSING)
 
     def test_resolve_details_client_no_key(self):
-        client = unittest.MagicMock()
+        client = MagicMock()
         client.is_initialized.return_value = True
         provider = DevCycleProvider(client)
         context = EvaluationContext(targeting_key=None, attributes={})
@@ -51,7 +54,6 @@ class DevCycleProviderTest(unittest.TestCase):
         self.assertEqual(details.value, False)
         self.assertEqual(details.reason, Reason.ERROR)
         self.assertEqual(details.error_code, ErrorCode.TARGETING_KEY_MISSING)
-
 
 
 class UserDataFromContextTest(unittest.TestCase):
@@ -146,19 +148,24 @@ class UserDataFromContextTest(unittest.TestCase):
         self.assertIsNotNone(user)
         self.assertEqual(user.user_id, test_user_id)
 
-        self.assertEqual(user.customData, {
-            "strValue": "hello",
-            "intValue": 123,
-            "floatValue": 3.1456,
-            "boolValue": True,
-        })
-        self.assertEqual(user.privateCustomData, {
-            "strValue": "world",
-            "intValue": 789,
-            "floatValue": 0.0001,
-            "BoolValue": False,
-        })
-
+        self.assertEqual(
+            user.customData,
+            {
+                "strValue": "hello",
+                "intValue": 123,
+                "floatValue": 3.1456,
+                "boolValue": True,
+            },
+        )
+        self.assertEqual(
+            user.privateCustomData,
+            {
+                "strValue": "world",
+                "intValue": 789,
+                "floatValue": 0.0001,
+                "BoolValue": False,
+            },
+        )
 
     def test_set_custom_value(self):
         custom_data = {}
@@ -192,9 +199,6 @@ class UserDataFromContextTest(unittest.TestCase):
         custom_data = {}
         _set_custom_value(custom_data, "list_data", ["one", "two", "three"])
         self.assertDictEqual(custom_data, {})
-
-
-
 
 
 if __name__ == "__main__":

@@ -184,4 +184,4 @@ class DevCycleProvider(AbstractProvider):
         default_value: typing.Union[dict, list],
         evaluation_context: typing.Optional[EvaluationContext] = None,
     ) -> FlagResolutionDetails[typing.Union[dict, list]]:
-        pass
+        return self._resolve_details(flag_key, default_value, evaluation_context)
