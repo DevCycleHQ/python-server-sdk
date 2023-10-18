@@ -9,6 +9,7 @@ class AbstractDevCycleClient:
     """
     A common interface for all DevCycle Clients
     """
+
     @abstractmethod
     def is_initialized(self) -> bool:
         pass
