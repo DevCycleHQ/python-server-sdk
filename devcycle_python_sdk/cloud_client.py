@@ -19,6 +19,10 @@ logger = logging.getLogger(__name__)
 
 
 class DevCycleCloudClient(AbstractDevCycleClient):
+    """
+    The DevCycle Python SDK that utilizes the DevCycle Bucketing API for feature and variable evaluation
+    """
+
     options: DevCycleCloudOptions
     platform: str
     platform_version: str

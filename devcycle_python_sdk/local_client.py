@@ -19,6 +19,10 @@ logger = logging.getLogger(__name__)
 
 
 class DevCycleLocalClient(AbstractDevCycleClient):
+    """
+    The DevCycle Python SDK that utilizes the local bucketing library for feature and variable evaluation
+    """
+
     def __init__(self, sdk_key: str, options: DevCycleLocalOptions):
         _validate_sdk_key(sdk_key)
         self._sdk_key = sdk_key

@@ -36,6 +36,13 @@ def _set_custom_value(custom_data: dict, key: str, value: typing.Optional[typing
 
 
 def _create_user_from_context(context: EvaluationContext) -> DevCycleUser:
+    """
+    Builds a DevCycleUser instance from the evaluation context. Will raise a TargetingKeyMissingError if
+    the context does not contain a valid targeting key or userId attribute
+
+    :param context: The evaluation context to build the user from
+    :return: A DevCycleUser instance
+    """
     user_id = None
 
     if context:
