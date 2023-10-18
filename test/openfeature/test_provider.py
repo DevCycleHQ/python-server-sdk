@@ -115,7 +115,7 @@ class UserDataFromContextTest(unittest.TestCase):
 
         with self.assertRaises(TargetingKeyMissingError):
             _create_user_from_context(
-                EvaluationContext(targeting_key=None, attributes={"userId": None})
+                EvaluationContext(targeting_key=None, attributes={"user_id": None})
             )
 
     def test_create_user_from_context_only_user_id(self):
@@ -126,15 +126,15 @@ class UserDataFromContextTest(unittest.TestCase):
         self.assertEqual(user.user_id, test_user_id)
 
         context = EvaluationContext(
-            targeting_key=None, attributes={"userId": test_user_id}
+            targeting_key=None, attributes={"user_id": test_user_id}
         )
         user = _create_user_from_context(context)
         self.assertIsNotNone(user)
         self.assertEqual(user.user_id, test_user_id)
 
-        # ensure that targeting_key takes precedence over userId
+        # ensure that targeting_key takes precedence over user_id
         context = EvaluationContext(
-            targeting_key=test_user_id, attributes={"userId": "99999"}
+            targeting_key=test_user_id, attributes={"user_id": "99999"}
         )
         user = _create_user_from_context(context)
         self.assertIsNotNone(user)
@@ -145,7 +145,7 @@ class UserDataFromContextTest(unittest.TestCase):
         context = EvaluationContext(
             targeting_key=test_user_id,
             attributes={
-                "userId": "1234",
+                "user_id": "1234",
                 "email": "someone@example.com",
                 "name": "John Doe",
                 "language": "en",
@@ -207,6 +207,33 @@ class UserDataFromContextTest(unittest.TestCase):
                 "BoolValue": False,
             },
         )
+
+    def test_create_user_from_context_with_unknown_data_fields(self):
+        test_user_id = "12345"
+        context = EvaluationContext(
+            targeting_key=test_user_id,
+            attributes={
+                "strValue": "hello",
+                "intValue": 123,
+                "floatValue": 3.1456,
+                "boolValue": True,
+            },
+        )
+        user = _create_user_from_context(context)
+        self.assertIsNotNone(user)
+        self.assertEqual(user.user_id, test_user_id)
+
+        # the fields should get reassigned to custom_data
+        self.assertEqual(
+            user.customData,
+            {
+                "strValue": "hello",
+                "intValue": 123,
+                "floatValue": 3.1456,
+                "boolValue": True,
+            },
+        )
+        self.assertEqual(user.privateCustomData, None)
 
     def test_set_custom_value(self):
         custom_data = {}

@@ -38,7 +38,7 @@ def _set_custom_value(custom_data: dict, key: str, value: typing.Optional[typing
 def _create_user_from_context(context: EvaluationContext) -> DevCycleUser:
     """
     Builds a DevCycleUser instance from the evaluation context. Will raise a TargetingKeyMissingError if
-    the context does not contain a valid targeting key or userId attribute
+    the context does not contain a valid targeting key or user_id attribute
 
     :param context: The evaluation context to build the user from
     :return: A DevCycleUser instance
@@ -48,12 +48,12 @@ def _create_user_from_context(context: EvaluationContext) -> DevCycleUser:
     if context:
         if context.targeting_key:
             user_id = context.targeting_key
-        elif context.attributes and "userId" in context.attributes.keys():
-            user_id = context.attributes["userId"]
+        elif context.attributes and "user_id" in context.attributes.keys():
+            user_id = context.attributes["user_id"]
 
     if not user_id:
         raise TargetingKeyMissingError(
-            "DevCycle: Evaluation context does not contain a valid targeting key or userId attribute"
+            "DevCycle: Evaluation context does not contain a valid targeting key or user_id attribute"
         )
 
     user = DevCycleUser(user_id=user_id)
@@ -82,6 +82,9 @@ def _create_user_from_context(context: EvaluationContext) -> DevCycleUser:
                 elif key == "privateCustomData" and isinstance(value, dict):
                     for k, v in value.items():
                         _set_custom_value(private_custom_data, k, v)
+                else:
+                    # unrecognized keys are just added to public custom data
+                    _set_custom_value(custom_data, key, value)
 
     if custom_data:
         user.customData = custom_data
