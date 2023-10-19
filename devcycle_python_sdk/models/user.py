@@ -1,7 +1,7 @@
 # ruff: noqa: N815
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 
 @dataclass(order=False)
@@ -13,9 +13,9 @@ class DevCycleUser:
     country: Optional[str] = None
     appVersion: Optional[str] = None
     appBuild: Optional[str] = None
-    customData: Optional[Dict[str, str]] = None
+    customData: Optional[Dict[str, Any]] = None
     createdDate: datetime = field(default_factory=lambda: datetime.utcnow())
-    privateCustomData: Optional[Dict[str, str]] = None
+    privateCustomData: Optional[Dict[str, Any]] = None
     lastSeenDate: Optional[datetime] = None
     platform: Optional[str] = None
     platformVersion: Optional[str] = None

@@ -1,5 +1,6 @@
-import typing
 import logging
+
+from typing import Any, Dict, Optional, Union, List
 
 from devcycle_python_sdk import AbstractDevCycleClient
 from devcycle_python_sdk.models.user import DevCycleUser
@@ -18,7 +19,7 @@ from openfeature.provider.metadata import Metadata
 logger = logging.getLogger(__name__)
 
 
-def _set_custom_value(custom_data: dict, key: str, value: typing.Optional[typing.Any]):
+def _set_custom_value(custom_data: Dict[str, Any], key: str, value: Optional[Any]):
     """
     Sets a custom value in the custom data dictionary.  Custom data properties can
     only be strings, numbers, or booleans.  Nested dictionaries and lists are
@@ -57,8 +58,8 @@ def _create_user_from_context(context: EvaluationContext) -> DevCycleUser:
         )
 
     user = DevCycleUser(user_id=user_id)
-    custom_data = {}
-    private_custom_data = {}
+    custom_data: Dict[str, str] = {}
+    private_custom_data: Dict[str, str] = {}
     if context and context.attributes:
         for key, value in context.attributes.items():
             if value:
@@ -109,15 +110,15 @@ class DevCycleProvider(AbstractProvider):
     def get_metadata(self) -> Metadata:
         return self.meta_data
 
-    def get_provider_hooks(self) -> typing.List[Hook]:
+    def get_provider_hooks(self) -> List[Hook]:
         return []
 
     def _resolve(
         self,
         flag_key: str,
-        default_value: typing.Any,
-        evaluation_context: typing.Optional[EvaluationContext] = None,
-    ) -> FlagResolutionDetails[typing.Any]:
+        default_value: Any,
+        evaluation_context: Optional[EvaluationContext] = None,
+    ) -> FlagResolutionDetails[Any]:
         if self.client.is_initialized():
             try:
                 user: DevCycleUser = _create_user_from_context(evaluation_context)
@@ -154,7 +155,7 @@ class DevCycleProvider(AbstractProvider):
         self,
         flag_key: str,
         default_value: bool,
-        evaluation_context: typing.Optional[EvaluationContext] = None,
+        evaluation_context: Optional[EvaluationContext] = None,
     ) -> FlagResolutionDetails[bool]:
         return self._resolve(flag_key, default_value, evaluation_context)
 
@@ -162,7 +163,7 @@ class DevCycleProvider(AbstractProvider):
         self,
         flag_key: str,
         default_value: str,
-        evaluation_context: typing.Optional[EvaluationContext] = None,
+        evaluation_context: Optional[EvaluationContext] = None,
     ) -> FlagResolutionDetails[str]:
         return self._resolve(flag_key, default_value, evaluation_context)
 
@@ -170,7 +171,7 @@ class DevCycleProvider(AbstractProvider):
         self,
         flag_key: str,
         default_value: int,
-        evaluation_context: typing.Optional[EvaluationContext] = None,
+        evaluation_context: Optional[EvaluationContext] = None,
     ) -> FlagResolutionDetails[int]:
         return self._resolve(flag_key, default_value, evaluation_context)
 
@@ -178,14 +179,14 @@ class DevCycleProvider(AbstractProvider):
         self,
         flag_key: str,
         default_value: float,
-        evaluation_context: typing.Optional[EvaluationContext] = None,
+        evaluation_context: Optional[EvaluationContext] = None,
     ) -> FlagResolutionDetails[float]:
         return self._resolve(flag_key, default_value, evaluation_context)
 
     def resolve_object_details(
         self,
         flag_key: str,
-        default_value: typing.Union[dict, list],
-        evaluation_context: typing.Optional[EvaluationContext] = None,
-    ) -> FlagResolutionDetails[typing.Union[dict, list]]:
+        default_value: Union[dict, list],
+        evaluation_context: Optional[EvaluationContext] = None,
+    ) -> FlagResolutionDetails[Union[dict, list]]:
         return self._resolve(flag_key, default_value, evaluation_context)

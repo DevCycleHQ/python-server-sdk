@@ -14,11 +14,13 @@ class AbstractDevCycleClient:
     def is_initialized(self) -> bool:
         pass
 
+    @abstractmethod
     def variable(
-        self, key: str, user: DevCycleUser, default_value: typing.Any
+        self, user: DevCycleUser, key: str, default_value: typing.Any
     ) -> Variable:
         pass
 
+    @abstractmethod
     def variable_value(
         self, user: DevCycleUser, key: str, default_value: typing.Any
     ) -> typing.Any:
