@@ -21,6 +21,14 @@ ignore_missing_imports = true
 module = 'devcycle_python_sdk.openfeature.*'
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = 'example.*'
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = 'test.openfeature.*'
+ignore_missing_imports = true
+
 [tool.ruff]
 # https://beta.ruff.rs/docs/rules/
 select = [
