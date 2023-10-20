@@ -62,6 +62,9 @@ def _create_user_from_context(context: EvaluationContext) -> DevCycleUser:
     private_custom_data: Dict[str, str] = {}
     if context and context.attributes:
         for key, value in context.attributes.items():
+            if key == "user_id":
+                continue
+
             if value:
                 if key == "email" and isinstance(value, str):
                     user.email = value
