@@ -3,7 +3,6 @@ import time
 import os
 
 from devcycle_python_sdk import DevCycleLocalClient, DevCycleLocalOptions
-from devcycle_python_sdk.openfeature.provider import DevCycleProvider
 
 from openfeature import api
 from openfeature.evaluation_context import EvaluationContext
@@ -34,7 +33,7 @@ def main():
         exit(1)
 
     # set the provider for OpenFeature
-    api.set_provider(DevCycleProvider(devcycle_client))
+    api.set_provider(devcycle_client.get_openfeature_provider())
 
     # get the OpenFeature client
     open_feature_client = api.get_client()

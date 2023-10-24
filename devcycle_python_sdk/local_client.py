@@ -14,6 +14,8 @@ from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.platform_data import default_platform_data
 from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.variable import Variable
+from devcycle_python_sdk.openfeature.provider import DevCycleProvider
+from openfeature.provider.provider import AbstractProvider
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +47,11 @@ class DevCycleLocalClient(AbstractDevCycleClient):
         self.event_queue_manager: EventQueueManager = EventQueueManager(
             sdk_key, self.options, self.local_bucketing
         )
+
+        self._openfeature_provider = DevCycleProvider(self)
+
+    def get_openfeature_provider(self) -> AbstractProvider:
+        return self._openfeature_provider
 
     def is_initialized(self) -> bool:
         return self.config_manager.is_initialized()

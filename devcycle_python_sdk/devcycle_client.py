@@ -4,6 +4,8 @@ from abc import abstractmethod
 from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.variable import Variable
 
+from openfeature.provider.provider import AbstractProvider
+
 
 class AbstractDevCycleClient:
     """
@@ -24,4 +26,11 @@ class AbstractDevCycleClient:
     def variable_value(
         self, user: DevCycleUser, key: str, default_value: typing.Any
     ) -> typing.Any:
+        pass
+
+    @abstractmethod
+    def get_openfeature_provider(self) -> AbstractProvider:
+        """
+        Returns the OpenFeature provider for this client
+        """
         pass

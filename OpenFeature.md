@@ -24,7 +24,7 @@ from devcycle_python_sdk.openfeature.provider import DevCycleProvider
 devcycle_client = DevCycleLocalClient("DEVCYCLE_SERVER_SDK_KEY", DevCycleLocalOptions())
 
 # Set the initialzed DevCycle client as the provider for OpenFeature
-api.set_provider(DevCycleProvider(devcycle_client))
+api.set_provider(devcycle_client.get_openfeature_provider())
 
 # Get the OpenFeature client
 open_feature_client = api.get_client()
