@@ -1,24 +1,24 @@
-# OpenFeature DevCycle Python Provider
+# DevCycle Python SDK OpenFeature Provider
 
-This library provides a Python implementation of the [OpenFeature](https://openfeature.dev/) Provider interface for DevCycle.
+This SDK provides a Python implementation of the [OpenFeature](https://openfeature.dev/) Provider interface. 
 
 ## Example App
 
-See the [example app](/example/openfeature_example.py) for a working example of the OpenFeature DevCycle Python Provider.
+See the [example app](/example/openfeature_example.py) for a working example using DevCycle Python SDK OpenFeature Provider.
 
 ## Usage
 
 See our [documentation](https://docs.devcycle.com/sdk/server-side-sdks/python) for more information.
 
-Create the appropriate DevCycle SDK client first (`DevCycleLocalClient` or `DevCycleCloudClient`), then pass it to the `DevCycleProvider` and set it as the provider for OpenFeature.
+Instantiate and configure the DevCycle SDK client first, either `DevCycleLocalClient` or `DevCycleCloudClient`. 
+
+Once the DevCycle client is configured, call the `devcycle_client.get_openfeature_provider()` function to obtain the OpenFeature provider. 
 
 ```python
 from openfeature import api
 from openfeature.evaluation_context import EvaluationContext
 
 from devcycle_python_sdk import DevCycleLocalClient, DevCycleLocalOptions
-from devcycle_python_sdk.openfeature.provider import DevCycleProvider
-
 
 # Initialize the DevCycle SDK
 devcycle_client = DevCycleLocalClient("DEVCYCLE_SERVER_SDK_KEY", DevCycleLocalOptions())
@@ -37,15 +37,14 @@ api.set_evaluation_context(EvaluationContext(targeting_key="test-1234"))
 bool_flag = open_feature_client.get_boolean_value("bool-flag", False)
 ```
 
-#### Required TargetingKey
+#### Required Targeting Key
 
-For DevCycle SDK to work we require either a `targeting_key` or `user_id` to be set on the OpenFeature context. 
-This is used to identify the user as the `user_id` for a `DevCycleUser` in DevCycle.
+For DevCycle SDK to work we require either a `targeting_key` or `user_id` attribute to be set on the OpenFeature context. 
+This value is used to identify the user as the `user_id` property for a `DevCycleUser` in DevCycle.
 
-#### Context properties to DevCycleUser
+### Mapping Context Properties to DevCycleUser
 
-The provider will automatically translate known `DevCycleUser` properties from the OpenFeature context to the `DevCycleUser` object.
-[DevCycleUser Python Interface](https://github.com/DevCycleHQ/python-server-sdk/blob/main/devcycle_python_sdk/models/user.py#L8)
+The provider will automatically translate known `DevCycleUser` properties from the OpenFeature context to the [`DevCycleUser`](https://github.com/DevCycleHQ/python-server-sdk/blob/main/devcycle_python_sdk/models/user.py#L8) object for use in targeting and segmentation.
 
 For example all these properties will be set on the `DevCycleUser`:
 ```python
@@ -61,8 +60,8 @@ context = EvaluationContext(targeting_key="test-1234", attributes={
 })
 ```
 
-Context properties that are not known `DevCycleUser` properties will be automatically 
-added to the `customData` property of the `DevCycleUser`.
+Context properties that do not map to known `DevCycleUser` properties will be automatically 
+added to the `customData` dictionary of the `DevCycleUser` object.
 
 #### Context Limitations
 

@@ -39,6 +39,20 @@ value = client.variable_value(user, 'variable-key', 'default-value')
 
 The DevCycle client is designed to work as a singleton in your application. You should create a single instance of the client during application initialization
 
+## OpenFeature Support
+
+This SDK provides an implementation of the [OpenFeature](https://openfeature.dev/) Provider interface. Use the `get_openfeature_provider()` function on the DevCycle SDK client to obtain a provider for OpenFeature.
+
+```python
+from openfeature import api
+
+devcycle_client = DevCycleLocalClient('DEVCYCLE_SERVER_SDK_KEY', options)
+api.set_provider(devcycle_client.get_openfeature_provider())
+```
+
+More details are in the [DevCycle Python SDK OpenFeature Provider](OpenFeature.md) guide.
+
+
 ## Usage
 
 To find usage documentation, visit our [docs](https://docs.devcycle.com/docs/sdk/server-side-sdks/python#usage).
