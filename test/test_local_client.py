@@ -334,6 +334,15 @@ class DevCycleLocalClientTest(unittest.TestCase):
                 defaultValue=None,
                 evalReason=None,
             ),
+            "float-var": Variable(
+                _id="61200363125123fca69d3a7a",
+                key="float-var",
+                type="Number",
+                value=3.14159,
+                isDefaulted=None,
+                defaultValue=None,
+                evalReason=None,
+            ),
         }
         self.assertEqual(result, expected_variables)
 

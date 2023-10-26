@@ -17,6 +17,7 @@ class DevCycleProviderWithLocalSDKTest(unittest.TestCase):
     """
     Tests the DevCycleProvider with actual data from the Local SDK client to confirm data translations work
     """
+
     def setUp(self) -> None:
         self.sdk_key = "dvc_server_949e4962-c624-4d20-a1ea-7f2501b2ba79"
         self.test_config_json = small_config_json()
