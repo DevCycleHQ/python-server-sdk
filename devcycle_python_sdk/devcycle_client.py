@@ -34,3 +34,7 @@ class AbstractDevCycleClient:
         Returns the OpenFeature provider for this client
         """
         pass
+
+    @abstractmethod
+    def get_sdk_platform(self) -> str:
+        pass

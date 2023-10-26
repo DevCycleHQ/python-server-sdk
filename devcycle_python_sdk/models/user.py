@@ -2,6 +2,8 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Dict, Optional, Any
+from openfeature.evaluation_context import EvaluationContext
+from openfeature.exception import TargetingKeyMissingError, InvalidContextError
 
 
 @dataclass(order=False)
@@ -74,3 +76,82 @@ class DevCycleUser:
             sdkType=data.get("sdkType"),
             sdkVersion=data.get("sdkVersion"),
         )
+
+    @staticmethod
+    def _set_custom_value(custom_data: Dict[str, Any], key: str, value: Optional[Any]):
+        """
+        Sets a custom value in the custom data dictionary.  Custom data properties can
+        only be strings, numbers, or booleans.  Nested dictionaries and lists are
+        not permitted.
+
+        Invalid values will generate an error
+        """
+        if key and (value is None or isinstance(value, (str, int, float, bool))):
+            custom_data[key] = value
+        else:
+            raise InvalidContextError(
+                "Custom property values must be strings, numbers, booleans or None"
+            )
+
+    @staticmethod
+    def create_user_from_context(context: EvaluationContext) -> "DevCycleUser":
+        """
+        Builds a DevCycleUser instance from the evaluation context. Will raise a TargetingKeyMissingError if
+        the context does not contain a valid targeting key or user_id attribute
+
+        :param context: The evaluation context to build the user from
+        :return: A DevCycleUser instance
+        """
+        user_id = None
+
+        if context:
+            if context.targeting_key:
+                user_id = context.targeting_key
+            elif context.attributes and "user_id" in context.attributes.keys():
+                user_id = context.attributes["user_id"]
+
+        if not user_id or not isinstance(user_id, str):
+            raise TargetingKeyMissingError(
+                "DevCycle: Evaluation context does not contain a valid targeting key or user_id attribute"
+            )
+
+        user = DevCycleUser(user_id=user_id)
+        custom_data: Dict[str, Any] = {}
+        private_custom_data: Dict[str, Any] = {}
+        if context and context.attributes:
+            for key, value in context.attributes.items():
+                if key == "user_id":
+                    continue
+
+                if value:
+                    if key == "email" and isinstance(value, str):
+                        user.email = value
+                    elif key == "name" and isinstance(value, str):
+                        user.name = value
+                    elif key == "language" and isinstance(value, str):
+                        user.language = value
+                    elif key == "country" and isinstance(value, str):
+                        user.country = value
+                    elif key == "appVersion" and isinstance(value, str):
+                        user.appVersion = value
+                    elif key == "appBuild" and isinstance(value, str):
+                        user.appBuild = value
+                    elif key == "deviceModel" and isinstance(value, str):
+                        user.deviceModel = value
+                    elif key == "customData" and isinstance(value, dict):
+                        for k, v in value.items():
+                            DevCycleUser._set_custom_value(custom_data, k, v)
+                    elif key == "privateCustomData" and isinstance(value, dict):
+                        for k, v in value.items():
+                            DevCycleUser._set_custom_value(private_custom_data, k, v)
+                    else:
+                        # unrecognized keys are just added to public custom data
+                        DevCycleUser._set_custom_value(custom_data, key, value)
+
+        if custom_data:
+            user.customData = custom_data
+
+        if private_custom_data:
+            user.privateCustomData = private_custom_data
+
+        return user

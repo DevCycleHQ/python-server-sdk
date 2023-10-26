@@ -46,6 +46,9 @@ class DevCycleCloudClient(AbstractDevCycleClient):
         self.bucketing_api = BucketingAPIClient(sdk_key, self.options)
         self._openfeature_provider = DevCycleProvider(self)
 
+    def get_sdk_platform(self) -> str:
+        return "Cloud"
+
     def get_openfeature_provider(self) -> AbstractProvider:
         return self._openfeature_provider
 

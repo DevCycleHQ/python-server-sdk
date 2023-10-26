@@ -8,13 +8,12 @@ from openfeature.exception import (
     ErrorCode,
     TargetingKeyMissingError,
     InvalidContextError,
+    TypeMismatchError,
 )
 
 from devcycle_python_sdk.models.variable import Variable, TypeEnum
 
 from devcycle_python_sdk.openfeature.provider import (
-    _set_custom_value,
-    _create_user_from_context,
     DevCycleProvider,
 )
 
@@ -79,194 +78,141 @@ class DevCycleProviderTest(unittest.TestCase):
         self.assertEqual(details.value, False)
         self.assertEqual(details.reason, Reason.DEFAULT)
 
-    def test_resolve_details_client_returns_targeted_variable(self):
+    def test_resolve_boolean_details(self):
+        key = "test-flag"
+        variable_value = True
+        default_value = False
+
         self.client.variable.return_value = Variable(
             _id=None,
-            value=True,
-            key="test-flag",
+            value=variable_value,
+            key=key,
             type=TypeEnum.BOOLEAN,
             isDefaulted=False,
             defaultValue=False,
         )
 
         context = EvaluationContext(targeting_key="user-1234")
-        details = self.provider._resolve("test-flag", False, context)
+        details = self.provider.resolve_boolean_details(key, default_value, context)
 
         self.assertIsNotNone(details)
-        self.assertEqual(details.value, True)
+        self.assertEqual(details.value, variable_value)
         self.assertEqual(details.reason, Reason.TARGETING_MATCH)
 
+    def test_resolve_string_details(self):
+        key = "test-flag"
+        variable_value = "some string"
+        default_value = "default string"
 
-class UserDataFromContextTest(unittest.TestCase):
-    def test_create_user_from_context_no_context(self):
-        with self.assertRaises(TargetingKeyMissingError):
-            _create_user_from_context(None)
+        self.client.variable.return_value = Variable(
+            _id=None,
+            value=variable_value,
+            key=key,
+            type=TypeEnum.STRING,
+            isDefaulted=False,
+            defaultValue=False,
+        )
 
-    def test_create_user_from_context_no_user_id(self):
-        with self.assertRaises(TargetingKeyMissingError):
-            _create_user_from_context(
-                EvaluationContext(targeting_key=None, attributes={})
+        context = EvaluationContext(targeting_key="user-1234")
+        details = self.provider.resolve_string_details(key, default_value, context)
+
+        self.assertIsNotNone(details)
+        self.assertEqual(details.value, variable_value)
+        self.assertIsInstance(details.value, str)
+        self.assertEqual(details.reason, Reason.TARGETING_MATCH)
+
+    def test_resolve_integer_details(self):
+        key = "test-flag"
+        variable_value = 12345
+        default_value = 0
+
+        self.client.variable.return_value = Variable(
+            _id=None,
+            value=variable_value,
+            key=key,
+            type=TypeEnum.STRING,
+            isDefaulted=False,
+            defaultValue=False,
+        )
+
+        context = EvaluationContext(targeting_key="user-1234")
+        details = self.provider.resolve_integer_details(key, default_value, context)
+
+        self.assertIsNotNone(details)
+        self.assertIsInstance(details.value, int)
+        self.assertEqual(details.value, variable_value)
+        self.assertEqual(details.reason, Reason.TARGETING_MATCH)
+
+    def test_resolve_float_details(self):
+        key = "test-flag"
+        variable_value = 3.145
+        default_value = 0.0
+
+        self.client.variable.return_value = Variable(
+            _id=None,
+            value=variable_value,
+            key=key,
+            type=TypeEnum.STRING,
+            isDefaulted=False,
+            defaultValue=False,
+        )
+
+        context = EvaluationContext(targeting_key="user-1234")
+        details = self.provider.resolve_float_details(key, default_value, context)
+
+        self.assertIsNotNone(details)
+        self.assertIsInstance(details.value, float)
+        self.assertEqual(details.value, variable_value)
+        self.assertEqual(details.reason, Reason.TARGETING_MATCH)
+
+    def test_resolve_object_details_verify_default_value(self):
+        key = "test-flag"
+        context = EvaluationContext(targeting_key="user-1234")
+
+        # Only flat dictionaries are supported as objects
+        # lists, primitives and nested objects are not supported
+        with self.assertRaises(TypeMismatchError):
+            self.provider.resolve_object_details(key, [], context)
+
+        with self.assertRaises(TypeMismatchError):
+            self.provider.resolve_object_details(key, 1234, context)
+
+        with self.assertRaises(TypeMismatchError):
+            self.provider.resolve_object_details(key, 3.14, context)
+
+        with self.assertRaises(TypeMismatchError):
+            self.provider.resolve_object_details(key, False, context)
+
+        with self.assertRaises(TypeMismatchError):
+            self.provider.resolve_object_details(key, "some string", context)
+
+        # test dictionaries with nested objects
+        with self.assertRaises(TypeMismatchError):
+            self.provider.resolve_object_details(
+                key, {"nestedMap": {"someProp": "some value"}}, context
             )
 
-        with self.assertRaises(TargetingKeyMissingError):
-            _create_user_from_context(
-                EvaluationContext(targeting_key=None, attributes=None)
-            )
+    def test_resolve_object_details(self):
+        key = "test-flag"
+        variable_value = {"some": "value"}
+        default_value = {}
 
-        with self.assertRaises(TargetingKeyMissingError):
-            _create_user_from_context(
-                EvaluationContext(targeting_key=None, attributes={"user_id": None})
-            )
-
-    def test_create_user_from_context_only_user_id(self):
-        test_user_id = "12345"
-        context = EvaluationContext(targeting_key=test_user_id, attributes=None)
-        user = _create_user_from_context(context)
-        self.assertIsNotNone(user)
-        self.assertEqual(user.user_id, test_user_id)
-
-        context = EvaluationContext(
-            targeting_key=None, attributes={"user_id": test_user_id}
-        )
-        user = _create_user_from_context(context)
-        self.assertIsNotNone(user)
-        self.assertEqual(user.user_id, test_user_id)
-
-        # ensure that targeting_key takes precedence over user_id
-        context = EvaluationContext(
-            targeting_key=test_user_id, attributes={"user_id": "99999"}
-        )
-        user = _create_user_from_context(context)
-        self.assertIsNotNone(user)
-        self.assertEqual(user.user_id, test_user_id)
-
-    def test_create_user_from_context_with_attributes(self):
-        test_user_id = "12345"
-        context = EvaluationContext(
-            targeting_key=test_user_id,
-            attributes={
-                "user_id": "1234",
-                "email": "someone@example.com",
-                "name": "John Doe",
-                "language": "en",
-                "country": "US",
-                "appVersion": "1.0.0",
-                "appBuild": "1",
-                "deviceModel": "iPhone X21",
-            },
-        )
-        user = _create_user_from_context(context)
-        self.assertIsNotNone(user)
-        self.assertEqual(user.user_id, test_user_id)
-        self.assertEqual(user.email, context.attributes["email"])
-        self.assertEqual(user.name, context.attributes["name"])
-        self.assertEqual(user.language, context.attributes["language"])
-        self.assertEqual(user.country, context.attributes["country"])
-        self.assertEqual(user.appVersion, context.attributes["appVersion"])
-        self.assertEqual(user.appBuild, context.attributes["appBuild"])
-        self.assertEqual(user.deviceModel, context.attributes["deviceModel"])
-
-    def test_create_user_from_context_with_custom_data(self):
-        test_user_id = "12345"
-        context = EvaluationContext(
-            targeting_key=test_user_id,
-            attributes={
-                "customData": {
-                    "strValue": "hello",
-                    "intValue": 123,
-                    "floatValue": 3.1456,
-                    "boolValue": True,
-                },
-                "privateCustomData": {
-                    "strValue": "world",
-                    "intValue": 789,
-                    "floatValue": 0.0001,
-                    "BoolValue": False,
-                },
-            },
-        )
-        user = _create_user_from_context(context)
-        self.assertIsNotNone(user)
-        self.assertEqual(user.user_id, test_user_id)
-
-        self.assertEqual(
-            user.customData,
-            {
-                "strValue": "hello",
-                "intValue": 123,
-                "floatValue": 3.1456,
-                "boolValue": True,
-            },
-        )
-        self.assertEqual(
-            user.privateCustomData,
-            {
-                "strValue": "world",
-                "intValue": 789,
-                "floatValue": 0.0001,
-                "BoolValue": False,
-            },
+        self.client.variable.return_value = Variable(
+            _id=None,
+            value=variable_value,
+            key=key,
+            type=TypeEnum.STRING,
+            isDefaulted=False,
+            defaultValue=False,
         )
 
-    def test_create_user_from_context_with_unknown_data_fields(self):
-        test_user_id = "12345"
-        context = EvaluationContext(
-            targeting_key=test_user_id,
-            attributes={
-                "strValue": "hello",
-                "intValue": 123,
-                "floatValue": 3.1456,
-                "boolValue": True,
-            },
-        )
-        user = _create_user_from_context(context)
-        self.assertIsNotNone(user)
-        self.assertEqual(user.user_id, test_user_id)
+        context = EvaluationContext(targeting_key="user-1234")
+        details = self.provider.resolve_object_details(key, default_value, context)
 
-        # the fields should get reassigned to custom_data
-        self.assertEqual(
-            user.customData,
-            {
-                "strValue": "hello",
-                "intValue": 123,
-                "floatValue": 3.1456,
-                "boolValue": True,
-            },
-        )
-        self.assertEqual(user.privateCustomData, None)
-
-    def test_set_custom_value(self):
-        custom_data = {}
-        _set_custom_value(custom_data, None, None)
-        self.assertDictEqual(custom_data, {})
-
-        custom_data = {}
-        _set_custom_value(custom_data, "key1", None)
-        self.assertDictEqual(custom_data, {})
-
-        custom_data = {}
-        _set_custom_value(custom_data, "key1", "value1")
-        self.assertDictEqual(custom_data, {"key1": "value1"})
-
-        custom_data = {}
-        _set_custom_value(custom_data, "key1", 1)
-        self.assertDictEqual(custom_data, {"key1": 1})
-
-        custom_data = {}
-        _set_custom_value(custom_data, "key1", 3.1456)
-        self.assertDictEqual(custom_data, {"key1": 3.1456})
-
-        custom_data = {}
-        _set_custom_value(custom_data, "key1", True)
-        self.assertDictEqual(custom_data, {"key1": True})
-
-        custom_data = {}
-        _set_custom_value(custom_data, "map_data", {"hello": "world"})
-        self.assertDictEqual(custom_data, {})
-
-        custom_data = {}
-        _set_custom_value(custom_data, "list_data", ["one", "two", "three"])
-        self.assertDictEqual(custom_data, {})
+        self.assertIsNotNone(details)
+        self.assertIsInstance(details.value, dict)
+        self.assertDictEqual(details.value, variable_value)
+        self.assertEqual(details.reason, Reason.TARGETING_MATCH)
 
 
 if __name__ == "__main__":
