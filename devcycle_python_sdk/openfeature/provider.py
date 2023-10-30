@@ -24,9 +24,7 @@ class DevCycleProvider(AbstractProvider):
 
     def __init__(self, devcycle_client: AbstractDevCycleClient):
         self.client = devcycle_client
-        self.meta_data = Metadata(
-            name=f"DevCycleProvider {self.client.get_sdk_platform()}"
-        )
+        self.meta_data = Metadata(name=f"DevCycle {self.client.get_sdk_platform()}")
 
     def get_metadata(self) -> Metadata:
         return self.meta_data

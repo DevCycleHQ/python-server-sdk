@@ -49,19 +49,21 @@ The provider will automatically translate known `DevCycleUser` properties from t
 For example all these properties will be set on the `DevCycleUser`:
 ```python
 context = EvaluationContext(targeting_key="test-1234", attributes={
-    "email": "email@devcycle.com",
-    "name": "name",
+    "email": "test-user@domain.com",
+    "name": "Test User",
     "language": "en",
     "country": "CA",
     "appVersion": "1.0.11",
-    "appBuild": 1000,
+    "appBuild": 1,
     "customData": {"custom": "data"},
     "privateCustomData": {"private": "data"}
 })
 ```
 
-Context properties that do not map to known `DevCycleUser` properties will be automatically 
+Context attributes that do not map to known `DevCycleUser` properties will be automatically 
 added to the `customData` dictionary of the `DevCycleUser` object.
+
+DevCycle allows the following data types for custom data values: **boolean**, **integer**, **float**, and **str**. Other data types will be ignored
 
 #### Context Limitations
 
@@ -85,7 +87,7 @@ open_feature_client.get_object_value("json-flag", ["array"])
 open_feature_client.get_object_value("json-flag", 610)
 open_feature_client.get_object_value("json-flag", false)
 open_feature_client.get_object_value("json-flag", "string")
-open_feature_client.get_object_value("json-flag", null)
+open_feature_client.get_object_value("json-flag", None)
 ```
 
 However, these are not valid types for the DevCycle SDK, the DevCycle SDK only supports JSON Objects:

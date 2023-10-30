@@ -41,7 +41,16 @@ def main():
     # create the request context for the user
     context = EvaluationContext(
         targeting_key="test-1234",
-        attributes={"email": "test-user@domain.com", "country": "US"},
+        attributes={
+            "email": "test-user@domain.com",
+            "name": "Test User",
+            "language": "en",
+            "country": "CA",
+            "appVersion": "1.0.11",
+            "appBuild": 1000,
+            "customData": {"custom": "data"},
+            "privateCustomData": {"private": "data"},
+        },
     )
 
     # Look up the value of the flag
@@ -49,6 +58,17 @@ def main():
         logger.info(f"Variable {FLAG_KEY} is enabled")
     else:
         logger.info(f"Variable {FLAG_KEY} is not enabled")
+
+    # Fetch a JSON object variable
+    json_object = open_feature_client.get_object_value(
+        "test-json-variable", {"default": "value"}, context
+    )
+    logger.info(f"JSON Object Value: {json_object}")
+
+    # Retrieve a string variable along with resolution details
+    details = open_feature_client.get_string_details("doesnt-exist", "default", context)
+    logger.info(f"String Value: {details.value}")
+    logger.info(f"Eval Reason: {details.reason}")
 
     devcycle_client.close()
 
