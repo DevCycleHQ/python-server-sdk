@@ -217,6 +217,7 @@ class DevCycleLocalClientTest(unittest.TestCase):
             ("string-var", "default_value", "variationOn", TypeEnum.STRING),
             ("a-cool-new-feature", False, True, TypeEnum.BOOLEAN),
             ("num-var", 0, 12345, TypeEnum.NUMBER),
+            ("float-var", 0, 3.14159, TypeEnum.NUMBER),
             (
                 "json-var",
                 {"default": "value"},
@@ -329,6 +330,15 @@ class DevCycleLocalClientTest(unittest.TestCase):
                 key="num-var",
                 type="Number",
                 value=12345,
+                isDefaulted=None,
+                defaultValue=None,
+                evalReason=None,
+            ),
+            "float-var": Variable(
+                _id="61200363125123fca69d3a7a",
+                key="float-var",
+                type="Number",
+                value=3.14159,
                 isDefaulted=None,
                 defaultValue=None,
                 evalReason=None,

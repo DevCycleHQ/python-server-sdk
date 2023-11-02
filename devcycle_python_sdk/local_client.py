@@ -3,7 +3,7 @@ import logging
 from numbers import Real
 from typing import Any, Dict, Union
 
-from devcycle_python_sdk import DevCycleLocalOptions
+from devcycle_python_sdk import DevCycleLocalOptions, AbstractDevCycleClient
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
 from devcycle_python_sdk.exceptions import VariableTypeMismatchError
 from devcycle_python_sdk.managers.config_manager import EnvironmentConfigManager
@@ -14,11 +14,17 @@ from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.platform_data import default_platform_data
 from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.variable import Variable
+from devcycle_python_sdk.openfeature.provider import DevCycleProvider
+from openfeature.provider.provider import AbstractProvider
 
 logger = logging.getLogger(__name__)
 
 
-class DevCycleLocalClient:
+class DevCycleLocalClient(AbstractDevCycleClient):
+    """
+    The DevCycle Python SDK that utilizes the local bucketing library for feature and variable evaluation
+    """
+
     def __init__(self, sdk_key: str, options: DevCycleLocalOptions):
         _validate_sdk_key(sdk_key)
         self._sdk_key = sdk_key
@@ -41,6 +47,14 @@ class DevCycleLocalClient:
         self.event_queue_manager: EventQueueManager = EventQueueManager(
             sdk_key, self.options, self.local_bucketing
         )
+
+        self._openfeature_provider = DevCycleProvider(self)
+
+    def get_sdk_platform(self) -> str:
+        return "Local"
+
+    def get_openfeature_provider(self) -> AbstractProvider:
+        return self._openfeature_provider
 
     def is_initialized(self) -> bool:
         return self.config_manager.is_initialized()

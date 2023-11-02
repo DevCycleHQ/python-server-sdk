@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.7", "3.11" ]
+        python-version: [ "3.8", "3.12" ]
 
     steps:
       - uses: actions/checkout@v3
@@ -29,5 +29,10 @@ jobs:
       - name: Run cloud bucketing example
         run: |
           cd example && python cloud_client_example.py
+        env:
+          DEVCYCLE_SERVER_SDK_KEY: "${{ secrets.DEVCYCLE_SERVER_SDK_KEY }}"
+      - name: Run OpenFeature example
+        run: |
+          cd example && python openfeature_example.py
         env:
           DEVCYCLE_SERVER_SDK_KEY: "${{ secrets.DEVCYCLE_SERVER_SDK_KEY }}"

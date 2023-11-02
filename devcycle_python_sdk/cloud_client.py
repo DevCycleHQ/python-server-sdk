@@ -3,7 +3,7 @@ import platform
 
 from typing import Any, Dict
 
-from devcycle_python_sdk import DevCycleCloudOptions
+from devcycle_python_sdk import DevCycleCloudOptions, AbstractDevCycleClient
 from devcycle_python_sdk.api.bucketing_client import BucketingAPIClient
 from devcycle_python_sdk.exceptions import (
     NotFoundError,
@@ -14,11 +14,18 @@ from devcycle_python_sdk.models.event import DevCycleEvent
 from devcycle_python_sdk.models.variable import Variable
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.util.version import sdk_version
+from devcycle_python_sdk.openfeature.provider import DevCycleProvider
+
+from openfeature.provider.provider import AbstractProvider
 
 logger = logging.getLogger(__name__)
 
 
-class DevCycleCloudClient:
+class DevCycleCloudClient(AbstractDevCycleClient):
+    """
+    The DevCycle Python SDK that utilizes the DevCycle Bucketing API for feature and variable evaluation
+    """
+
     options: DevCycleCloudOptions
     platform: str
     platform_version: str
@@ -37,6 +44,13 @@ class DevCycleCloudClient:
         self.sdk_version = sdk_version()
         self.sdk_type = "server"
         self.bucketing_api = BucketingAPIClient(sdk_key, self.options)
+        self._openfeature_provider = DevCycleProvider(self)
+
+    def get_sdk_platform(self) -> str:
+        return "Cloud"
+
+    def get_openfeature_provider(self) -> AbstractProvider:
+        return self._openfeature_provider
 
     def _add_platform_data_to_user(self, user: DevCycleUser) -> DevCycleUser:
         user.platform = self.platform
@@ -44,6 +58,9 @@ class DevCycleCloudClient:
         user.sdkVersion = self.sdk_version
         user.sdkType = self.sdk_type
         return user
+
+    def is_initialized(self) -> bool:
+        return True
 
     def variable_value(self, user: DevCycleUser, key: str, default_value: Any) -> Any:
         """

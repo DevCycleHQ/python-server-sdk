@@ -197,6 +197,15 @@ class LocalBucketingTest(unittest.TestCase):
                 defaultValue=None,
                 evalReason=None,
             ),
+            "float-var": Variable(
+                _id="61200363125123fca69d3a7a",
+                key="float-var",
+                type="Number",
+                value=3.14159,
+                isDefaulted=None,
+                defaultValue=None,
+                evalReason=None,
+            ),
         }
 
         self.assertIsNotNone(result)
@@ -247,6 +256,10 @@ class LocalBucketingTest(unittest.TestCase):
                     variation="62fbf6566f1ba302829f9e39",
                 ),
                 "num-var": FeatureVariation(
+                    feature="62fbf6566f1ba302829f9e32",
+                    variation="62fbf6566f1ba302829f9e39",
+                ),
+                "float-var": FeatureVariation(
                     feature="62fbf6566f1ba302829f9e32",
                     variation="62fbf6566f1ba302829f9e39",
                 ),
