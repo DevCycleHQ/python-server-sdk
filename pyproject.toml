@@ -1,15 +1,21 @@
+# pytest options
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = "--benchmark-skip --showlocals"
 
+# black options
 [tool.black]
 target-version = ['py37']
 extend-exclude = '_pb2\.pyi?$'
 
+# mypy options
 [tool.mypy]
 python_version = "3.8"
 exclude = "django-app"
 
+# See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-library-stubs-or-py-typed-marker
+# To silence errors from within a 3rd party package, use ignore_errors
+# To silence "Skipping analyzing X: module is installed, but missing library stubs or py.typed marker" use ignore_missing_imports
 [[tool.mypy.overrides]]
 module = 'devcycle_python_sdk.protobuf.*'
 ignore_errors = true
@@ -19,17 +25,15 @@ module = 'setuptools'
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = 'devcycle_python_sdk.openfeature.*'
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = ['example.openfeature_example']
-ignore_errors = true
-
-[[tool.mypy.overrides]]
 module = 'test.openfeature.*'
 ignore_errors = true
 
+[[tool.mypy.overrides]]
+module = 'openfeature.*'
+ignore_errors = true
+ignore_missing_imports = true
+
+# ruff options
 [tool.ruff]
 # https://beta.ruff.rs/docs/rules/
 select = [
