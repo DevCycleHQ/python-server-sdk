@@ -41,7 +41,7 @@ The DevCycle client is designed to work as a singleton in your application. You 
 
 ## OpenFeature Support
 
-This SDK provides an implementation of the [OpenFeature](https://openfeature.dev/) Provider interface. Use the `get_openfeature_provider()` function on the DevCycle SDK client to obtain a provider for OpenFeature.
+This SDK provides an alpha implementation of the [OpenFeature](https://openfeature.dev/) Provider interface. Use the `get_openfeature_provider()` function on the DevCycle SDK client to obtain a provider for OpenFeature.
 
 ```python
 from openfeature import api
@@ -52,6 +52,7 @@ api.set_provider(devcycle_client.get_openfeature_provider())
 
 More details are in the [DevCycle Python SDK OpenFeature Provider](OpenFeature.md) guide.
 
+> :warning: **OpenFeature support is in an early release and may have some rough edges**. Please report any issues to us and we'll be happy to help!
 
 ## Usage
 
