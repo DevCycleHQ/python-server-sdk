@@ -3,13 +3,13 @@ updates:
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     reviewers:
       - "devcyclehq/engineering"
     versioning-strategy: increase
   - package-ecosystem: pip
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     reviewers:
       - "devcyclehq/engineering"
