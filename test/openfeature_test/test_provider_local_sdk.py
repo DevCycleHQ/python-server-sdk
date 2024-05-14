@@ -7,7 +7,7 @@ import responses
 from devcycle_python_sdk import DevCycleLocalClient, DevCycleLocalOptions
 from test.fixture.data import small_config_json
 
-from openfeature.provider.provider import EvaluationContext
+from openfeature.provider import EvaluationContext
 from openfeature.flag_evaluation import Reason
 
 logger = logging.getLogger(__name__)

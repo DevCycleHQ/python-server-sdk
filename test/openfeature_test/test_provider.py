@@ -2,7 +2,7 @@ import logging
 import unittest
 from unittest.mock import MagicMock
 
-from openfeature.provider.provider import EvaluationContext
+from openfeature.provider import EvaluationContext
 from openfeature.flag_evaluation import Reason
 from openfeature.exception import (
     ErrorCode,

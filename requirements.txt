@@ -3,4 +3,4 @@ urllib3 >= 1.15.1
 requests ~= 2.31.0
 wasmtime==9.0.0
 protobuf >= 4.23.3
-openfeature-sdk>=0.3.1
+openfeature-sdk>=0.7.0
