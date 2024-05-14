@@ -16,7 +16,7 @@ from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.util.version import sdk_version
 from devcycle_python_sdk.open_feature_provider.provider import DevCycleProvider
 
-from openfeature.provider.provider import AbstractProvider
+from openfeature.provider import AbstractProvider
 
 logger = logging.getLogger(__name__)
 

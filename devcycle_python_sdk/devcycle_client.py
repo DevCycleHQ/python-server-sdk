@@ -4,7 +4,7 @@ from abc import abstractmethod
 from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.variable import Variable
 
-from openfeature.provider.provider import AbstractProvider
+from openfeature.provider import AbstractProvider
 
 
 class AbstractDevCycleClient:
