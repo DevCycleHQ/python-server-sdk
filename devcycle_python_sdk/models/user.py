@@ -94,7 +94,9 @@ class DevCycleUser:
             )
 
     @staticmethod
-    def create_user_from_context(context: EvaluationContext) -> "DevCycleUser":
+    def create_user_from_context(
+        context: Optional[EvaluationContext],
+    ) -> "DevCycleUser":
         """
         Builds a DevCycleUser instance from the evaluation context. Will raise a TargetingKeyMissingError if
         the context does not contain a valid targeting key or user_id attribute
