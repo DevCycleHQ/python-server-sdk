@@ -211,22 +211,20 @@ class LocalBucketingTest(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(result.user, user)
         self.assertEqual(
-            result.project,
             Project(
                 id="61f97628ff4afcb6d057dbf0",
                 key="emma-project",
                 a0_organization="org_tPyJN5dvNNirKar7",
-                settings=ProjectSettings(
-                    edge_db=EdgeDBSettings(enabled=False),
-                    opt_in=OptInSettings(
-                        enabled=True,
-                        title="EarlyAccess",
-                        description="Getearlyaccesstobetafeaturesbelow!",
-                        image_url="",
-                        colors=OptInColors(primary="#531cd9", secondary="#16dec0"),
-                    ),
-                ),
+                settings=ProjectSettings(edge_db=EdgeDBSettings(enabled=False),
+                                         opt_in=OptInSettings(enabled=True,
+                                                              title='EarlyAccess',
+                                                              description='Getearlyaccesstobetafeaturesbelow!',
+                                                              image_url='',
+                                                              colors=OptInColors(primary='#531cd9',
+                                                                                 secondary='#16dec0'))
+                )
             ),
+            result.project,
         )
         self.assertEqual(
             result.environment,
