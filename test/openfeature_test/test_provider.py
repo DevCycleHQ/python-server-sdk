@@ -13,7 +13,7 @@ from openfeature.exception import (
 
 from devcycle_python_sdk.models.variable import Variable, TypeEnum
 
-from devcycle_python_sdk.openfeature.provider import (
+from devcycle_python_sdk.open_feature_provider.provider import (
     DevCycleProvider,
 )
 

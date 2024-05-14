@@ -14,7 +14,7 @@ from devcycle_python_sdk.models.event import DevCycleEvent
 from devcycle_python_sdk.models.variable import Variable
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.util.version import sdk_version
-from devcycle_python_sdk.openfeature.provider import DevCycleProvider
+from devcycle_python_sdk.open_feature_provider.provider import DevCycleProvider
 
 from openfeature.provider.provider import AbstractProvider
 
