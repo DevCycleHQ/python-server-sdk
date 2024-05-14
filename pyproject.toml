@@ -24,6 +24,15 @@ ignore_errors = true
 module = 'setuptools'
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = 'test.openfeature.*'
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = 'openfeature.*'
+ignore_errors = true
+ignore_missing_imports = true
+
 # ruff options
 [tool.ruff]
 # https://beta.ruff.rs/docs/rules/
