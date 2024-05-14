@@ -3,7 +3,7 @@ import unittest
 
 from devcycle_python_sdk.models.user import DevCycleUser
 
-from openfeature.provider.provider import EvaluationContext
+from openfeature.provider import EvaluationContext
 from openfeature.exception import TargetingKeyMissingError, InvalidContextError
 
 
