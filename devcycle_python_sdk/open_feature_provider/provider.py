@@ -5,7 +5,7 @@ from typing import Any, Optional, Union, List
 from devcycle_python_sdk import AbstractDevCycleClient
 from devcycle_python_sdk.models.user import DevCycleUser
 
-from openfeature.provider.provider import AbstractProvider
+from openfeature.provider import AbstractProvider
 from openfeature.evaluation_context import EvaluationContext
 from openfeature.flag_evaluation import FlagResolutionDetails, Reason
 from openfeature.exception import ErrorCode, InvalidContextError, TypeMismatchError

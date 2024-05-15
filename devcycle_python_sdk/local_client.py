@@ -14,8 +14,8 @@ from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.platform_data import default_platform_data
 from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.variable import Variable
-from devcycle_python_sdk.openfeature.provider import DevCycleProvider
-from openfeature.provider.provider import AbstractProvider
+from devcycle_python_sdk.open_feature_provider.provider import DevCycleProvider
+from openfeature.provider import AbstractProvider
 
 logger = logging.getLogger(__name__)
 

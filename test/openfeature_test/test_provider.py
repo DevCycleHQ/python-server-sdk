@@ -2,7 +2,7 @@ import logging
 import unittest
 from unittest.mock import MagicMock
 
-from openfeature.provider.provider import EvaluationContext
+from openfeature.provider import EvaluationContext
 from openfeature.flag_evaluation import Reason
 from openfeature.exception import (
     ErrorCode,
@@ -13,7 +13,7 @@ from openfeature.exception import (
 
 from devcycle_python_sdk.models.variable import Variable, TypeEnum
 
-from devcycle_python_sdk.openfeature.provider import (
+from devcycle_python_sdk.open_feature_provider.provider import (
     DevCycleProvider,
 )
 

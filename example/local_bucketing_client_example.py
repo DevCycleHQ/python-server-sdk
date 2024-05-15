@@ -7,7 +7,7 @@ from devcycle_python_sdk import DevCycleLocalClient, DevCycleLocalOptions
 from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.event import DevCycleEvent, EventType
 
-VARIABLE_KEY = "test-boolean-variable"
+VARIABLE_KEY = "python-example-tests"
 
 logger = logging.getLogger(__name__)
 

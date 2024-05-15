@@ -55,6 +55,7 @@ class OptInSettings:
 class ProjectSettings:
     edge_db: Optional[EdgeDBSettings]
     opt_in: Optional[OptInSettings]
+    disable_passthrough_rollouts: Optional[bool]
 
     @classmethod
     def from_json(cls, data: dict) -> "ProjectSettings":
@@ -63,6 +64,7 @@ class ProjectSettings:
             if "edgeDB" in data
             else None,
             opt_in=OptInSettings.from_json(data["optIn"]) if "optIn" in data else None,
+            disable_passthrough_rollouts=data.get("disablePassthroughRollouts", False),
         )
 
 

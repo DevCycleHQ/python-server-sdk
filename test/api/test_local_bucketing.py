@@ -5,10 +5,7 @@ import unittest
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing, WASMAbortError
 from devcycle_python_sdk.models.bucketed_config import (
     Environment,
-    EdgeDBSettings,
     FeatureVariation,
-    OptInColors,
-    OptInSettings,
     Project,
     ProjectSettings,
 )
@@ -211,22 +208,15 @@ class LocalBucketingTest(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(result.user, user)
         self.assertEqual(
-            result.project,
             Project(
                 id="61f97628ff4afcb6d057dbf0",
                 key="emma-project",
                 a0_organization="org_tPyJN5dvNNirKar7",
                 settings=ProjectSettings(
-                    edge_db=EdgeDBSettings(enabled=False),
-                    opt_in=OptInSettings(
-                        enabled=True,
-                        title="EarlyAccess",
-                        description="Getearlyaccesstobetafeaturesbelow!",
-                        image_url="",
-                        colors=OptInColors(primary="#531cd9", secondary="#16dec0"),
-                    ),
+                    edge_db=None, opt_in=None, disable_passthrough_rollouts=False
                 ),
             ),
+            result.project,
         )
         self.assertEqual(
             result.environment,
