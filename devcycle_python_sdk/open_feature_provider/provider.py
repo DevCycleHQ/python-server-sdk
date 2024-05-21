@@ -58,9 +58,11 @@ class DevCycleProvider(AbstractProvider):
                 else:
                     return FlagResolutionDetails(
                         value=variable.value,
-                        reason=Reason.DEFAULT
-                        if variable.isDefaulted
-                        else Reason.TARGETING_MATCH,
+                        reason=(
+                            Reason.DEFAULT
+                            if variable.isDefaulted
+                            else Reason.TARGETING_MATCH
+                        ),
                     )
             except ValueError as e:
                 # occurs if the key or default value is None
