@@ -60,9 +60,9 @@ class ProjectSettings:
     @classmethod
     def from_json(cls, data: dict) -> "ProjectSettings":
         return cls(
-            edge_db=EdgeDBSettings.from_json(data["edgeDB"])
-            if "edgeDB" in data
-            else None,
+            edge_db=(
+                EdgeDBSettings.from_json(data["edgeDB"]) if "edgeDB" in data else None
+            ),
             opt_in=OptInSettings.from_json(data["optIn"]) if "optIn" in data else None,
             disable_passthrough_rollouts=data.get("disablePassthroughRollouts", False),
         )
@@ -81,9 +81,11 @@ class Project:
             id=data["_id"],
             key=data["key"],
             a0_organization=data["a0_organization"],
-            settings=ProjectSettings.from_json(data["settings"])
-            if "settings" in data
-            else None,
+            settings=(
+                ProjectSettings.from_json(data["settings"])
+                if "settings" in data
+                else None
+            ),
         )
 
 
