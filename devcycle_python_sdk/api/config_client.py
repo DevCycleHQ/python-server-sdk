@@ -29,14 +29,14 @@ class ConfigAPIClient:
         self.session.max_redirects = 0
         self.max_config_retries = 2
         self.config_file_url = (
-                slash_join(
-                    self.options.config_cdn_uri, "config", "v1", "server", self.sdk_key
-                )
-                + ".json"
+            slash_join(
+                self.options.config_cdn_uri, "config", "v1", "server", self.sdk_key
+            )
+            + ".json"
         )
 
     def get_config(
-            self, config_etag: Optional[str] = None, last_modified: Optional[str] = None
+        self, config_etag: Optional[str] = None, last_modified: Optional[str] = None
     ) -> Tuple[Optional[dict], Optional[str]]:
         """
         Get the config from the server. If the config_etag is provided, the server will only return the config if it
@@ -68,8 +68,8 @@ class ConfigAPIClient:
                 )
 
                 if (
-                        res.status_code == HTTPStatus.UNAUTHORIZED
-                        or res.status_code == HTTPStatus.FORBIDDEN
+                    res.status_code == HTTPStatus.UNAUTHORIZED
+                    or res.status_code == HTTPStatus.FORBIDDEN
                 ):
                     # Not a retryable error
                     raise APIClientUnauthorizedError("Invalid SDK Key")
@@ -81,9 +81,9 @@ class ConfigAPIClient:
                     # Not a retryable error
                     raise NotFoundError(url)
                 elif (
-                        HTTPStatus.BAD_REQUEST
-                        <= res.status_code
-                        < HTTPStatus.INTERNAL_SERVER_ERROR
+                    HTTPStatus.BAD_REQUEST
+                    <= res.status_code
+                    < HTTPStatus.INTERNAL_SERVER_ERROR
                 ):
                     # Not a retryable error
                     raise APIClientError(f"Bad request: HTTP {res.status_code}")
@@ -122,7 +122,8 @@ class ConfigAPIClient:
             response_lm = email.utils.parsedate_to_datetime(new_lastmodified)
             if stored_lm > response_lm:
                 logger.warning(
-                    "Request returned a last modified header older than the current stored timestamp. not saving config")
+                    "Request returned a last modified header older than the current stored timestamp. not saving config"
+                )
                 return None, None, None
 
         data: dict = res.json()

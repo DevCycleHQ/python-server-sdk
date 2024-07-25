@@ -23,18 +23,18 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
 
         now = datetime.now()
         stamp = mktime(now.timetuple())
-        self.test_lastmodified = formatdate(
-            timeval=stamp,
-            localtime=False,
-            usegmt=True
-        )
+        self.test_lastmodified = formatdate(timeval=stamp, localtime=False, usegmt=True)
         self.test_etag = str(uuid.uuid4())
         self.test_config_json = small_config_json()
         self.test_config_string = json.dumps(self.test_config_json)
 
     @patch("devcycle_python_sdk.api.config_client.ConfigAPIClient.get_config")
     def test_init(self, mock_get_config):
-        mock_get_config.return_value = (self.test_config_json, self.test_etag, self.test_lastmodified)
+        mock_get_config.return_value = (
+            self.test_config_json,
+            self.test_etag,
+            self.test_lastmodified,
+        )
         config_manager = EnvironmentConfigManager(
             self.sdk_key, self.test_options, self.test_local_bucketing
         )
@@ -55,7 +55,11 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
 
     @patch("devcycle_python_sdk.api.config_client.ConfigAPIClient.get_config")
     def test_init_with_client_callback(self, mock_get_config):
-        mock_get_config.return_value = (self.test_config_json, self.test_etag, self.test_lastmodified)
+        mock_get_config.return_value = (
+            self.test_config_json,
+            self.test_etag,
+            self.test_lastmodified,
+        )
 
         mock_callback = MagicMock()
 
@@ -76,7 +80,11 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
 
     @patch("devcycle_python_sdk.api.config_client.ConfigAPIClient.get_config")
     def test_init_with_client_callback_with_error(self, mock_get_config):
-        mock_get_config.return_value = (self.test_config_json, self.test_etag, self.test_lastmodified)
+        mock_get_config.return_value = (
+            self.test_config_json,
+            self.test_etag,
+            self.test_lastmodified,
+        )
         mock_callback = MagicMock()
         mock_callback.side_effect = Exception(
             "Badly written callback generates an exception"
@@ -115,7 +123,11 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
 
     @patch("devcycle_python_sdk.api.config_client.ConfigAPIClient.get_config")
     def test_get_config_unchanged(self, mock_get_config):
-        mock_get_config.return_value = (self.test_config_json, self.test_etag, self.test_lastmodified)
+        mock_get_config.return_value = (
+            self.test_config_json,
+            self.test_etag,
+            self.test_lastmodified,
+        )
 
         self.test_options.config_polling_interval_ms = 200
         config_manager = EnvironmentConfigManager(

@@ -44,8 +44,7 @@ class EnvironmentConfigManager(threading.Thread):
     def _get_config(self):
         try:
             new_config, new_etag, new_lastmodified = self._config_api_client.get_config(
-                config_etag=self._config_etag,
-                last_modified=self._config_lastmodified
+                config_etag=self._config_etag, last_modified=self._config_lastmodified
             )
 
             # Abort early if the last modified is before the sent one.
