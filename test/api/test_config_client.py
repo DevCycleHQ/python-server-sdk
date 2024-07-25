@@ -2,6 +2,9 @@ import logging
 import unittest
 import uuid
 from http import HTTPStatus
+from datetime import datetime
+from email.utils import formatdate
+from time import mktime
 
 import requests
 import responses
@@ -36,6 +39,9 @@ class ConfigAPIClientTest(unittest.TestCase):
 
         options = DevCycleLocalOptions(config_retry_delay_ms=0)
         self.test_client = ConfigAPIClient(self.sdk_key, options)
+        now = datetime.now()
+        stamp = mktime(now.timetuple())
+        self.test_lastmodified = formatdate(timeval=stamp, localtime=False, usegmt=True)
         self.test_etag = str(uuid.uuid4())
         self.test_config_json: dict = small_config_json()
 
@@ -45,14 +51,20 @@ class ConfigAPIClientTest(unittest.TestCase):
     @responses.activate
     def test_get_config(self):
         new_etag = str(uuid.uuid4())
+        now = datetime.now()
+        stamp = mktime(now.timetuple())
+        new_lastmodified = formatdate(timeval=stamp, localtime=False, usegmt=True)
         responses.add(
             responses.GET,
             self.config_url,
-            headers={"ETag": new_etag},
+            headers={"ETag": new_etag, "Last-Modified": new_lastmodified},
             json=self.test_config_json,
         )
-        result, etag = self.test_client.get_config(config_etag=self.test_etag)
+        result, etag, lastmodified = self.test_client.get_config(
+            config_etag=self.test_etag, last_modified=self.test_lastmodified
+        )
         self.assertDictEqual(result, self.test_config_json)
+        self.assertEqual(lastmodified, new_lastmodified)
         self.assertEqual(etag, new_etag)
 
     @responses.activate(registry=OrderedRegistry)
@@ -68,7 +80,9 @@ class ConfigAPIClientTest(unittest.TestCase):
             headers={"ETag": self.test_etag},
             json=self.test_config_json,
         )
-        result, etag = self.test_client.get_config(config_etag=self.test_etag)
+        result, etag, lastmodified = self.test_client.get_config(
+            config_etag=self.test_etag
+        )
 
         self.assertDictEqual(result, self.test_config_json)
         self.assertEqual(etag, self.test_etag)
@@ -83,10 +97,12 @@ class ConfigAPIClientTest(unittest.TestCase):
         responses.add(
             responses.GET,
             self.config_url,
-            headers={"ETag": self.test_etag},
+            headers={"ETag": self.test_etag, "Last-Modified": self.test_lastmodified},
             json=self.test_config_json,
         )
-        result, etag = self.test_client.get_config(config_etag=self.test_etag)
+        result, etag, last_modified = self.test_client.get_config(
+            config_etag=self.test_etag
+        )
         self.assertDictEqual(result, self.test_config_json)
         self.assertEqual(etag, self.test_etag)
 
@@ -131,6 +147,8 @@ class ConfigAPIClientTest(unittest.TestCase):
             status=HTTPStatus.NOT_MODIFIED,
         )
 
-        new_config, new_etag = self.test_client.get_config(config_etag=self.test_etag)
+        new_config, new_etag, last_modified = self.test_client.get_config(
+            config_etag=self.test_etag
+        )
         self.assertIsNone(new_config)
         self.assertEqual(new_etag, self.test_etag)

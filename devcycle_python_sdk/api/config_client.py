@@ -2,7 +2,7 @@ import logging
 import time
 from http import HTTPStatus
 from typing import Optional, Tuple
-
+import email.utils
 import requests
 
 from devcycle_python_sdk.api.backoff import exponential_backoff
@@ -36,15 +36,15 @@ class ConfigAPIClient:
         )
 
     def get_config(
-        self, config_etag: Optional[str] = None
-    ) -> Tuple[Optional[dict], Optional[str]]:
+        self, config_etag: Optional[str] = None, last_modified: Optional[str] = None
+    ) -> Tuple[Optional[dict], Optional[str], Optional[str]]:
         """
         Get the config from the server. If the config_etag is provided, the server will only return the config if it
         has changed since the last request. If the config hasn't changed, the server will return a 304 Not Modified
         response.
 
         :param config_etag: The etag of the last config request
-
+        :param last_modified: Last modified RFC1123 Timestamp of the stored config
         :return: A tuple containing the config and the etag of the config. If the config hasn't changed since the last
         request, the config will be None and the etag will be the same as the last request.
         """
@@ -56,6 +56,8 @@ class ConfigAPIClient:
         headers = {}
         if config_etag:
             headers["If-None-Match"] = config_etag
+        if last_modified:
+            headers["If-Modified-Since"] = last_modified
 
         attempts = 1
         while retries_remaining > 0:
@@ -74,7 +76,7 @@ class ConfigAPIClient:
                 elif res.status_code == HTTPStatus.NOT_MODIFIED:
                     # the config hasn't changed since the last request
                     # don't return anything
-                    return None, config_etag
+                    return None, config_etag, last_modified
                 elif res.status_code == HTTPStatus.NOT_FOUND:
                     # Not a retryable error
                     raise NotFoundError(url)
@@ -113,6 +115,16 @@ class ConfigAPIClient:
             raise APIClientError(message="Retries exceeded", cause=request_error)
 
         new_etag = res.headers.get("ETag", None)
+        new_lastmodified = res.headers.get("Last-Modified", None)
+
+        if last_modified and new_lastmodified:
+            stored_lm = email.utils.parsedate_to_datetime(last_modified)
+            response_lm = email.utils.parsedate_to_datetime(new_lastmodified)
+            if stored_lm > response_lm:
+                logger.warning(
+                    "Request returned a last modified header older than the current stored timestamp. not saving config"
+                )
+                return None, None, None
 
         data: dict = res.json()
-        return data, new_etag
+        return data, new_etag, new_lastmodified
