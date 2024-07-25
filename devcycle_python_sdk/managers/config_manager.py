@@ -30,6 +30,7 @@ class EnvironmentConfigManager(threading.Thread):
 
         self._config: Optional[dict] = None
         self._config_etag: Optional[str] = None
+        self._config_lastmodified: Optional[str] = None
 
         self._config_api_client = ConfigAPIClient(self._sdk_key, self._options)
 
@@ -42,10 +43,14 @@ class EnvironmentConfigManager(threading.Thread):
 
     def _get_config(self):
         try:
-            new_config, new_etag = self._config_api_client.get_config(
-                config_etag=self._config_etag
+            new_config, new_etag, new_lastmodified = self._config_api_client.get_config(
+                config_etag=self._config_etag,
+                last_modified=self._config_lastmodified
             )
 
+            # Abort early if the last modified is before the sent one.
+            if new_config is None and new_etag is None and new_lastmodified is None:
+                return
             if new_config is None and new_etag == self._config_etag:
                 # api not returning data and the etag is the same
                 # no change to the config since last request
@@ -60,6 +65,7 @@ class EnvironmentConfigManager(threading.Thread):
 
             self._config = new_config
             self._config_etag = new_etag
+            self._config_lastmodified = new_lastmodified
 
             json_config = json.dumps(self._config)
             self._local_bucketing.store_config(json_config)
