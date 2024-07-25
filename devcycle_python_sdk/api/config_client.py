@@ -44,7 +44,7 @@ class ConfigAPIClient:
         response.
 
         :param config_etag: The etag of the last config request
-
+        :param last_modified: Last modified RFC1123 Timestamp of the stored config
         :return: A tuple containing the config and the etag of the config. If the config hasn't changed since the last
         request, the config will be None and the etag will be the same as the last request.
         """
