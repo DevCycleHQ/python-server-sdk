@@ -37,7 +37,7 @@ class ConfigAPIClient:
 
     def get_config(
         self, config_etag: Optional[str] = None, last_modified: Optional[str] = None
-    ) -> Tuple[Optional[dict], Optional[str]]:
+    ) -> Tuple[Optional[dict], Optional[str], Optional[str]]:
         """
         Get the config from the server. If the config_etag is provided, the server will only return the config if it
         has changed since the last request. If the config hasn't changed, the server will return a 304 Not Modified
