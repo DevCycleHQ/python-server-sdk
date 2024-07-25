@@ -2,7 +2,7 @@ import logging
 import time
 from http import HTTPStatus
 from typing import Optional, Tuple
-import email.utils, datetime
+import email.utils
 import requests
 
 from devcycle_python_sdk.api.backoff import exponential_backoff
