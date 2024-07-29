@@ -1,6 +1,6 @@
 setuptools >= 21.0.0
 urllib3 >= 1.15.1
 requests ~= 2.31
-wasmtime == 9.0.0
+wasmtime == 23.0.0
 protobuf >= 4.23.3
 openfeature-sdk >= 0.7.0
