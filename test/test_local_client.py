@@ -25,7 +25,7 @@ class DevCycleLocalClientTest(unittest.TestCase):
         self.test_config_json = small_config_json()
         self.test_etag = "2f71454e-3279-4ca7-a8e7-802ce97bef43"
 
-        config_url = "http://localhost/config/v1/server/" + self.sdk_key + ".json"
+        config_url = "http://localhost/config/v2/server/" + self.sdk_key + ".json"
 
         responses.add(
             responses.GET,
@@ -371,7 +371,7 @@ def test_benchmark_variable_call(benchmark):
     test_config_json = small_config_json()
     test_etag = "2f71454e-3279-4ca7-a8e7-802ce97bef43"
 
-    config_url = "http://localhost/config/v1/server/" + sdk_key + ".json"
+    config_url = "http://localhost/config/v2/server/" + sdk_key + ".json"
 
     responses.add(
         responses.GET,
