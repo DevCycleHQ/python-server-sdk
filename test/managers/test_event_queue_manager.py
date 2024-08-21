@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 class EventQueueManagerTest(unittest.TestCase):
     def setUp(self) -> None:
         self.sdk_key = "dvc_server_" + str(uuid.uuid4())
+        self.client_uuid = str(uuid.uuid4())
 
         # mock out the local bucketing to test event queue logic directly
         self.test_local_bucketing = MagicMock()
@@ -84,7 +85,7 @@ class EventQueueManagerTest(unittest.TestCase):
         self.test_local_bucketing.flush_event_queue.return_value = []
         self.test_options.event_flush_interval_ms = 100
         manager = EventQueueManager(
-            self.sdk_key, self.test_options, self.test_local_bucketing
+            self.sdk_key, self.client_uuid, self.test_options, self.test_local_bucketing
         )
         self.assertTrue(manager._should_run())
         self.assertTrue(manager.is_alive())
@@ -94,7 +95,7 @@ class EventQueueManagerTest(unittest.TestCase):
         self.test_local_bucketing.flush_event_queue.return_value = []
         self.test_options.event_flush_interval_ms = 100
         manager = EventQueueManager(
-            self.sdk_key, self.test_options, self.test_local_bucketing
+            self.sdk_key, self.client_uuid, self.test_options, self.test_local_bucketing
         )
 
         manager.close()
@@ -111,7 +112,10 @@ class EventQueueManagerTest(unittest.TestCase):
         mock_publish_events.side_effect = APIClientError("Some retryable error")
 
         manager = EventQueueManager(
-            self.sdk_key, self.test_options_no_thread, self.test_local_bucketing
+            self.sdk_key,
+            self.client_uuid,
+            self.test_options_no_thread,
+            self.test_local_bucketing,
         )
         manager._publish_event_payload(self.test_payload)
 
@@ -129,7 +133,10 @@ class EventQueueManagerTest(unittest.TestCase):
         )
 
         manager = EventQueueManager(
-            self.sdk_key, self.test_options_no_thread, self.test_local_bucketing
+            self.sdk_key,
+            self.client_uuid,
+            self.test_options_no_thread,
+            self.test_local_bucketing,
         )
         manager._publish_event_payload(self.test_payload)
 
@@ -146,7 +153,10 @@ class EventQueueManagerTest(unittest.TestCase):
         self.test_local_bucketing.flush_event_queue.return_value = []
 
         manager = EventQueueManager(
-            self.sdk_key, self.test_options_no_thread, self.test_local_bucketing
+            self.sdk_key,
+            self.client_uuid,
+            self.test_options_no_thread,
+            self.test_local_bucketing,
         )
         manager._flush_events()
 
@@ -158,7 +168,10 @@ class EventQueueManagerTest(unittest.TestCase):
         self.test_local_bucketing.flush_event_queue.return_value = [self.test_payload]
 
         manager = EventQueueManager(
-            self.sdk_key, self.test_options_no_thread, self.test_local_bucketing
+            self.sdk_key,
+            self.client_uuid,
+            self.test_options_no_thread,
+            self.test_local_bucketing,
         )
         result = manager._flush_events()
 
@@ -169,7 +182,10 @@ class EventQueueManagerTest(unittest.TestCase):
 
     def test_queue_event_bad_data(self):
         manager = EventQueueManager(
-            self.sdk_key, self.test_options_no_thread, self.test_local_bucketing
+            self.sdk_key,
+            self.client_uuid,
+            self.test_options_no_thread,
+            self.test_local_bucketing,
         )
         with self.assertRaises(ValueError):
             manager.queue_event(user=None, event=None)
@@ -188,7 +204,10 @@ class EventQueueManagerTest(unittest.TestCase):
         self.test_local_bucketing.get_event_queue_size.return_value = 1
 
         manager = EventQueueManager(
-            self.sdk_key, self.test_options_no_thread, self.test_local_bucketing
+            self.sdk_key,
+            self.client_uuid,
+            self.test_options_no_thread,
+            self.test_local_bucketing,
         )
         DevCycleUser(user_id="test_user_id")
         event = DevCycleEvent(
@@ -207,7 +226,10 @@ class EventQueueManagerTest(unittest.TestCase):
         self.test_options_no_thread.max_event_queue_size = 100
 
         manager = EventQueueManager(
-            self.sdk_key, self.test_options_no_thread, self.test_local_bucketing
+            self.sdk_key,
+            self.client_uuid,
+            self.test_options_no_thread,
+            self.test_local_bucketing,
         )
 
         # queue empty, no issues
@@ -231,7 +253,10 @@ class EventQueueManagerTest(unittest.TestCase):
 
     def test_queue_aggregate_event_bad_data(self):
         manager = EventQueueManager(
-            self.sdk_key, self.test_options_no_thread, self.test_local_bucketing
+            self.sdk_key,
+            self.client_uuid,
+            self.test_options_no_thread,
+            self.test_local_bucketing,
         )
         with self.assertRaises(ValueError):
             manager.queue_aggregate_event(event=None, bucketed_config=None)
@@ -252,7 +277,10 @@ class EventQueueManagerTest(unittest.TestCase):
         self.test_local_bucketing.get_event_queue_size.return_value = 1
 
         manager = EventQueueManager(
-            self.sdk_key, self.test_options_no_thread, self.test_local_bucketing
+            self.sdk_key,
+            self.client_uuid,
+            self.test_options_no_thread,
+            self.test_local_bucketing,
         )
         event = DevCycleEvent(
             type=EventType.AggVariableDefaulted,

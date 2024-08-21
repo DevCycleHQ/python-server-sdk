@@ -289,10 +289,13 @@ class LocalBucketing:
 
         return bytes(ret)
 
-    def init_event_queue(self, options_json: str) -> None:
+    def init_event_queue(self, client_uuid, options_json: str) -> None:
         with self.wasm_lock:
+            client_uuid_addr = self._new_assembly_script_string(client_uuid)
             options_addr = self._new_assembly_script_string(options_json)
-            self.initEventQueue(self.wasm_store, self.sdk_key_addr, options_addr)
+            self.initEventQueue(
+                self.wasm_store, self.sdk_key_addr, client_uuid_addr, options_addr
+            )
 
     def get_variable_for_user_protobuf(
         self, user: DevCycleUser, key: str, default_value: Any
