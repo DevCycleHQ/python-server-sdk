@@ -30,7 +30,7 @@ class ConfigAPIClientTest(unittest.TestCase):
             slash_join(
                 "https://config-cdn.devcycle.com/",
                 "config",
-                "v1",
+                "v2",
                 "server",
                 self.sdk_key,
             )

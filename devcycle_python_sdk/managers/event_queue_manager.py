@@ -31,6 +31,7 @@ class EventQueueManager(threading.Thread):
     def __init__(
         self,
         sdk_key: str,
+        client_uuid: str,
         options: DevCycleLocalOptions,
         local_bucketing: LocalBucketing,
     ):
@@ -49,7 +50,7 @@ class EventQueueManager(threading.Thread):
 
         # Setup the event queue inside the WASM module
         event_options_json = json.dumps(self._options.event_queue_options())
-        self._local_bucketing.init_event_queue(event_options_json)
+        self._local_bucketing.init_event_queue(client_uuid, event_options_json)
 
         # Only start event processing thread if event logging is enabled
         if not (

@@ -1,6 +1,7 @@
 import json
 import logging
 import unittest
+import uuid
 
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing, WASMAbortError
 from devcycle_python_sdk.models.bucketed_config import (
@@ -24,6 +25,7 @@ class LocalBucketingTest(unittest.TestCase):
     def setUp(self) -> None:
         self.test_sdk_key = "dvc_server_testkey"
         self.local_bucketing = LocalBucketing(self.test_sdk_key)
+        self.client_uuid = str(uuid.uuid4())
 
     def test_init(self):
         local_bucketing = LocalBucketing(self.test_sdk_key)
@@ -93,7 +95,7 @@ class LocalBucketingTest(unittest.TestCase):
         self.local_bucketing.store_config(small_config())
         platform_json = json.dumps(default_platform_data().to_json())
         self.local_bucketing.set_platform_data(platform_json)
-        self.local_bucketing.init_event_queue("{}")
+        self.local_bucketing.init_event_queue(self.client_uuid, "{}")
         user = DevCycleUser(user_id="test_user_id")
         result = self.local_bucketing.get_variable_for_user_protobuf(
             user=user, key="string-var", default_value="default value"
@@ -108,7 +110,7 @@ class LocalBucketingTest(unittest.TestCase):
         self.local_bucketing.store_config(special_character_config())
         platform_json = json.dumps(default_platform_data().to_json())
         self.local_bucketing.set_platform_data(platform_json)
-        self.local_bucketing.init_event_queue("{}")
+        self.local_bucketing.init_event_queue(self.client_uuid, "{}")
         user = DevCycleUser(user_id="test_user_id")
         result = self.local_bucketing.get_variable_for_user_protobuf(
             user=user, key="string-var", default_value="default value"
@@ -123,7 +125,7 @@ class LocalBucketingTest(unittest.TestCase):
         self.local_bucketing.store_config(small_config())
         platform_json = json.dumps(default_platform_data().to_json())
         self.local_bucketing.set_platform_data(platform_json)
-        self.local_bucketing.init_event_queue("{}")
+        self.local_bucketing.init_event_queue(self.client_uuid, "{}")
         user = DevCycleUser(user_id="test_user_id")
 
         # type mismatch is handled inside the WASM and will return
@@ -137,7 +139,7 @@ class LocalBucketingTest(unittest.TestCase):
         self.local_bucketing.store_config(small_config())
         platform_json = json.dumps(default_platform_data().to_json())
         self.local_bucketing.set_platform_data(platform_json)
-        self.local_bucketing.init_event_queue("{}")
+        self.local_bucketing.init_event_queue(self.client_uuid, "{}")
         user = DevCycleUser(user_id="test_user_id")
 
         result = self.local_bucketing.generate_bucketed_config(user=user)
@@ -265,7 +267,7 @@ class LocalBucketingTest(unittest.TestCase):
         self.local_bucketing.store_config(small_config())
         platform_json = json.dumps(default_platform_data().to_json())
         self.local_bucketing.set_platform_data(platform_json)
-        self.local_bucketing.init_event_queue("{}")
+        self.local_bucketing.init_event_queue(self.client_uuid, "{}")
 
         result = self.local_bucketing.get_event_queue_size()
         self.assertEqual(result, 0)
@@ -276,13 +278,14 @@ class LocalBucketingTest(unittest.TestCase):
         self.local_bucketing.set_platform_data(platform_json)
 
         self.local_bucketing.init_event_queue(
+            self.client_uuid,
             json.dumps(
                 {
                     "disableAutomaticEventLogging": False,
                     "disableCustomEventLogging": False,
                     "minEventsPerFlush": 1,
                 }
-            )
+            ),
         )
         results = self.local_bucketing.flush_event_queue()
         self.assertIsNotNone(results)
@@ -294,13 +297,14 @@ class LocalBucketingTest(unittest.TestCase):
         self.local_bucketing.set_platform_data(platform_json)
 
         self.local_bucketing.init_event_queue(
+            self.client_uuid,
             json.dumps(
                 {
                     "disableAutomaticEventLogging": False,
                     "disableCustomEventLogging": False,
                     "minEventsPerFlush": 1,
                 }
-            )
+            ),
         )
 
         # trigger two events for a single user
@@ -326,13 +330,14 @@ class LocalBucketingTest(unittest.TestCase):
         self.local_bucketing.set_platform_data(platform_json)
 
         self.local_bucketing.init_event_queue(
+            self.client_uuid,
             json.dumps(
                 {
                     "disableAutomaticEventLogging": False,
                     "disableCustomEventLogging": False,
                     "minEventsPerFlush": 1,
                 }
-            )
+            ),
         )
 
         with self.assertRaises(WASMAbortError):
@@ -344,13 +349,14 @@ class LocalBucketingTest(unittest.TestCase):
         self.local_bucketing.set_platform_data(platform_json)
 
         self.local_bucketing.init_event_queue(
+            self.client_uuid,
             json.dumps(
                 {
                     "disableAutomaticEventLogging": False,
                     "disableCustomEventLogging": False,
                     "minEventsPerFlush": 1,
                 }
-            )
+            ),
         )
 
         with self.assertRaises(WASMAbortError):
@@ -360,7 +366,7 @@ class LocalBucketingTest(unittest.TestCase):
         self.local_bucketing.store_config(small_config())
         platform_json = json.dumps(default_platform_data().to_json())
         self.local_bucketing.set_platform_data(platform_json)
-        self.local_bucketing.init_event_queue("{}")
+        self.local_bucketing.init_event_queue(self.client_uuid, "{}")
         user = DevCycleUser(user_id="test_user_id")
         event = DevCycleEvent(
             type=EventType.CustomEvent,
@@ -376,7 +382,7 @@ class LocalBucketingTest(unittest.TestCase):
         self.local_bucketing.store_config(small_config())
         platform_json = json.dumps(default_platform_data().to_json())
         self.local_bucketing.set_platform_data(platform_json)
-        self.local_bucketing.init_event_queue("{}")
+        self.local_bucketing.init_event_queue(self.client_uuid, "{}")
 
         event = DevCycleEvent(
             type=EventType.AggVariableDefaulted,

@@ -1,5 +1,6 @@
 import json
 import logging
+import uuid
 from numbers import Real
 from typing import Any, Dict, Union
 
@@ -28,6 +29,7 @@ class DevCycleLocalClient(AbstractDevCycleClient):
     def __init__(self, sdk_key: str, options: DevCycleLocalOptions):
         _validate_sdk_key(sdk_key)
         self._sdk_key = sdk_key
+        self.client_uuid = str(uuid.uuid4())
 
         if options is None:
             self.options: DevCycleLocalOptions = DevCycleLocalOptions()
@@ -45,7 +47,7 @@ class DevCycleLocalClient(AbstractDevCycleClient):
             sdk_key, self.options, self.local_bucketing
         )
         self.event_queue_manager: EventQueueManager = EventQueueManager(
-            sdk_key, self.options, self.local_bucketing
+            sdk_key, self.client_uuid, self.options, self.local_bucketing
         )
 
         self._openfeature_provider = DevCycleProvider(self)
