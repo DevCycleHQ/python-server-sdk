@@ -2,7 +2,7 @@ name: Run Test Harness
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   harness-tests:
@@ -10,8 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: DevCycleHQ/test-harness@main
+        env:
+          SDK_CAPABILITIES: '["clientCustomData","v2Config"]'
         with:
           sdks-to-test: python
           sdk-github-sha: ${{github.event.pull_request.head.sha}}
           github-token: ${{ secrets.TEST_HARNESS_GH_SECRET }}
-
