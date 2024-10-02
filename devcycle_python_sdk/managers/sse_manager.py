@@ -1,30 +1,37 @@
-import requests
-import sseclient
+import ld_eventsource
+import ld_eventsource.actions
+import ld_eventsource.config
 
+from threading import Thread
 
 class SSEManager:
-    def __init__(self, url):
+    def __init__(self, url, handlestate: callable(ld_eventsource.actions.Start),
+                 handleerror: callable(ld_eventsource.actions.Fault),
+                 handlemessage: callable(ld_eventsource.actions.Event)):
         self.url = url
-        self.stream = requests.get(self.url, stream=True)
-        self.client: sseclient.SSEClient = sseclient.SSEClient(self.stream)
+        self.client: ld_eventsource.SSEClient = ld_eventsource.SSEClient(
+            connect=ld_eventsource.config.ConnectStrategy.http(url),
+            error_strategy=ld_eventsource.config.ErrorStrategy.always_continue(),
 
-    def open_stream(self, url):
-        self.url = url
-        self.stream = requests.get(self.url, stream=True)
-        return self.stream
+        )
+        self.handlestate = handlestate
+        self.handleerror = handleerror
+        self.handlemessage = handlemessage
 
-    def open_stream_with_sseclient(self):
-        self.client = sseclient.SSEClient(self.stream, char_enc='utf-8')
-        return self.client
+        read_thread = Thread(target=self.read_events, args=(handlestate, handleerror, handlemessage))
+        read_thread.start()
 
-    def read_events(self, handlestate: callable(sseclient.Event), handleerror: callable(sseclient.Event),
-                    handlemessage: callable(sseclient.Event)):
-        for event in self.client.events():
-            if event.event == 'state':
+    def read_events(self,
+                    handlestate: callable(ld_eventsource.actions.Start),
+                    handleerror: callable(ld_eventsource.actions.Fault),
+                    handlemessage: callable(ld_eventsource.actions.Event)):
+        self.client.start()
+        for event in self.client.all:
+            if isinstance(event, ld_eventsource.actions.Start):
                 handlestate(event)
-            elif event.event == 'error':
+            elif isinstance(event, ld_eventsource.actions.Fault):
                 handleerror(event)
-            elif event.event == 'message':
+            elif isinstance(event, ld_eventsource.actions.Event):
                 handlemessage(event)
             else:
                 print(event)
