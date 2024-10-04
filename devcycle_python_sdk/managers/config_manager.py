@@ -1,18 +1,18 @@
+import json
+import logging
 import threading
 import time
-import logging
-import json
 from typing import Optional
 
 import ld_eventsource.actions
 
-from devcycle_python_sdk.options import DevCycleLocalOptions
-from devcycle_python_sdk.api.local_bucketing import LocalBucketing
 from devcycle_python_sdk.api.config_client import ConfigAPIClient
+from devcycle_python_sdk.api.local_bucketing import LocalBucketing
 from devcycle_python_sdk.exceptions import (
     CloudClientUnauthorizedError,
     CloudClientError,
 )
+from devcycle_python_sdk.options import DevCycleLocalOptions
 from managers.sse_manager import SSEManager
 
 logger = logging.getLogger(__name__)
@@ -20,10 +20,10 @@ logger = logging.getLogger(__name__)
 
 class EnvironmentConfigManager(threading.Thread):
     def __init__(
-        self,
-        sdk_key: str,
-        options: DevCycleLocalOptions,
-        local_bucketing: LocalBucketing,
+            self,
+            sdk_key: str,
+            options: DevCycleLocalOptions,
+            local_bucketing: LocalBucketing,
     ):
         super().__init__()
 
@@ -31,6 +31,8 @@ class EnvironmentConfigManager(threading.Thread):
         self._options = options
         self._local_bucketing = local_bucketing
         self._sse_manager: SSEManager = None
+        self._sse_polling_interval = 1000 * 60 * 15
+        self._sse_connected = False
         self._config: Optional[dict] = None
         self._config_etag: Optional[str] = None
         self._config_lastmodified: Optional[str] = None
@@ -80,8 +82,8 @@ class EnvironmentConfigManager(threading.Thread):
             self._sse_manager.update(self._config)
 
             if (
-                trigger_on_client_initialized
-                and self._options.on_client_initialized is not None
+                    trigger_on_client_initialized
+                    and self._options.on_client_initialized is not None
             ):
                 try:
                     self._options.on_client_initialized()
@@ -108,20 +110,26 @@ class EnvironmentConfigManager(threading.Thread):
                     logger.warning(
                         f"DevCycle: Error polling for config changes: {str(e)}"
                     )
-            time.sleep(self._options.config_polling_interval_ms / 1000.0)
+            if self._sse_connected:
+                time.sleep(self._sse_polling_interval / 1000.0)
+            else:
+                time.sleep(self._options.config_polling_interval_ms / 1000.0)
 
     def sse_message(self, message: ld_eventsource.actions.Event):
+        if self._sse_connected is False:
+            self._sse_connected = True
+            logger.info("DevCycle: Connected to SSE stream")
         logger.info(f"DevCycle: Received message: {message.data}")
-        pass
+        sse_message = json.loads(message.data)
+        if sse_message.get("type") == "refetchConfig" or sse_message.get("type") == "":
+            self._get_config()
 
     def sse_error(self, error: ld_eventsource.actions.Fault):
-        logger.warning(f"DevCycle: Received error: {error}")
-        pass
+        logger.warning(f"DevCycle: Received SSE error: {error}")
 
     def sse_state(self, state: ld_eventsource.actions.Start):
-        logger.info(f"DevCycle: Received state: {state}")
-
-        pass
+        self._sse_connected = True
+        logger.info("DevCycle: Connected to SSE stream")
 
     def close(self):
         self._polling_enabled = False

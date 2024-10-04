@@ -30,8 +30,6 @@ class SSEManager:
                 handleerror(event)
             elif isinstance(event, ld_eventsource.actions.Event):
                 handlemessage(event)
-            else:
-                print(event)
 
     def update(self, config: dict):
         if self.use_new_config(config['sse']):
