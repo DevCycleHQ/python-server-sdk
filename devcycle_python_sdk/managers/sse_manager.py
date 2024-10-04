@@ -1,25 +1,22 @@
+import threading
+
 import ld_eventsource
 import ld_eventsource.actions
 import ld_eventsource.config
 
-from threading import Thread
 
 class SSEManager:
-    def __init__(self, url, handlestate: callable(ld_eventsource.actions.Start),
+    def __init__(self, handlestate: callable(ld_eventsource.actions.Start),
                  handleerror: callable(ld_eventsource.actions.Fault),
                  handlemessage: callable(ld_eventsource.actions.Event)):
-        self.url = url
-        self.client: ld_eventsource.SSEClient = ld_eventsource.SSEClient(
-            connect=ld_eventsource.config.ConnectStrategy.http(url),
-            error_strategy=ld_eventsource.config.ErrorStrategy.always_continue(),
-
-        )
+        self.client: ld_eventsource.SSEClient = None
+        self.url = ""
         self.handlestate = handlestate
         self.handleerror = handleerror
         self.handlemessage = handlemessage
 
-        read_thread = Thread(target=self.read_events, args=(handlestate, handleerror, handlemessage))
-        read_thread.start()
+        self.read_thread = threading.Thread(target=self.read_events,
+                                            args=(self.handlestate, self.handleerror, self.handlemessage))
 
     def read_events(self,
                     handlestate: callable(ld_eventsource.actions.Start),
@@ -35,3 +32,24 @@ class SSEManager:
                 handlemessage(event)
             else:
                 print(event)
+
+    def update(self, config: dict):
+        if self.use_new_config(config['sse']):
+            self.url = config['sse']['hostname'] + config['sse']['path']
+            if self.client is not None:
+                self.client.close()
+            if self.read_thread.is_alive():
+                self.read_thread.join()
+            self.client = ld_eventsource.SSEClient(
+                connect=ld_eventsource.config.ConnectStrategy.http(self.url),
+                error_strategy=ld_eventsource.config.ErrorStrategy.CONTINUE,
+            )
+            self.read_thread = threading.Thread(target=self.read_events,
+                                                args=(self.handlestate, self.handleerror, self.handlemessage))
+            self.read_thread.start()
+
+    def use_new_config(self, config: dict) -> bool:
+        new_url = config['hostname'] + config['path']
+        if self.url == "" or self.url is None and new_url != "":
+            return True
+        return self.url != new_url

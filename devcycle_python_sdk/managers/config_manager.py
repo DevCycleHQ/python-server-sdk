@@ -4,6 +4,8 @@ import logging
 import json
 from typing import Optional
 
+import ld_eventsource.actions
+
 from devcycle_python_sdk.options import DevCycleLocalOptions
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
 from devcycle_python_sdk.api.config_client import ConfigAPIClient
@@ -11,6 +13,7 @@ from devcycle_python_sdk.exceptions import (
     CloudClientUnauthorizedError,
     CloudClientError,
 )
+from managers.sse_manager import SSEManager
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +30,7 @@ class EnvironmentConfigManager(threading.Thread):
         self._sdk_key = sdk_key
         self._options = options
         self._local_bucketing = local_bucketing
-
+        self._sse_manager: SSEManager = None
         self._config: Optional[dict] = None
         self._config_etag: Optional[str] = None
         self._config_lastmodified: Optional[str] = None
@@ -68,6 +71,13 @@ class EnvironmentConfigManager(threading.Thread):
 
             json_config = json.dumps(self._config)
             self._local_bucketing.store_config(json_config)
+            if self._sse_manager is None:
+                self._sse_manager = SSEManager(
+                    self.sse_state,
+                    self.sse_error,
+                    self.sse_message,
+                )
+            self._sse_manager.update(self._config)
 
             if (
                 trigger_on_client_initialized
@@ -99,6 +109,19 @@ class EnvironmentConfigManager(threading.Thread):
                         f"DevCycle: Error polling for config changes: {str(e)}"
                     )
             time.sleep(self._options.config_polling_interval_ms / 1000.0)
+
+    def sse_message(self, message: ld_eventsource.actions.Event):
+        logger.info(f"DevCycle: Received message: {message.data}")
+        pass
+
+    def sse_error(self, error: ld_eventsource.actions.Fault):
+        logger.warning(f"DevCycle: Received error: {error}")
+        pass
+
+    def sse_state(self, state: ld_eventsource.actions.Start):
+        logger.info(f"DevCycle: Received state: {state}")
+
+        pass
 
     def close(self):
         self._polling_enabled = False
