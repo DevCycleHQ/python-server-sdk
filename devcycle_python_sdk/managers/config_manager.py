@@ -22,10 +22,10 @@ logger = logging.getLogger(__name__)
 
 class EnvironmentConfigManager(threading.Thread):
     def __init__(
-            self,
-            sdk_key: str,
-            options: DevCycleLocalOptions,
-            local_bucketing: LocalBucketing,
+        self,
+        sdk_key: str,
+        options: DevCycleLocalOptions,
+        local_bucketing: LocalBucketing,
     ):
         super().__init__()
 
@@ -90,8 +90,8 @@ class EnvironmentConfigManager(threading.Thread):
                 self._sse_manager.update(self._config)
 
             if (
-                    trigger_on_client_initialized
-                    and self._options.on_client_initialized is not None
+                trigger_on_client_initialized
+                and self._options.on_client_initialized is not None
             ):
                 try:
                     self._options.on_client_initialized()
@@ -130,7 +130,11 @@ class EnvironmentConfigManager(threading.Thread):
         logger.info(f"DevCycle: Received message: {message.data}")
         sse_message = json.loads(message.data)
         dvc_data = json.loads(sse_message.get("data"))
-        if dvc_data.get("type") == "refetchConfig" or dvc_data.get("type") == "" or dvc_data.get("type") is None:
+        if (
+            dvc_data.get("type") == "refetchConfig"
+            or dvc_data.get("type") == ""
+            or dvc_data.get("type") is None
+        ):
             logger.info("DevCycle: Received refetchConfig message - updating config")
             self._get_config(dvc_data["lastModified"])
 

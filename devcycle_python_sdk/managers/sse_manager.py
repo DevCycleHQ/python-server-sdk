@@ -6,22 +6,29 @@ import ld_eventsource.config
 
 
 class SSEManager:
-    def __init__(self, handlestate: callable(ld_eventsource.actions.Start),
-                 handleerror: callable(ld_eventsource.actions.Fault),
-                 handlemessage: callable(ld_eventsource.actions.Event)):
+    def __init__(
+        self,
+        handlestate: callable(ld_eventsource.actions.Start),
+        handleerror: callable(ld_eventsource.actions.Fault),
+        handlemessage: callable(ld_eventsource.actions.Event),
+    ):
         self.client: ld_eventsource.SSEClient = None
         self.url = ""
         self.handlestate = handlestate
         self.handleerror = handleerror
         self.handlemessage = handlemessage
 
-        self.read_thread = threading.Thread(target=self.read_events,
-                                            args=(self.handlestate, self.handleerror, self.handlemessage))
+        self.read_thread = threading.Thread(
+            target=self.read_events,
+            args=(self.handlestate, self.handleerror, self.handlemessage),
+        )
 
-    def read_events(self,
-                    handlestate: callable(ld_eventsource.actions.Start),
-                    handleerror: callable(ld_eventsource.actions.Fault),
-                    handlemessage: callable(ld_eventsource.actions.Event)):
+    def read_events(
+        self,
+        handlestate: callable(ld_eventsource.actions.Start),
+        handleerror: callable(ld_eventsource.actions.Fault),
+        handlemessage: callable(ld_eventsource.actions.Event),
+    ):
         self.client.start()
         for event in self.client.all:
             if isinstance(event, ld_eventsource.actions.Start):
@@ -32,8 +39,8 @@ class SSEManager:
                 handlemessage(event)
 
     def update(self, config: dict):
-        if self.use_new_config(config['sse']):
-            self.url = config['sse']['hostname'] + config['sse']['path']
+        if self.use_new_config(config["sse"]):
+            self.url = config["sse"]["hostname"] + config["sse"]["path"]
             if self.client is not None:
                 self.client.close()
             if self.read_thread.is_alive():
@@ -42,12 +49,14 @@ class SSEManager:
                 connect=ld_eventsource.config.ConnectStrategy.http(self.url),
                 error_strategy=ld_eventsource.config.ErrorStrategy.CONTINUE,
             )
-            self.read_thread = threading.Thread(target=self.read_events,
-                                                args=(self.handlestate, self.handleerror, self.handlemessage))
+            self.read_thread = threading.Thread(
+                target=self.read_events,
+                args=(self.handlestate, self.handleerror, self.handlemessage),
+            )
             self.read_thread.start()
 
     def use_new_config(self, config: dict) -> bool:
-        new_url = config['hostname'] + config['path']
+        new_url = config["hostname"] + config["path"]
         if self.url == "" or self.url is None and new_url != "":
             return True
         return self.url != new_url
