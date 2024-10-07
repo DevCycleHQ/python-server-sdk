@@ -15,7 +15,7 @@ from devcycle_python_sdk.exceptions import (
 )
 from wsgiref.handlers import format_date_time
 from devcycle_python_sdk.options import DevCycleLocalOptions
-from managers.sse_manager import SSEManager
+from devcycle_python_sdk.managers.sse_manager import SSEManager
 
 logger = logging.getLogger(__name__)
 
