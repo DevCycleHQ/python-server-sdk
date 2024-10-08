@@ -3,14 +3,15 @@ import threading
 import ld_eventsource
 import ld_eventsource.actions
 import ld_eventsource.config
+from typing import Callable
 
 
 class SSEManager:
     def __init__(
-        self,
-        handlestate: callable(ld_eventsource.actions.Start),
-        handleerror: callable(ld_eventsource.actions.Fault),
-        handlemessage: callable(ld_eventsource.actions.Event),
+            self,
+            handlestate: Callable[[ld_eventsource.actions.Start], None],
+            handleerror: Callable[[ld_eventsource.actions.Fault], None],
+            handlemessage: Callable[[ld_eventsource.actions.Event], None],
     ):
         self.client: ld_eventsource.SSEClient = None
         self.url = ""
@@ -24,10 +25,10 @@ class SSEManager:
         )
 
     def read_events(
-        self,
-        handlestate: callable(ld_eventsource.actions.Start),
-        handleerror: callable(ld_eventsource.actions.Fault),
-        handlemessage: callable(ld_eventsource.actions.Event),
+            self,
+            handlestate: Callable[[ld_eventsource.actions.Start], None],
+            handleerror: Callable[[ld_eventsource.actions.Fault], None],
+            handlemessage: Callable[[ld_eventsource.actions.Event], None],
     ):
         self.client.start()
         for event in self.client.all:
