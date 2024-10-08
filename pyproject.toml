@@ -29,6 +29,12 @@ module = 'test.openfeature.*'
 ignore_errors = true
 
 [[tool.mypy.overrides]]
+module = 'ld_eventsource.*'
+ignore_errors = true
+ignore_missing_imports = true
+
+
+[[tool.mypy.overrides]]
 module = 'openfeature.*'
 ignore_errors = true
 ignore_missing_imports = true
