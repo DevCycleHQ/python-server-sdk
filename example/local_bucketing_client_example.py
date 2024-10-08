@@ -69,7 +69,6 @@ def main():
             date=datetime.datetime.now(),
         )
         client.track(user, event)
-        time.sleep(1000)
     except Exception as e:
         logger.exception(f"Exception when calling DevCycle API: {e}")
     finally:
