@@ -32,7 +32,7 @@ class EnvironmentConfigManager(threading.Thread):
         self._sdk_key = sdk_key
         self._options = options
         self._local_bucketing = local_bucketing
-        self._sse_manager: SSEManager = None
+        self._sse_manager: Optional[SSEManager] = None
         self._sse_polling_interval = 1000 * 60 * 15 * 60
         self._sse_connected = False
         self._config: Optional[dict] = None
