@@ -21,7 +21,7 @@ def main():
 
     # create an instance of the DevCycle Client object
     server_sdk_key = os.environ["DEVCYCLE_SERVER_SDK_KEY"]
-    options = DevCycleLocalOptions()
+    options = DevCycleLocalOptions(enable_beta_realtime_updates=True)
     client = DevCycleLocalClient(server_sdk_key, options)
 
     # Wait for DevCycle to initialize and load the configuration
@@ -69,6 +69,7 @@ def main():
             date=datetime.datetime.now(),
         )
         client.track(user, event)
+        time.sleep(1000)
     except Exception as e:
         logger.exception(f"Exception when calling DevCycle API: {e}")
     finally:
