@@ -73,7 +73,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install twine wheel
+          pip install twine wheel setuptools
 
       - name: Build and validate package
         run: |
