@@ -29,6 +29,10 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+
     strategy:
       matrix:
         python-version: [ "3.12" ]
@@ -54,7 +58,7 @@ jobs:
 
       - name: Commit version change
         run: |
-          git config --global user.email "github-tracker-bot@taplytics.com"
+          git config --global user.email "foundation-admin@devcycle.com"
           git config --global user.name "DevCycle Automation"
           git add ./devcycle_python_sdk/VERSION.txt
           git commit -m "Release ${{steps.prepare-release.outputs.next-release-tag}}"
@@ -81,11 +85,7 @@ jobs:
           twine check dist/*
 
       - name: Upload build package to PyPI
-        run: |
-          twine upload --non-interactive dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        uses: pypa/gh-action-pypi-publish@release/v1
         if: inputs.prerelease != true && inputs.draft != true
 
       - uses: DevCycleHQ/release-action/create-release@v2.3.0
