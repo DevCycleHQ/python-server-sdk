@@ -129,7 +129,7 @@ class DevCycleUserTest(unittest.TestCase):
                 "strValue": "hello",
                 "intValue": 123,
                 "floatValue": 3.1456,
-                "boolValue": True,
+                "boolValue": False,
             },
         )
         user = DevCycleUser.create_user_from_context(context)
@@ -143,7 +143,7 @@ class DevCycleUserTest(unittest.TestCase):
                 "strValue": "hello",
                 "intValue": 123,
                 "floatValue": 3.1456,
-                "boolValue": True,
+                "boolValue": False,
             },
         )
         self.assertEqual(user.privateCustomData, None)
