@@ -125,7 +125,7 @@ class DevCycleUser:
                 if key == "user_id":
                     continue
 
-                if value:
+                if value is not None:
                     if key == "email" and isinstance(value, str):
                         user.email = value
                     elif key == "name" and isinstance(value, str):
