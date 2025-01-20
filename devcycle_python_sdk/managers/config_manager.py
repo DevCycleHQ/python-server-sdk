@@ -80,7 +80,7 @@ class EnvironmentConfigManager(threading.Thread):
 
             json_config = json.dumps(self._config)
             self._local_bucketing.store_config(json_config)
-            if self._options.enable_beta_realtime_updates:
+            if not self._options.disable_realtime_updates:
                 if self._sse_manager is None:
                     self._sse_manager = SSEManager(
                         self.sse_state,

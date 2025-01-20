@@ -71,3 +71,4 @@ target/
 benchmark.json
 
 pip-wheel-metadata/
+.venv/
