@@ -40,7 +40,7 @@ class DevCycleLocalClientTest(unittest.TestCase):
             config_cdn_uri="http://localhost/",
             disable_custom_event_logging=True,
             disable_automatic_event_logging=True,
-            disable_realtime_updates=True
+            disable_realtime_updates=True,
         )
         self.test_user = DevCycleUser(user_id="test_user_id")
         self.test_user_empty_id = DevCycleUser(user_id="")
