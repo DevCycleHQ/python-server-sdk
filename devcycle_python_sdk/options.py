@@ -46,6 +46,7 @@ class DevCycleLocalOptions:
         disable_automatic_event_logging: bool = False,
         disable_custom_event_logging: bool = False,
         enable_beta_realtime_updates: bool = False,
+        disable_realtime_updates: bool = False,
     ):
         self.events_api_uri = events_api_uri
         self.config_cdn_uri = config_cdn_uri
@@ -61,7 +62,12 @@ class DevCycleLocalOptions:
         self.on_client_initialized = on_client_initialized
         self.event_request_timeout_ms = event_request_timeout_ms
         self.event_retry_delay_ms = event_retry_delay_ms
-        self.enable_beta_realtime_updates = enable_beta_realtime_updates
+        self.disable_realtime_updates = disable_realtime_updates
+
+        if enable_beta_realtime_updates:
+            logger.warning(
+                "DevCycle: `enable_beta_realtime_updates` is deprecated and will be removed in a future release.",
+            )
 
         if self.flush_event_queue_size >= self.max_event_queue_size:
             logger.warning(
