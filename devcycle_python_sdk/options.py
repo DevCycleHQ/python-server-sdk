@@ -66,7 +66,7 @@ class DevCycleLocalOptions:
 
         if enable_beta_realtime_updates:
             logger.warning(
-                f"DevCycle: `enable_beta_realtime_updates` is deprecated and will be removed in a future release.",
+                "DevCycle: `enable_beta_realtime_updates` is deprecated and will be removed in a future release.",
             )
 
         if self.flush_event_queue_size >= self.max_event_queue_size:
