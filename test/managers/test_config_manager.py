@@ -19,7 +19,7 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
     def setUp(self) -> None:
         self.sdk_key = "dvc_server_" + str(uuid.uuid4())
         self.test_local_bucketing = MagicMock()
-        self.test_options = DevCycleLocalOptions(config_polling_interval_ms=500)
+        self.test_options = DevCycleLocalOptions(config_polling_interval_ms=500, disable_realtime_updates=True)
 
         now = datetime.now()
         stamp = mktime(now.timetuple())
