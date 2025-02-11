@@ -136,7 +136,7 @@ class EnvironmentConfigManager(threading.Thread):
             or dvc_data.get("type") is None
         ):
             logger.info("DevCycle: Received refetchConfig message - updating config")
-            self._get_config(dvc_data["lastModified"])
+            self._get_config(dvc_data["lastModified"] / 1000.0)
 
     def sse_error(self, error: ld_eventsource.actions.Fault):
         logger.warning(f"DevCycle: Received SSE error: {error}")
