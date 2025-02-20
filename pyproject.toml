@@ -5,12 +5,12 @@ addopts = "--benchmark-skip --showlocals"
 
 # black options
 [tool.black]
-target-version = ['py38']
+target-version = ['py39']
 extend-exclude = '_pb2\.pyi?$'
 
 # mypy options
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"
 exclude = "django-app"
 
 # See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-library-stubs-or-py-typed-marker
