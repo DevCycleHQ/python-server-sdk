@@ -27,7 +27,7 @@ def main():
     client = DevCycleLocalClient(server_sdk_key, options)
     logger.info("Got DevCycle client")
 
-# Wait for DevCycle to initialize and load the configuration
+    # Wait for DevCycle to initialize and load the configuration
     for i in range(10):
         if client.is_initialized():
             break
