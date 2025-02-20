@@ -24,6 +24,7 @@ setup(
     url="https://github.com/devcycleHQ/python-server-sdk",
     keywords=["DevCycle"],
     install_requires=REQUIRES,
+    python_requires=">=3.8",
     packages=find_packages(),
     package_data={
         "": ["VERSION.txt"],
