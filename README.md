@@ -4,7 +4,7 @@ The DevCycle Python SDK used for feature management.
 
 This SDK allows your application to interface with the [DevCycle Bucketing API](https://docs.devcycle.com/bucketing-api/#tag/devcycle).
 
-## Requirements.
+## Requirements
 
 * Python 3.8+
 
@@ -13,6 +13,7 @@ This SDK allows your application to interface with the [DevCycle Bucketing API](
 ```sh
 pip install devcycle-python-server-sdk
 ```
+
 (you may need to run `pip` with root permission: `sudo pip install devcycle-python-server-sdk`)
 
 ## Getting Started
@@ -65,38 +66,47 @@ When developing the SDK it is recommended that you have both a 3.8 and 3.12 pyth
 ### Dependencies
 
 To set up dependencies for local development, run:
-```
+
+```bash
 pip install -r requirements.test.txt
 ```
 
 To run the example app against the local version of the API for testing and development, run:
-```sh
+
+```bash
 pip install --editable .
 ```
-from the top level of the repo (same level as setup.py). Then run the example app as normal.
 
+from the top level of the repo (same level as setup.py). Then run the example app as normal:
+
+```bash
+python example/local_bucketing_client_example.py
+```
 
 ### Linting & Formatting
 
 Linting checks on PRs are run using [ruff](https://github.com/charliermarsh/ruff), and are configured using `.ruff.toml`. To run the linter locally, run this command from the top level of the repo:
-```
+
+```bash
 ruff check .
 ```
 
 Ruff can automatically fix simple linting errors (the ones marked with `[*]`). To do so, run:
-```
+
+```bash
 ruff check . --fix
 ```
 
 Formatting checks on PRs are done using [black](https://github.com/psf/black). To run the formatter locally, run this command from the top level of the repo:
 
-```
+```bash
 black .
 ```
 
 ### Unit Tests
 
 To run the unit tests, run:
+
 ```bash
 pytest
 ```
@@ -104,6 +114,7 @@ pytest
 ### Benchmarks
 
 To run the benchmarks, run:
+
 ```bash
 pytest --benchmark-only
 ```
