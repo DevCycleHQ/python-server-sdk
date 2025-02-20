@@ -6,7 +6,7 @@ This SDK allows your application to interface with the [DevCycle Bucketing API](
 
 ## Requirements
 
-* Python 3.8+
+* Python 3.9+
 
 ## Installation
 
