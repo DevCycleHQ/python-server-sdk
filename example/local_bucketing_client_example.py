@@ -18,14 +18,11 @@ def main():
     For a Django specific sample app, please see https://github.com/DevCycleHQ/python-django-example-app/
     """
     logging.basicConfig(level="INFO", format="%(levelname)s: %(message)s")
-    logger.info("Starting DevCycle client initialization...")
 
     # create an instance of the DevCycle Client object
     server_sdk_key = os.environ["DEVCYCLE_SERVER_SDK_KEY"]
-    logger.info("Creating DevCycle client with key: %s", server_sdk_key)
     options = DevCycleLocalOptions()
     client = DevCycleLocalClient(server_sdk_key, options)
-    logger.info("Got DevCycle client")
 
     # Wait for DevCycle to initialize and load the configuration
     for i in range(10):
@@ -37,7 +34,6 @@ def main():
         logger.error("DevCycle failed to initialize")
         exit(1)
 
-    logger.info("DevCycle initialized, setting up user")
     user = DevCycleUser(user_id="test-1234", email="test-user@domain.com", country="US")
 
     # Use variable_value to access the value of a variable directly
