@@ -6,11 +6,11 @@ from devcycle_python_sdk import AbstractDevCycleClient
 from devcycle_python_sdk.models.user import DevCycleUser
 
 from openfeature.provider import AbstractProvider
+from openfeature.provider.metadata import Metadata
 from openfeature.evaluation_context import EvaluationContext
 from openfeature.flag_evaluation import FlagResolutionDetails, Reason
 from openfeature.exception import ErrorCode, InvalidContextError, TypeMismatchError
 from openfeature.hook import Hook
-from openfeature.provider.metadata import Metadata
 
 logger = logging.getLogger(__name__)
 
