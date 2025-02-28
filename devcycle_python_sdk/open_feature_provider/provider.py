@@ -30,13 +30,13 @@ class DevCycleProvider(AbstractProvider):
     def initialize(self, evaluation_context: EvaluationContext) -> None:
         timeout = 2
         start_time = time.time()
-        
+
         # Wait for the client to be initialized or timeout
         while not self.client.is_initialized():
             if time.time() - start_time > timeout:
                 raise GeneralError(f"DevCycleProvider initialization timed out after {timeout} seconds")
             time.sleep(0.1)  # Sleep briefly to avoid busy waiting
-        
+
         if self.client.is_initialized():
             logger.debug("DevCycleProvider initialized successfully")
 
