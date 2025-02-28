@@ -16,7 +16,7 @@ class DevCycleUser:
     appVersion: Optional[str] = None
     appBuild: Optional[str] = None
     customData: Optional[Dict[str, Any]] = None
-    createdDate: datetime = field(default_factory=lambda: datetime.utcnow())
+    createdDate: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     privateCustomData: Optional[Dict[str, Any]] = None
     lastSeenDate: Optional[datetime] = None
     platform: Optional[str] = None
@@ -51,7 +51,7 @@ class DevCycleUser:
                 data["createdDate"].replace("Z", "+00:00")
             )
         else:
-            created_date = datetime.utcnow()
+            created_date = datetime.now(timezone.utc)
 
         last_seen_date = None
         if "lastSeenDate" in data:
