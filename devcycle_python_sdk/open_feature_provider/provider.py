@@ -47,7 +47,7 @@ class DevCycleProvider(AbstractProvider):
         return self.meta_data
 
     def get_provider_hooks(self) -> List[Hook]:
-        return []        
+        return []
 
     def _resolve(
         self,
