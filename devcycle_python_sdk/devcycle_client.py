@@ -38,3 +38,10 @@ class AbstractDevCycleClient:
     @abstractmethod
     def get_sdk_platform(self) -> str:
         pass
+
+    @abstractmethod
+    def close(self) -> None:
+        """
+        Closes the client and releases any resources held by it.
+        """
+        pass

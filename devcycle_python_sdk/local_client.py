@@ -2,7 +2,7 @@ import json
 import logging
 import uuid
 from numbers import Real
-from typing import Any, Dict, Union
+from typing import Any, Dict, Union, Optional
 
 from devcycle_python_sdk import DevCycleLocalOptions, AbstractDevCycleClient
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
@@ -50,7 +50,7 @@ class DevCycleLocalClient(AbstractDevCycleClient):
             sdk_key, self.client_uuid, self.options, self.local_bucketing
         )
 
-        self._openfeature_provider = None
+        self._openfeature_provider: Optional[DevCycleProvider] = None
 
     def get_sdk_platform(self) -> str:
         return "Local"

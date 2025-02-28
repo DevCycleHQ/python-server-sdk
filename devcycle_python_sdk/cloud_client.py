@@ -182,6 +182,13 @@ class DevCycleCloudClient(AbstractDevCycleClient):
         except Exception as e:
             logger.error(f"DevCycle: Error tracking event: {e}")
 
+    def close(self) -> None:
+        """
+        Closes the client and releases any resources held by it.
+        """
+        # Cloud client doesn't need to release any resources
+        logger.debug("DevCycle: Cloud client closed")
+
 
 def _validate_sdk_key(sdk_key: str) -> None:
     if sdk_key is None or len(sdk_key) == 0:
