@@ -60,7 +60,7 @@ class DevCycleLocalClient(AbstractDevCycleClient):
             self._openfeature_provider = DevCycleProvider(self)
 
             # Update platform data for OpenFeature
-            self._platform_data.sdkPlatform = 'python-of'
+            self._platform_data.sdkPlatform = "python-of"
             self.local_bucketing.set_platform_data(
                 json.dumps(self._platform_data.to_json())
             )

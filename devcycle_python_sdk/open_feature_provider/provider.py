@@ -10,7 +10,12 @@ from openfeature.provider import AbstractProvider
 from openfeature.provider.metadata import Metadata
 from openfeature.evaluation_context import EvaluationContext
 from openfeature.flag_evaluation import FlagResolutionDetails, Reason
-from openfeature.exception import ErrorCode, InvalidContextError, TypeMismatchError, GeneralError
+from openfeature.exception import (
+    ErrorCode,
+    InvalidContextError,
+    TypeMismatchError,
+    GeneralError,
+)
 from openfeature.hook import Hook
 
 logger = logging.getLogger(__name__)
@@ -34,7 +39,9 @@ class DevCycleProvider(AbstractProvider):
         # Wait for the client to be initialized or timeout
         while not self.client.is_initialized():
             if time.time() - start_time > timeout:
-                raise GeneralError(f"DevCycleProvider initialization timed out after {timeout} seconds")
+                raise GeneralError(
+                    f"DevCycleProvider initialization timed out after {timeout} seconds"
+                )
             time.sleep(0.1)  # Sleep briefly to avoid busy waiting
 
         if self.client.is_initialized():
