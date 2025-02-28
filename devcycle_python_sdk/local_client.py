@@ -50,12 +50,21 @@ class DevCycleLocalClient(AbstractDevCycleClient):
             sdk_key, self.client_uuid, self.options, self.local_bucketing
         )
 
-        self._openfeature_provider = DevCycleProvider(self)
+        self._openfeature_provider = None
 
     def get_sdk_platform(self) -> str:
         return "Local"
 
     def get_openfeature_provider(self) -> AbstractProvider:
+        if self._openfeature_provider is None:
+            self._openfeature_provider = DevCycleProvider(self)
+            
+            # Update platform data for OpenFeature
+            self._platform_data.sdkPlatform = 'python-of'
+            self.local_bucketing.set_platform_data(
+                json.dumps(self._platform_data.to_json())
+            )
+            
         return self._openfeature_provider
 
     def is_initialized(self) -> bool:

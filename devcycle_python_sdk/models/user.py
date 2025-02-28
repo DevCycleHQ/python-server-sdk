@@ -24,6 +24,7 @@ class DevCycleUser:
     deviceModel: Optional[str] = None
     sdkType: Optional[str] = None
     sdkVersion: Optional[str] = None
+    sdkPlatform: Optional[str] = None
 
     def to_json(self):
         json_dict = {
@@ -75,6 +76,7 @@ class DevCycleUser:
             deviceModel=data.get("deviceModel"),
             sdkType=data.get("sdkType"),
             sdkVersion=data.get("sdkVersion"),
+            sdkPlatform=data.get("sdkPlatform"),
         )
 
     @staticmethod
@@ -156,4 +158,5 @@ class DevCycleUser:
         if private_custom_data:
             user.privateCustomData = private_custom_data
 
+        user.sdkPlatform = "python-of"
         return user
