@@ -1,9 +1,8 @@
 setuptools >= 21.0.0
-urllib3 >= 2.3.0
-requests ~= 2.32.3
+urllib3 >= 1.15.1
+requests >= 2.32
 wasmtime ~= 30.0.0
-protobuf ~= 5.29.3
-openfeature-sdk ~= 0.8.0
-launchdarkly-eventsource ~= 1.2.1
-responses~=0.25.6
-python>=3.9
+protobuf >= 4.23.3
+openfeature-sdk >= 0.8.0
+launchdarkly-eventsource >= 1.2.1
+responses >= 0.23.1
