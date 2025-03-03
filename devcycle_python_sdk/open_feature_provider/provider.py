@@ -1,4 +1,5 @@
 import logging
+import time
 
 from typing import Any, Optional, Union, List
 
@@ -6,11 +7,16 @@ from devcycle_python_sdk import AbstractDevCycleClient
 from devcycle_python_sdk.models.user import DevCycleUser
 
 from openfeature.provider import AbstractProvider
+from openfeature.provider.metadata import Metadata
 from openfeature.evaluation_context import EvaluationContext
 from openfeature.flag_evaluation import FlagResolutionDetails, Reason
-from openfeature.exception import ErrorCode, InvalidContextError, TypeMismatchError
+from openfeature.exception import (
+    ErrorCode,
+    InvalidContextError,
+    TypeMismatchError,
+    GeneralError,
+)
 from openfeature.hook import Hook
-from openfeature.provider.metadata import Metadata
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +31,24 @@ class DevCycleProvider(AbstractProvider):
     def __init__(self, devcycle_client: AbstractDevCycleClient):
         self.client = devcycle_client
         self.meta_data = Metadata(name=f"DevCycle {self.client.get_sdk_platform()}")
+
+    def initialize(self, evaluation_context: EvaluationContext) -> None:
+        timeout = 2
+        start_time = time.time()
+
+        # Wait for the client to be initialized or timeout
+        while not self.client.is_initialized():
+            if time.time() - start_time > timeout:
+                raise GeneralError(
+                    f"DevCycleProvider initialization timed out after {timeout} seconds"
+                )
+            time.sleep(0.1)  # Sleep briefly to avoid busy waiting
+
+        if self.client.is_initialized():
+            logger.debug("DevCycleProvider initialized successfully")
+
+    def shutdown(self) -> None:
+        self.client.close()
 
     def get_metadata(self) -> Metadata:
         return self.meta_data

@@ -18,7 +18,7 @@ class EventType:
 class DevCycleEvent:
     type: Optional[str] = None
     target: Optional[str] = None
-    date: datetime = field(default_factory=lambda: datetime.utcnow())
+    date: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     value: Optional[int] = None
     metaData: Optional[Dict[str, str]] = None
 
