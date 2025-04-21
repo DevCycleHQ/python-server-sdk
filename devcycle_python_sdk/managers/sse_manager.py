@@ -5,39 +5,38 @@ import ld_eventsource.actions
 import ld_eventsource.config
 from typing import Callable
 
-
 class SSEManager:
     def __init__(
         self,
-        handlestate: Callable[[ld_eventsource.actions.Start], None],
-        handleerror: Callable[[ld_eventsource.actions.Fault], None],
-        handlemessage: Callable[[ld_eventsource.actions.Event], None],
+        handle_state: Callable[[ld_eventsource.actions.Start], None],
+        handle_error: Callable[[ld_eventsource.actions.Fault], None],
+        handle_message: Callable[[ld_eventsource.actions.Event], None],
     ):
         self.client: ld_eventsource.SSEClient = None
         self.url = ""
-        self.handlestate = handlestate
-        self.handleerror = handleerror
-        self.handlemessage = handlemessage
+        self.handle_state = handle_state
+        self.handle_error = handle_error
+        self.handle_message = handle_message
 
         self.read_thread = threading.Thread(
             target=self.read_events,
-            args=(self.handlestate, self.handleerror, self.handlemessage),
+            args=(self.handle_state, self.handle_error, self.handle_message),
         )
 
     def read_events(
         self,
-        handlestate: Callable[[ld_eventsource.actions.Start], None],
-        handleerror: Callable[[ld_eventsource.actions.Fault], None],
-        handlemessage: Callable[[ld_eventsource.actions.Event], None],
+        handle_state: Callable[[ld_eventsource.actions.Start], None],
+        handle_error: Callable[[ld_eventsource.actions.Fault], None],
+        handle_message: Callable[[ld_eventsource.actions.Event], None],
     ):
         self.client.start()
         for event in self.client.all:
             if isinstance(event, ld_eventsource.actions.Start):
-                handlestate(event)
+                handle_state(event)
             elif isinstance(event, ld_eventsource.actions.Fault):
-                handleerror(event)
+                handle_error(event)
             elif isinstance(event, ld_eventsource.actions.Event):
-                handlemessage(event)
+                handle_message(event)
 
     def update(self, config: dict):
         if self.use_new_config(config["sse"]):
@@ -52,7 +51,7 @@ class SSEManager:
             )
             self.read_thread = threading.Thread(
                 target=self.read_events,
-                args=(self.handlestate, self.handleerror, self.handlemessage),
+                args=(self.handle_state, self.handle_error, self.handle_message),
             )
             self.read_thread.start()
 
