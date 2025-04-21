@@ -2,9 +2,11 @@ import threading
 
 import ld_eventsource
 import ld_eventsource.actions
+import logging
 import ld_eventsource.config
 from typing import Callable
 
+logger = logging.getLogger(__name__)
 
 class SSEManager:
     def __init__(
@@ -31,13 +33,16 @@ class SSEManager:
         handle_message: Callable[[ld_eventsource.actions.Event], None],
     ):
         self.client.start()
-        for event in self.client.all:
-            if isinstance(event, ld_eventsource.actions.Start):
-                handle_state(event)
-            elif isinstance(event, ld_eventsource.actions.Fault):
-                handle_error(event)
-            elif isinstance(event, ld_eventsource.actions.Event):
-                handle_message(event)
+        try:
+            for event in self.client.all:
+                if isinstance(event, ld_eventsource.actions.Start):
+                    handle_state(event)
+                elif isinstance(event, ld_eventsource.actions.Fault):
+                    handle_error(event)
+                elif isinstance(event, ld_eventsource.actions.Event):
+                    handle_message(event)
+        except Exception as e:
+            logger.exception(f"DevCycle: failed to read SSE message: {e}")
 
     def update(self, config: dict):
         if self.use_new_config(config["sse"]):
