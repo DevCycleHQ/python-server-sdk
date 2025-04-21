@@ -5,6 +5,7 @@ import ld_eventsource.actions
 import ld_eventsource.config
 from typing import Callable
 
+
 class SSEManager:
     def __init__(
         self,
