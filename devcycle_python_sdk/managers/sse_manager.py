@@ -8,6 +8,7 @@ from typing import Callable
 
 logger = logging.getLogger(__name__)
 
+
 class SSEManager:
     def __init__(
         self,
