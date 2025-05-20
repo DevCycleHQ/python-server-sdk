@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BUCKETING_LIB_VERSION="1.31.2"
+BUCKETING_LIB_VERSION="1.35.1"
 
 if [[ -n "$1" ]]; then
   BUCKETING_LIB_VERSION="$1"
