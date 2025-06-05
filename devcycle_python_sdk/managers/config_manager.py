@@ -139,7 +139,7 @@ class EnvironmentConfigManager(threading.Thread):
             self._get_config(dvc_data["lastModified"] / 1000.0)
 
     def sse_error(self, error: ld_eventsource.actions.Fault):
-        logger.warning(f"DevCycle: Received SSE error: {error}")
+        logger.debug(f"DevCycle: Received SSE error: {error}")
 
     def sse_state(self, state: ld_eventsource.actions.Start):
         self._sse_connected = True
