@@ -9,7 +9,11 @@ from devcycle_python_sdk.exceptions import (
     NotFoundError,
     CloudClientUnauthorizedError,
 )
-from devcycle_python_sdk.managers.eval_hooks_manager import EvalHooksManager, BeforeHookError, AfterHookError
+from devcycle_python_sdk.managers.eval_hooks_manager import (
+    EvalHooksManager,
+    BeforeHookError,
+    AfterHookError,
+)
 from devcycle_python_sdk.models.eval_hook import EvalHook
 from devcycle_python_sdk.models.eval_hook_context import HookContext
 from devcycle_python_sdk.models.user import DevCycleUser
@@ -48,7 +52,9 @@ class DevCycleCloudClient(AbstractDevCycleClient):
         self.sdk_type = "server"
         self.bucketing_api = BucketingAPIClient(sdk_key, self.options)
         self._openfeature_provider = DevCycleProvider(self)
-        self.eval_hooks_manager = EvalHooksManager(None if options is None else options.eval_hooks)
+        self.eval_hooks_manager = EvalHooksManager(
+            None if options is None else options.eval_hooks
+        )
 
     def get_sdk_platform(self) -> str:
         return "Cloud"
@@ -93,19 +99,21 @@ class DevCycleCloudClient(AbstractDevCycleClient):
 
         context = HookContext(key, user, default_value)
         variable = Variable.create_default_variable(
-                key=key, default_value=default_value
-            )
+            key=key, default_value=default_value
+        )
 
         try:
             before_hook_error = None
             try:
-                context = self.eval_hooks_manager.run_before(context)
+                changed_context = self.eval_hooks_manager.run_before(context)
+                if changed_context is not None:
+                    context = changed_context
             except BeforeHookError as e:
                 before_hook_error = e
             variable = self.bucketing_api.variable(key, context.user)
             if before_hook_error is None:
                 self.eval_hooks_manager.run_after(context, variable)
-            else :
+            else:
                 raise before_hook_error
         except CloudClientUnauthorizedError as e:
             logger.warning("DevCycle: SDK key is invalid, unable to make cloud request")
