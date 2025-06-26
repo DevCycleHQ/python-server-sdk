@@ -1,5 +1,7 @@
 import logging
-from typing import Callable, Optional, Dict, Any
+from typing import Callable, Optional, Dict, Any, List
+
+from devcycle_python_sdk.models.eval_hook import EvalHook
 
 logger = logging.getLogger(__name__)
 
@@ -16,12 +18,14 @@ class DevCycleCloudOptions:
         request_timeout: int = 5,  # seconds
         request_retries: int = 5,
         retry_delay: int = 200,  # milliseconds
+        eval_hooks: Optional[List[EvalHook]] = None,
     ):
         self.enable_edge_db = enable_edge_db
         self.bucketing_api_uri = bucketing_api_uri
         self.request_timeout = request_timeout
         self.request_retries = request_retries
         self.retry_delay = retry_delay
+        self.eval_hooks = eval_hooks if eval_hooks is not None else []
 
 
 class DevCycleLocalOptions:
@@ -47,6 +51,7 @@ class DevCycleLocalOptions:
         disable_custom_event_logging: bool = False,
         enable_beta_realtime_updates: bool = False,
         disable_realtime_updates: bool = False,
+        eval_hooks: Optional[List[EvalHook]] = None,
     ):
         self.events_api_uri = events_api_uri
         self.config_cdn_uri = config_cdn_uri
@@ -68,6 +73,8 @@ class DevCycleLocalOptions:
             logger.warning(
                 "DevCycle: `enable_beta_realtime_updates` is deprecated and will be removed in a future release.",
             )
+
+        self.eval_hooks = eval_hooks if eval_hooks is not None else []
 
         if self.flush_event_queue_size >= self.max_event_queue_size:
             logger.warning(

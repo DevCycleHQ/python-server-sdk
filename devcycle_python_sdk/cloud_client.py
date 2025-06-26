@@ -9,6 +9,9 @@ from devcycle_python_sdk.exceptions import (
     NotFoundError,
     CloudClientUnauthorizedError,
 )
+from devcycle_python_sdk.managers.eval_hooks_manager import EvalHooksManager, BeforeHookError, AfterHookError
+from devcycle_python_sdk.models.eval_hook import EvalHook
+from devcycle_python_sdk.models.eval_hook_context import HookContext
 from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.event import DevCycleEvent
 from devcycle_python_sdk.models.variable import Variable
@@ -45,6 +48,7 @@ class DevCycleCloudClient(AbstractDevCycleClient):
         self.sdk_type = "server"
         self.bucketing_api = BucketingAPIClient(sdk_key, self.options)
         self._openfeature_provider = DevCycleProvider(self)
+        self.eval_hooks_manager = EvalHooksManager(None if options is None else options.eval_hooks)
 
     def get_sdk_platform(self) -> str:
         return "Cloud"
@@ -87,8 +91,22 @@ class DevCycleCloudClient(AbstractDevCycleClient):
         if default_value is None:
             raise ValueError("Missing parameter: defaultValue")
 
+        context = HookContext(key, user, default_value)
+        variable = Variable.create_default_variable(
+                key=key, default_value=default_value
+            )
+
         try:
-            variable = self.bucketing_api.variable(key, user)
+            before_hook_error = None
+            try:
+                context = self.eval_hooks_manager.run_before(context)
+            except BeforeHookError as e:
+                before_hook_error = e
+            variable = self.bucketing_api.variable(key, context.user)
+            if before_hook_error is None:
+                self.eval_hooks_manager.run_after(context, variable)
+            else :
+                raise before_hook_error
         except CloudClientUnauthorizedError as e:
             logger.warning("DevCycle: SDK key is invalid, unable to make cloud request")
             raise e
@@ -97,11 +115,17 @@ class DevCycleCloudClient(AbstractDevCycleClient):
             return Variable.create_default_variable(
                 key=key, default_value=default_value
             )
+        except BeforeHookError as e:
+            self.eval_hooks_manager.run_error(context, e)
+        except AfterHookError as e:
+            self.eval_hooks_manager.run_error(context, e)
         except Exception as e:
             logger.error(f"DevCycle: Error evaluating variable: {e}")
             return Variable.create_default_variable(
                 key=key, default_value=default_value
             )
+        finally:
+            self.eval_hooks_manager.run_finally(context, variable)
 
         variable.defaultValue = default_value
 
@@ -188,6 +212,12 @@ class DevCycleCloudClient(AbstractDevCycleClient):
         """
         # Cloud client doesn't need to release any resources
         logger.debug("DevCycle: Cloud client closed")
+
+    def add_hook(self, hook: EvalHook) -> None:
+        self.eval_hooks_manager.add_hook(hook)
+
+    def clear_hooks(self) -> None:
+        self.eval_hooks_manager.clear_hooks()
 
 
 def _validate_sdk_key(sdk_key: str) -> None:
