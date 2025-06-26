@@ -8,8 +8,15 @@ from devcycle_python_sdk import DevCycleLocalOptions, AbstractDevCycleClient
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
 from devcycle_python_sdk.exceptions import VariableTypeMismatchError
 from devcycle_python_sdk.managers.config_manager import EnvironmentConfigManager
+from devcycle_python_sdk.managers.eval_hooks_manager import (
+    EvalHooksManager,
+    BeforeHookError,
+    AfterHookError,
+)
 from devcycle_python_sdk.managers.event_queue_manager import EventQueueManager
 from devcycle_python_sdk.models.bucketed_config import BucketedConfig
+from devcycle_python_sdk.models.eval_hook import EvalHook
+from devcycle_python_sdk.models.eval_hook_context import HookContext
 from devcycle_python_sdk.models.event import DevCycleEvent, EventType
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.platform_data import default_platform_data
@@ -51,6 +58,7 @@ class DevCycleLocalClient(AbstractDevCycleClient):
         )
 
         self._openfeature_provider: Optional[DevCycleProvider] = None
+        self.eval_hooks_manager = EvalHooksManager(self.options.eval_hooks)
 
     def get_sdk_platform(self) -> str:
         return "Local"
@@ -133,18 +141,44 @@ class DevCycleLocalClient(AbstractDevCycleClient):
                 )
             return Variable.create_default_variable(key, default_value)
 
+        context = HookContext(key, user, default_value)
+        variable = Variable.create_default_variable(
+            key=key, default_value=default_value
+        )
+
         try:
-            variable = self.local_bucketing.get_variable_for_user_protobuf(
+            before_hook_error = None
+            try:
+                changed_context = self.eval_hooks_manager.run_before(context)
+                if changed_context is not None:
+                    context = changed_context
+            except BeforeHookError as e:
+                before_hook_error = e
+            bucketed_variable = self.local_bucketing.get_variable_for_user_protobuf(
                 user, key, default_value
             )
-            if variable:
-                return variable
+            if bucketed_variable is not None:
+                variable = bucketed_variable
+
+            if before_hook_error is None:
+                self.eval_hooks_manager.run_after(context, variable)
+            else:
+                raise before_hook_error
         except VariableTypeMismatchError:
             logger.debug("DevCycle: Variable type mismatch, returning default value")
+            return variable
+        except BeforeHookError as e:
+            self.eval_hooks_manager.run_error(context, e)
+            return variable
+        except AfterHookError as e:
+            self.eval_hooks_manager.run_error(context, e)
+            return variable
         except Exception as e:
             logger.warning(f"DevCycle: Error retrieving variable for user: {e}")
-
-        return Variable.create_default_variable(key, default_value)
+            return variable
+        finally:
+            self.eval_hooks_manager.run_finally(context, variable)
+        return variable
 
     def _generate_bucketed_config(self, user: DevCycleUser) -> BucketedConfig:
         """
@@ -169,8 +203,6 @@ class DevCycleLocalClient(AbstractDevCycleClient):
             )
             return {}
 
-        variable_map: Dict[str, Variable] = {}
-
         try:
             return self.local_bucketing.generate_bucketed_config(user).variables
         except Exception as e:
@@ -178,8 +210,6 @@ class DevCycleLocalClient(AbstractDevCycleClient):
                 f"DevCycle: Error retrieving all variables for a user: {e}"
             )
             return {}
-
-        return variable_map
 
     def all_features(self, user: DevCycleUser) -> Dict[str, Feature]:
         """
@@ -233,6 +263,12 @@ class DevCycleLocalClient(AbstractDevCycleClient):
         """
         self.config_manager.close()
         self.event_queue_manager.close()
+
+    def add_hook(self, eval_hook: EvalHook) -> None:
+        self.eval_hooks_manager.add_hook(eval_hook)
+
+    def clear_hooks(self) -> None:
+        self.eval_hooks_manager.clear_hooks()
 
 
 def _validate_sdk_key(sdk_key: str) -> None:
