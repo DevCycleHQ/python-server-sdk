@@ -6,6 +6,7 @@ from time import time
 from unittest.mock import patch
 
 from devcycle_python_sdk import DevCycleCloudClient, DevCycleCloudOptions
+from devcycle_python_sdk.models.eval_hook import EvalHook
 from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.variable import Variable, TypeEnum
 from devcycle_python_sdk.models.event import DevCycleEvent
@@ -27,6 +28,7 @@ class DevCycleCloudClientTest(unittest.TestCase):
         self.test_user_empty_id = DevCycleUser(user_id="")
 
     def tearDown(self) -> None:
+        self.test_client.clear_hooks()
         pass
 
     def test_create_client_invalid_sdk_key(self):
@@ -280,6 +282,86 @@ class DevCycleCloudClientTest(unittest.TestCase):
                 metaData={"key": "value"},
             ),
         )
+
+    @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.variable")
+    def test_hooks(self, mock_variable_call):
+        mock_variable_call.return_value = Variable(
+            _id="123", key="strKey", value=999, type=TypeEnum.NUMBER
+        )
+        # Test adding hooks
+        hook_called = {
+            "before": False,
+            "after": False,
+            "finally": False,
+            "error": False,
+        }
+
+        def before_hook(context):
+            hook_called["before"] = True
+            return context
+
+        def after_hook(context, variable):
+            hook_called["after"] = True
+
+        def finally_hook(context, variable):
+            hook_called["finally"] = True
+
+        def error_hook(context, error):
+            hook_called["error"] = True
+
+        self.test_client.add_hook(
+            EvalHook(before_hook, after_hook, finally_hook, error_hook)
+        )
+
+        # Test hooks called during variable evaluation
+        variable = self.test_client.variable(self.test_user, "strKey", 42)
+        self.assertTrue(variable.value == 999)
+        self.assertFalse(variable.isDefaulted)
+
+        self.assertTrue(hook_called["before"])
+        self.assertTrue(hook_called["after"])
+        self.assertTrue(hook_called["finally"])
+        self.assertFalse(hook_called["error"])
+
+    @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.variable")
+    def test_hook_exceptions(self, mock_variable_call):
+        mock_variable_call.return_value = Variable(
+            _id="123", key="strKey", value=999, type=TypeEnum.NUMBER
+        )
+        # Test adding hooks
+        hook_called = {
+            "before": False,
+            "after": False,
+            "finally": False,
+            "error": False,
+        }
+
+        def before_hook(context):
+            hook_called["before"] = True
+            raise Exception("Before hook failed")
+
+        def after_hook(context, variable):
+            hook_called["after"] = True
+
+        def finally_hook(context, variable):
+            hook_called["finally"] = True
+
+        def error_hook(context, error):
+            hook_called["error"] = True
+
+        self.test_client.add_hook(
+            EvalHook(before_hook, after_hook, finally_hook, error_hook)
+        )
+
+        # Test hooks called during variable evaluation
+        variable = self.test_client.variable(self.test_user, "strKey", 42)
+        self.assertTrue(variable.value == 999)
+        self.assertFalse(variable.isDefaulted)
+
+        self.assertTrue(hook_called["before"])
+        self.assertFalse(hook_called["after"])
+        self.assertTrue(hook_called["finally"])
+        self.assertTrue(hook_called["error"])
 
 
 if __name__ == "__main__":
