@@ -9,6 +9,7 @@ import responses
 from devcycle_python_sdk import DevCycleLocalClient, DevCycleLocalOptions
 from devcycle_python_sdk.local_client import _validate_user, _validate_sdk_key
 from devcycle_python_sdk.exceptions import MalformedConfigError
+from devcycle_python_sdk.models.eval_hook import EvalHook
 from devcycle_python_sdk.models.event import DevCycleEvent
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
@@ -360,6 +361,86 @@ class DevCycleLocalClientTest(unittest.TestCase):
 
         result = self.client.all_variables(user)
         self.assertEqual(result, {})
+
+    @responses.activate
+    def test_hooks(self):
+        self.setup_client()
+        # Test adding hooks
+        hook_called = {
+            "before": False,
+            "after": False,
+            "finally": False,
+            "error": False,
+        }
+
+        def before_hook(context):
+            hook_called["before"] = True
+            return context
+
+        def after_hook(context, variable):
+            hook_called["after"] = True
+
+        def finally_hook(context, variable):
+            hook_called["finally"] = True
+
+        def error_hook(context, error):
+            hook_called["error"] = True
+
+        self.client.add_hook(
+            EvalHook(before_hook, after_hook, finally_hook, error_hook)
+        )
+
+        user = DevCycleUser(user_id="1234")
+
+        # Test hooks called during variable evaluation
+        variable = self.client.variable(user, "num-var", 42)
+        self.assertTrue(variable.value == 12345)
+        self.assertFalse(variable.isDefaulted)
+
+        self.assertTrue(hook_called["before"])
+        self.assertTrue(hook_called["after"])
+        self.assertTrue(hook_called["finally"])
+        self.assertFalse(hook_called["error"])
+
+    @responses.activate
+    def test_hook_exceptions(self):
+        self.setup_client()
+        # Test adding hooks
+        hook_called = {
+            "before": False,
+            "after": False,
+            "finally": False,
+            "error": False,
+        }
+
+        def before_hook(context):
+            hook_called["before"] = True
+            raise Exception("Before hook failed")
+
+        def after_hook(context, variable):
+            hook_called["after"] = True
+
+        def finally_hook(context, variable):
+            hook_called["finally"] = True
+
+        def error_hook(context, error):
+            hook_called["error"] = True
+
+        self.client.add_hook(
+            EvalHook(before_hook, after_hook, finally_hook, error_hook)
+        )
+
+        user = DevCycleUser(user_id="1234")
+
+        # Test hooks called during variable evaluation
+        variable = self.client.variable(user, "num-var", 42)
+        self.assertTrue(variable.value == 12345)
+        self.assertFalse(variable.isDefaulted)
+
+        self.assertTrue(hook_called["before"])
+        self.assertFalse(hook_called["after"])
+        self.assertTrue(hook_called["finally"])
+        self.assertTrue(hook_called["error"])
 
 
 def _benchmark_variable_call(client: DevCycleLocalClient, user: DevCycleUser, key: str):
