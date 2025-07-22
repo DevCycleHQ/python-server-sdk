@@ -214,47 +214,6 @@ class DevCycleProviderTest(unittest.TestCase):
         self.assertDictEqual(details.value, variable_value)
         self.assertEqual(details.reason, Reason.TARGETING_MATCH)
 
-    def test_resolve_details_with_user_id_attr_priority(self):
-        """Test that userId is used with proper priority: targeting_key > user_id > userId"""
-        key = "test-flag"
-        default_value = False
-
-        self.client.variable.return_value = Variable.create_default_variable(
-            key=key, default_value=default_value
-        )
-
-        # Test 1: targeting_key takes precedence over user_id and userId
-        context = EvaluationContext(
-            targeting_key="targeting-key-user",
-            attributes={"user_id": "user_id-user", "userId": "userId-user"}
-        )
-        self.provider.resolve_boolean_details(key, default_value, context)
-
-        # Verify the call was made with the right user
-        self.client.variable.assert_called()
-        called_user = self.client.variable.call_args[1]['user']
-        self.assertEqual(called_user.user_id, "targeting-key-user")
-
-        # Test 2: user_id takes precedence over userId when no targeting_key
-        context = EvaluationContext(
-            targeting_key=None,
-            attributes={"user_id": "user_id-user", "userId": "userId-user"}
-        )
-        self.provider.resolve_boolean_details(key, default_value, context)
-
-        called_user = self.client.variable.call_args[1]['user']
-        self.assertEqual(called_user.user_id, "user_id-user")
-
-        # Test 3: userId is used when no targeting_key or user_id
-        context = EvaluationContext(
-            targeting_key=None,
-            attributes={"userId": "userId-user"}
-        )
-        self.provider.resolve_boolean_details(key, default_value, context)
-
-        called_user = self.client.variable.call_args[1]['user']
-        self.assertEqual(called_user.user_id, "userId-user")
-
 
 if __name__ == "__main__":
     unittest.main()

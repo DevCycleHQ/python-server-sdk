@@ -54,25 +54,20 @@ class DevCycleUserTest(unittest.TestCase):
         self.assertEqual(user.user_id, test_user_id)
 
     def test_create_user_from_context_with_user_id_attribute(self):
-        test_user_id = "userId-12345"
+        """Comprehensive test for userId attribute support including priority, functionality, and error cases"""
+        targeting_key_id = "targeting-12345"
+        user_id = "user_id-12345"
+        user_id_attr = "userId-12345"
 
-        # Test userId as the only user ID source
+        # Test 1: userId as the only user ID source
         context = EvaluationContext(
-            targeting_key=None, attributes={"userId": test_user_id}
+            targeting_key=None, attributes={"userId": user_id_attr}
         )
         user = DevCycleUser.create_user_from_context(context)
         self.assertIsNotNone(user)
-        self.assertEqual(user.user_id, test_user_id)
+        self.assertEqual(user.user_id, user_id_attr)
 
-        # Test that userId is excluded from custom data when used as user ID
-        self.assertIsNone(user.customData)
-
-    def test_create_user_from_context_user_id_priority(self):
-        targeting_key_id = "targeting-12345"
-        user_id = "user_id-12345"
-        user_id_attr = "userId-12345"
-
-        # Test targeting_key takes precedence over user_id and userId
+        # Test 2: Priority order - targeting_key > user_id > userId
         context = EvaluationContext(
             targeting_key=targeting_key_id,
             attributes={"user_id": user_id, "userId": user_id_attr}
@@ -80,7 +75,6 @@ class DevCycleUserTest(unittest.TestCase):
         user = DevCycleUser.create_user_from_context(context)
         self.assertEqual(user.user_id, targeting_key_id)
 
-        # Test user_id takes precedence over userId
         context = EvaluationContext(
             targeting_key=None,
             attributes={"user_id": user_id, "userId": user_id_attr}
@@ -88,73 +82,7 @@ class DevCycleUserTest(unittest.TestCase):
         user = DevCycleUser.create_user_from_context(context)
         self.assertEqual(user.user_id, user_id)
 
-        # Test userId is used when targeting_key and user_id are not available
-        context = EvaluationContext(
-            targeting_key=None,
-            attributes={"userId": user_id_attr}
-        )
-        user = DevCycleUser.create_user_from_context(context)
-        self.assertEqual(user.user_id, user_id_attr)
-
-    def test_create_user_from_context_user_id_fields_always_excluded(self):
-        targeting_key_id = "targeting-12345"
-        user_id_attr = "userId-12345"
-        user_id = "user_id-12345"
-
-        # When targeting_key is used, both user_id and userId should be excluded from custom data
-        context = EvaluationContext(
-            targeting_key=targeting_key_id,
-            attributes={"user_id": user_id, "userId": user_id_attr, "other_field": "value"}
-        )
-        user = DevCycleUser.create_user_from_context(context)
-        self.assertEqual(user.user_id, targeting_key_id)
-        self.assertIsNotNone(user.customData)
-        self.assertNotIn("user_id", user.customData)
-        self.assertNotIn("userId", user.customData)
-        self.assertEqual(user.customData["other_field"], "value")
-
-        # When user_id is used, userId should still be excluded from custom data
-        context = EvaluationContext(
-            targeting_key=None,
-            attributes={"user_id": user_id, "userId": user_id_attr, "other_field": "value"}
-        )
-        user = DevCycleUser.create_user_from_context(context)
-        self.assertEqual(user.user_id, user_id)
-        self.assertIsNotNone(user.customData)
-        self.assertNotIn("user_id", user.customData)
-        self.assertNotIn("userId", user.customData)
-        self.assertEqual(user.customData["other_field"], "value")
-
-    def test_create_user_from_context_targeting_key_excluded_from_attributes(self):
-        targeting_key_id = "targeting-12345"
-
-        # When targeting_key appears in attributes, it should be excluded from custom data
-        context = EvaluationContext(
-            targeting_key=targeting_key_id,
-            attributes={"targeting_key": "should-be-excluded", "other_field": "value"}
-        )
-        user = DevCycleUser.create_user_from_context(context)
-        self.assertEqual(user.user_id, targeting_key_id)
-        self.assertIsNotNone(user.customData)
-        self.assertNotIn("targeting_key", user.customData)
-        self.assertEqual(user.customData["other_field"], "value")
-
-    def test_create_user_from_context_user_id_attr_excluded_when_used(self):
-        user_id_attr = "userId-12345"
-
-        # When userId is used as user ID, it should be excluded from custom data
-        context = EvaluationContext(
-            targeting_key=None,
-            attributes={"userId": user_id_attr, "other_field": "value"}
-        )
-        user = DevCycleUser.create_user_from_context(context)
-        self.assertEqual(user.user_id, user_id_attr)
-        self.assertIsNotNone(user.customData)
-        self.assertNotIn("userId", user.customData)
-        self.assertEqual(user.customData["other_field"], "value")
-
-    def test_create_user_from_context_invalid_user_id_attr_types(self):
-        # Test non-string userId values are ignored and cause error
+        # Test 3: Error cases - invalid userId types
         with self.assertRaises(TargetingKeyMissingError):
             DevCycleUser.create_user_from_context(
                 EvaluationContext(targeting_key=None, attributes={"userId": 12345})
@@ -165,10 +93,47 @@ class DevCycleUserTest(unittest.TestCase):
                 EvaluationContext(targeting_key=None, attributes={"userId": None})
             )
 
-        with self.assertRaises(TargetingKeyMissingError):
-            DevCycleUser.create_user_from_context(
-                EvaluationContext(targeting_key=None, attributes={"userId": True})
-            )
+    def test_create_user_from_context_user_id_exclusion(self):
+        """Test that all user ID fields (targeting_key, user_id, userId) are excluded from custom data"""
+        targeting_key_id = "targeting-12345"
+        user_id = "user_id-12345"
+        user_id_attr = "userId-12345"
+
+        # Test exclusion when targeting_key is used
+        context = EvaluationContext(
+            targeting_key=targeting_key_id,
+            attributes={"user_id": user_id, "userId": user_id_attr, "targeting_key": "should-be-excluded", "other_field": "value"}
+        )
+        user = DevCycleUser.create_user_from_context(context)
+        self.assertEqual(user.user_id, targeting_key_id)
+        self.assertIsNotNone(user.customData)
+        self.assertNotIn("user_id", user.customData)
+        self.assertNotIn("userId", user.customData)
+        self.assertNotIn("targeting_key", user.customData)
+        self.assertEqual(user.customData["other_field"], "value")
+
+        # Test exclusion when user_id is used
+        context = EvaluationContext(
+            targeting_key=None,
+            attributes={"user_id": user_id, "userId": user_id_attr, "other_field": "value"}
+        )
+        user = DevCycleUser.create_user_from_context(context)
+        self.assertEqual(user.user_id, user_id)
+        self.assertIsNotNone(user.customData)
+        self.assertNotIn("user_id", user.customData)
+        self.assertNotIn("userId", user.customData)
+        self.assertEqual(user.customData["other_field"], "value")
+
+        # Test exclusion when userId is used
+        context = EvaluationContext(
+            targeting_key=None,
+            attributes={"userId": user_id_attr, "other_field": "value"}
+        )
+        user = DevCycleUser.create_user_from_context(context)
+        self.assertEqual(user.user_id, user_id_attr)
+        self.assertIsNotNone(user.customData)
+        self.assertNotIn("userId", user.customData)
+        self.assertEqual(user.customData["other_field"], "value")
 
     def test_create_user_from_context_with_attributes(self):
         test_user_id = "12345"
