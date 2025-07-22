@@ -1,13 +1,16 @@
 name: Benchmark
 
-on: [ push ]
+on: [push]
+
+permissions:
+  contents: read
 
 jobs:
   benchmark:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.12" ]
+        python-version: ["3.12"]
 
     steps:
       - uses: actions/checkout@v4
@@ -15,7 +18,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
+          cache: "pip"
       - name: Install dependencies
         run: |
           pip install --upgrade pip
@@ -25,9 +28,9 @@ jobs:
           pytest --benchmark-only --benchmark-json=benchmarks.json
       - name: Print summary
         run: |
-            echo "### Benchmark Results" >> $GITHUB_STEP_SUMMARY
-            echo "
-            Benchmark|Min (uS)|Median (uS)|Mean (uS)|Max (uS)|Iterations
-            ---|---|---|---|---|---
-            $(jq -r '.benchmarks[] | [.name,(.stats.min*1000000000 | round / 1000),(.stats.median*1000000000 | round / 1000),(.stats.mean*1000000000 | round / 1000),(.stats.max*1000000000 | round / 1000),.stats.rounds] | join("|")' benchmarks.json)
-            " >> $GITHUB_STEP_SUMMARY
+          echo "### Benchmark Results" >> $GITHUB_STEP_SUMMARY
+          echo "
+          Benchmark|Min (uS)|Median (uS)|Mean (uS)|Max (uS)|Iterations
+          ---|---|---|---|---|---
+          $(jq -r '.benchmarks[] | [.name,(.stats.min*1000000000 | round / 1000),(.stats.median*1000000000 | round / 1000),(.stats.mean*1000000000 | round / 1000),(.stats.max*1000000000 | round / 1000),.stats.rounds] | join("|")' benchmarks.json)
+          " >> $GITHUB_STEP_SUMMARY

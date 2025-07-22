@@ -1,6 +1,9 @@
 name: Test Examples
 
-on: [ push ]
+on: [push]
+
+permissions:
+  contents: read
 
 jobs:
   test_examples:
@@ -8,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.12" ]
+        python-version: ["3.12"]
 
     steps:
       - uses: actions/checkout@v4
@@ -16,7 +19,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
+          cache: "pip"
       - name: Install dependencies
         run: |
           pip install --upgrade pip
