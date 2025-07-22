@@ -130,10 +130,10 @@ class DevCycleUser:
         private_custom_data: Dict[str, Any] = {}
         if context and context.attributes:
             for key, value in context.attributes.items():
-                # Skip user_id and userId if they were used as the user ID
-                if key == "user_id" and user_id_source == "user_id":
+                # Skip user_id and userId - these are reserved for user ID mapping
+                if key == "user_id":
                     continue
-                if key == "userId" and user_id_source == "userId":
+                if key == "userId":
                     continue
 
                 if value is not None:

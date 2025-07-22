@@ -96,23 +96,24 @@ class DevCycleUserTest(unittest.TestCase):
         user = DevCycleUser.create_user_from_context(context)
         self.assertEqual(user.user_id, userId)
 
-    def test_create_user_from_context_userId_in_custom_data_when_not_used(self):
+    def test_create_user_from_context_user_id_fields_always_excluded(self):
         targeting_key_id = "targeting-12345"
         userId = "userId-12345"
+        user_id = "user_id-12345"
         
-        # When targeting_key is used, userId should be in custom data
+        # When targeting_key is used, both user_id and userId should be excluded from custom data
         context = EvaluationContext(
             targeting_key=targeting_key_id, 
-            attributes={"userId": userId, "other_field": "value"}
+            attributes={"user_id": user_id, "userId": userId, "other_field": "value"}
         )
         user = DevCycleUser.create_user_from_context(context)
         self.assertEqual(user.user_id, targeting_key_id)
         self.assertIsNotNone(user.customData)
-        self.assertEqual(user.customData["userId"], userId)
+        self.assertNotIn("user_id", user.customData)
+        self.assertNotIn("userId", user.customData)
         self.assertEqual(user.customData["other_field"], "value")
         
-        # When user_id is used, userId should be in custom data
-        user_id = "user_id-12345"
+        # When user_id is used, userId should still be excluded from custom data
         context = EvaluationContext(
             targeting_key=None, 
             attributes={"user_id": user_id, "userId": userId, "other_field": "value"}
@@ -120,7 +121,8 @@ class DevCycleUserTest(unittest.TestCase):
         user = DevCycleUser.create_user_from_context(context)
         self.assertEqual(user.user_id, user_id)
         self.assertIsNotNone(user.customData)
-        self.assertEqual(user.customData["userId"], userId)
+        self.assertNotIn("user_id", user.customData)
+        self.assertNotIn("userId", user.customData)
         self.assertEqual(user.customData["other_field"], "value")
 
     def test_create_user_from_context_userId_excluded_when_used(self):
