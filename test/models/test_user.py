@@ -70,14 +70,13 @@ class DevCycleUserTest(unittest.TestCase):
         # Test 2: Priority order - targeting_key > user_id > userId
         context = EvaluationContext(
             targeting_key=targeting_key_id,
-            attributes={"user_id": user_id, "userId": user_id_attr}
+            attributes={"user_id": user_id, "userId": user_id_attr},
         )
         user = DevCycleUser.create_user_from_context(context)
         self.assertEqual(user.user_id, targeting_key_id)
 
         context = EvaluationContext(
-            targeting_key=None,
-            attributes={"user_id": user_id, "userId": user_id_attr}
+            targeting_key=None, attributes={"user_id": user_id, "userId": user_id_attr}
         )
         user = DevCycleUser.create_user_from_context(context)
         self.assertEqual(user.user_id, user_id)
@@ -102,7 +101,12 @@ class DevCycleUserTest(unittest.TestCase):
         # Test exclusion when targeting_key is used
         context = EvaluationContext(
             targeting_key=targeting_key_id,
-            attributes={"user_id": user_id, "userId": user_id_attr, "targeting_key": "should-be-excluded", "other_field": "value"}
+            attributes={
+                "user_id": user_id,
+                "userId": user_id_attr,
+                "targeting_key": "should-be-excluded",
+                "other_field": "value",
+            },
         )
         user = DevCycleUser.create_user_from_context(context)
         self.assertEqual(user.user_id, targeting_key_id)
@@ -115,7 +119,11 @@ class DevCycleUserTest(unittest.TestCase):
         # Test exclusion when user_id is used
         context = EvaluationContext(
             targeting_key=None,
-            attributes={"user_id": user_id, "userId": user_id_attr, "other_field": "value"}
+            attributes={
+                "user_id": user_id,
+                "userId": user_id_attr,
+                "other_field": "value",
+            },
         )
         user = DevCycleUser.create_user_from_context(context)
         self.assertEqual(user.user_id, user_id)
@@ -127,7 +135,7 @@ class DevCycleUserTest(unittest.TestCase):
         # Test exclusion when userId is used
         context = EvaluationContext(
             targeting_key=None,
-            attributes={"userId": user_id_attr, "other_field": "value"}
+            attributes={"userId": user_id_attr, "other_field": "value"},
         )
         user = DevCycleUser.create_user_from_context(context)
         self.assertEqual(user.user_id, user_id_attr)
