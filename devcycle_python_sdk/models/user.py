@@ -124,7 +124,7 @@ class DevCycleUser:
             raise TargetingKeyMissingError(
                 "DevCycle: Evaluation context does not contain a valid targeting key, user_id, or userId attribute"
             )
-        
+
         if not isinstance(user_id, str):
             raise TargetingKeyMissingError(
                 f"DevCycle: {user_id_source} must be a string, got {type(user_id).__name__}"
