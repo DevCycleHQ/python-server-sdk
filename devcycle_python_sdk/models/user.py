@@ -101,22 +101,33 @@ class DevCycleUser:
     ) -> "DevCycleUser":
         """
         Builds a DevCycleUser instance from the evaluation context. Will raise a TargetingKeyMissingError if
-        the context does not contain a valid targeting key or user_id attribute
+        the context does not contain a valid targeting key, user_id, or userId attribute
 
         :param context: The evaluation context to build the user from
         :return: A DevCycleUser instance
         """
         user_id = None
+        user_id_source = None
 
         if context:
             if context.targeting_key:
                 user_id = context.targeting_key
+                user_id_source = "targeting_key"
             elif context.attributes and "user_id" in context.attributes.keys():
                 user_id = context.attributes["user_id"]
+                user_id_source = "user_id"
+            elif context.attributes and "userId" in context.attributes.keys():
+                user_id = context.attributes["userId"]
+                user_id_source = "userId"
 
-        if not user_id or not isinstance(user_id, str):
+        if not user_id:
             raise TargetingKeyMissingError(
-                "DevCycle: Evaluation context does not contain a valid targeting key or user_id attribute"
+                "DevCycle: Evaluation context does not contain a valid targeting key, user_id, or userId attribute"
+            )
+
+        if not isinstance(user_id, str):
+            raise TargetingKeyMissingError(
+                f"DevCycle: {user_id_source} must be a string, got {type(user_id).__name__}"
             )
 
         user = DevCycleUser(user_id=user_id)
@@ -124,7 +135,8 @@ class DevCycleUser:
         private_custom_data: Dict[str, Any] = {}
         if context and context.attributes:
             for key, value in context.attributes.items():
-                if key == "user_id":
+                # Skip user_id, userId, and targeting_key - these are reserved for user ID mapping
+                if key in ("user_id", "userId", "targeting_key"):
                     continue
 
                 if value is not None:
