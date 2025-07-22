@@ -107,18 +107,14 @@ class DevCycleUser:
         :return: A DevCycleUser instance
         """
         user_id = None
-        user_id_source = None
 
         if context:
             if context.targeting_key:
                 user_id = context.targeting_key
-                user_id_source = "targeting_key"
             elif context.attributes and "user_id" in context.attributes.keys():
                 user_id = context.attributes["user_id"]
-                user_id_source = "user_id"
             elif context.attributes and "userId" in context.attributes.keys():
                 user_id = context.attributes["userId"]
-                user_id_source = "userId"
 
         if not user_id or not isinstance(user_id, str):
             raise TargetingKeyMissingError(
@@ -130,10 +126,8 @@ class DevCycleUser:
         private_custom_data: Dict[str, Any] = {}
         if context and context.attributes:
             for key, value in context.attributes.items():
-                # Skip user_id and userId - these are reserved for user ID mapping
-                if key == "user_id":
-                    continue
-                if key == "userId":
+                # Skip user_id, userId, and targeting_key - these are reserved for user ID mapping
+                if key in ("user_id", "userId", "targeting_key"):
                     continue
 
                 if value is not None:

@@ -125,6 +125,20 @@ class DevCycleUserTest(unittest.TestCase):
         self.assertNotIn("userId", user.customData)
         self.assertEqual(user.customData["other_field"], "value")
 
+    def test_create_user_from_context_targeting_key_excluded_from_attributes(self):
+        targeting_key_id = "targeting-12345"
+        
+        # When targeting_key appears in attributes, it should be excluded from custom data
+        context = EvaluationContext(
+            targeting_key=targeting_key_id, 
+            attributes={"targeting_key": "should-be-excluded", "other_field": "value"}
+        )
+        user = DevCycleUser.create_user_from_context(context)
+        self.assertEqual(user.user_id, targeting_key_id)
+        self.assertIsNotNone(user.customData)
+        self.assertNotIn("targeting_key", user.customData)
+        self.assertEqual(user.customData["other_field"], "value")
+
     def test_create_user_from_context_userId_excluded_when_used(self):
         userId = "userId-12345"
         
