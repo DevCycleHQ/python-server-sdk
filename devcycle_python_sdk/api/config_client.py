@@ -13,6 +13,7 @@ from devcycle_python_sdk.exceptions import (
     APIClientUnauthorizedError,
 )
 from devcycle_python_sdk.util.strings import slash_join
+from devcycle_python_sdk.util.json_utils import JSONUtils
 
 logger = logging.getLogger(__name__)
 
@@ -126,5 +127,11 @@ class ConfigAPIClient:
                 )
                 return None, None, None
 
-        data: dict = res.json()
+        # Use centralized JSON utility for consistent deserialization
+        try:
+            data: dict = JSONUtils.deserialize_config(res.text)
+        except ValueError as e:
+            logger.error(f"DevCycle: Failed to parse config response: {e}")
+            raise APIClientError(f"Invalid config response: {e}")
+            
         return data, new_etag, new_lastmodified

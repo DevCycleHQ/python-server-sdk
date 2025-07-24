@@ -15,6 +15,7 @@ from devcycle_python_sdk.managers.eval_hooks_manager import (
 )
 from devcycle_python_sdk.managers.event_queue_manager import EventQueueManager
 from devcycle_python_sdk.models.bucketed_config import BucketedConfig
+from devcycle_python_sdk.models.config_metadata import ConfigMetadata
 from devcycle_python_sdk.models.eval_hook import EvalHook
 from devcycle_python_sdk.models.eval_hook_context import HookContext
 from devcycle_python_sdk.models.event import DevCycleEvent, EventType
@@ -62,6 +63,13 @@ class DevCycleLocalClient(AbstractDevCycleClient):
 
     def get_sdk_platform(self) -> str:
         return "Local"
+
+    def get_metadata(self) -> Optional[ConfigMetadata]:
+        """
+        Get the current configuration metadata containing project, environment, and versioning information.
+        Returns None if the client has not been initialized or no config has been fetched.
+        """
+        return self.config_manager.get_config_metadata()
 
     def get_openfeature_provider(self) -> AbstractProvider:
         if self._openfeature_provider is None:
@@ -141,7 +149,9 @@ class DevCycleLocalClient(AbstractDevCycleClient):
                 )
             return Variable.create_default_variable(key, default_value)
 
-        context = HookContext(key, user, default_value)
+        # Get current config metadata for hook context
+        metadata = self.config_manager.get_config_metadata()
+        context = HookContext(key, user, default_value, metadata)
         variable = Variable.create_default_variable(
             key=key, default_value=default_value
         )

@@ -16,6 +16,7 @@ from devcycle_python_sdk.exceptions import (
 from wsgiref.handlers import format_date_time
 from devcycle_python_sdk.options import DevCycleLocalOptions
 from devcycle_python_sdk.managers.sse_manager import SSEManager
+from devcycle_python_sdk.models.config_metadata import ConfigMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +39,7 @@ class EnvironmentConfigManager(threading.Thread):
         self._config: Optional[dict] = None
         self._config_etag: Optional[str] = None
         self._config_lastmodified: Optional[str] = None
+        self._config_metadata: Optional[ConfigMetadata] = None
 
         self._config_api_client = ConfigAPIClient(self._sdk_key, self._options)
 
@@ -47,6 +49,10 @@ class EnvironmentConfigManager(threading.Thread):
 
     def is_initialized(self) -> bool:
         return self._config is not None
+
+    def get_config_metadata(self) -> Optional[ConfigMetadata]:
+        """Get the current configuration metadata"""
+        return self._config_metadata
 
     def _get_config(self, last_modified: Optional[float] = None):
         try:
@@ -77,6 +83,11 @@ class EnvironmentConfigManager(threading.Thread):
             self._config = new_config
             self._config_etag = new_etag
             self._config_lastmodified = new_lastmodified
+
+            # Create and store config metadata
+            self._config_metadata = ConfigMetadata.from_config_response(
+                new_config, new_etag, new_lastmodified
+            )
 
             json_config = json.dumps(self._config)
             self._local_bucketing.store_config(json_config)

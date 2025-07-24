@@ -97,7 +97,8 @@ class DevCycleCloudClient(AbstractDevCycleClient):
         if default_value is None:
             raise ValueError("Missing parameter: defaultValue")
 
-        context = HookContext(key, user, default_value)
+        # Cloud client passes null metadata to maintain distinction from local client
+        context = HookContext(key, user, default_value, metadata=None)
         variable = Variable.create_default_variable(
             key=key, default_value=default_value
         )
