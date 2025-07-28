@@ -135,7 +135,10 @@ class DevCycleLocalClient(AbstractDevCycleClient):
             try:
                 self.event_queue_manager.queue_aggregate_event(
                     event=DevCycleEvent(
-                        type=EventType.AggVariableDefaulted, target=key, value=1, metaData={"evalReason": EvalReasons.DEFAULT}
+                        type=EventType.AggVariableDefaulted,
+                        target=key,
+                        value=1,
+                        metaData={"evalReason": EvalReasons.DEFAULT},
                     ),
                     bucketed_config=None,
                 )

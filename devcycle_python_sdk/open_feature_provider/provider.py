@@ -88,20 +88,10 @@ class DevCycleProvider(AbstractProvider):
                     else:
                         reason = Reason.TARGETING_MATCH
 
-                    # Build flag metadata if eval details exist
-                    flag_metadata = {}
-                    if variable.eval:
-                        if variable.eval.details:
-                            flag_metadata["evalReasonDetails"] = variable.eval.details
-                        if variable.eval.target_id:
-                            flag_metadata["evalReasonTargetId"] = (
-                                variable.eval.target_id
-                            )
-
                     return FlagResolutionDetails(
                         value=variable.value,
                         reason=reason,
-                        flag_metadata=flag_metadata if flag_metadata else None,
+                        flag_metadata=variable.get_flag_meta_data(),
                     )
             except ValueError as e:
                 # occurs if the key or default value is None
