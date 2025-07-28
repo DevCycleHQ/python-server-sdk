@@ -67,7 +67,7 @@ class Variable:
 
     @staticmethod
     def create_default_variable(
-        key: str, default_value: Any, default_reason_detail: str = None
+        key: str, default_value: Any, default_reason_detail: Optional[str] = None
     ) -> "Variable":
         var_type = determine_variable_type(default_value)
         if default_reason_detail is not None:

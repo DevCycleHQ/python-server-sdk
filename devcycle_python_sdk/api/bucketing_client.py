@@ -92,12 +92,17 @@ class BucketingAPIClient:
     def variable(self, key: str, user: DevCycleUser) -> Variable:
         data = self.request("POST", self._url("variables", key), json=user.to_json())
 
+        eval_data = data.get("eval")
+        eval_reason = None
+        if eval_data is not None and isinstance(eval_data, dict):
+            eval_reason = EvalReason.from_json(eval_data)
+
         return Variable(
             _id=data.get("_id"),
             key=data.get("key", ""),
             type=data.get("type", ""),
             value=data.get("value"),
-            eval=EvalReason.from_json(data.get("eval")) if data.get("eval") else None,
+            eval=eval_reason,
         )
 
     def variables(self, user: DevCycleUser) -> Dict[str, Variable]:
