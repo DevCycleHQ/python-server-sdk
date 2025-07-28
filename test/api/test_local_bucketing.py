@@ -10,6 +10,7 @@ from devcycle_python_sdk.models.bucketed_config import (
     Project,
     ProjectSettings,
 )
+from devcycle_python_sdk.models.eval_reason import EvalReason
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.variable import Variable
 from devcycle_python_sdk.models.platform_data import default_platform_data
@@ -155,6 +156,11 @@ class LocalBucketingTest(unittest.TestCase):
                 evalReason=None,
             )
         }
+        expected_eval = EvalReason(
+            reason='TARGETING_MATCH',
+            details='All Users',
+            target_id='63125321d31c601f992288bc'
+        )
         expected_variables = {
             "a-cool-new-feature": Variable(
                 _id="62fbf6566f1ba302829f9e34",
@@ -164,6 +170,7 @@ class LocalBucketingTest(unittest.TestCase):
                 isDefaulted=None,
                 defaultValue=None,
                 evalReason=None,
+                eval=expected_eval,
             ),
             "string-var": Variable(
                 _id="63125320a4719939fd57cb2b",
@@ -173,6 +180,7 @@ class LocalBucketingTest(unittest.TestCase):
                 isDefaulted=None,
                 defaultValue=None,
                 evalReason=None,
+                eval=expected_eval,
             ),
             "json-var": Variable(
                 _id="64372363125123fca69d3f7b",
@@ -186,6 +194,7 @@ class LocalBucketingTest(unittest.TestCase):
                 isDefaulted=None,
                 defaultValue=None,
                 evalReason=None,
+                eval=expected_eval,
             ),
             "num-var": Variable(
                 _id="65272363125123fca69d3a7d",
@@ -195,6 +204,7 @@ class LocalBucketingTest(unittest.TestCase):
                 isDefaulted=None,
                 defaultValue=None,
                 evalReason=None,
+                eval=expected_eval,
             ),
             "float-var": Variable(
                 _id="61200363125123fca69d3a7a",
@@ -204,6 +214,7 @@ class LocalBucketingTest(unittest.TestCase):
                 isDefaulted=None,
                 defaultValue=None,
                 evalReason=None,
+                eval=expected_eval,
             ),
         }
 
