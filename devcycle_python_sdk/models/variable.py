@@ -66,12 +66,13 @@ class Variable:
         )
 
     @staticmethod
-    def create_default_variable(key: str, default_value: Any, default_reason_detail: str = None) -> "Variable":
+    def create_default_variable(
+        key: str, default_value: Any, default_reason_detail: str = None
+    ) -> "Variable":
         var_type = determine_variable_type(default_value)
         if default_reason_detail is not None:
             eval_reason = EvalReason(
-                reason=EvalReasons.DEFAULT,
-                details=default_reason_detail
+                reason=EvalReasons.DEFAULT, details=default_reason_detail
             )
         else:
             eval_reason = None

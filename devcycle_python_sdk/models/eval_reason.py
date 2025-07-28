@@ -4,11 +4,13 @@ from typing import Optional
 
 class EvalReasons:
     """Evaluation reasons constants"""
+
     DEFAULT = "DEFAULT"
 
 
 class DefaultReasonDetails:
     """Default reason details constants"""
+
     MISSING_CONFIG = "Missing Config"
     USER_NOT_TARGETED = "User Not Targeted"
     TYPE_MISMATCH = "Variable Type Mismatch"

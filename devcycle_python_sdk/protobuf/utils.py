@@ -94,7 +94,7 @@ def create_eval_reason_from_pb(eval_reason_pb: pb2.EvalReason_PB) -> EvalReason:
 
 def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Variable:  # type: ignore
     eval_reason_obj = None
-    if sdk_variable.HasField('eval'):
+    if sdk_variable.HasField("eval"):
         eval_reason_obj = create_eval_reason_from_pb(sdk_variable.eval)
 
     if sdk_variable.type == pb2.VariableType_PB.Boolean:  # type: ignore

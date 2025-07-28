@@ -157,9 +157,9 @@ class LocalBucketingTest(unittest.TestCase):
             )
         }
         expected_eval = EvalReason(
-            reason='TARGETING_MATCH',
-            details='All Users',
-            target_id='63125321d31c601f992288bc'
+            reason="TARGETING_MATCH",
+            details="All Users",
+            target_id="63125321d31c601f992288bc",
         )
         expected_variables = {
             "a-cool-new-feature": Variable(

@@ -16,7 +16,11 @@ from devcycle_python_sdk.managers.event_queue_manager import EventQueueManager
 from devcycle_python_sdk.models.bucketed_config import BucketedConfig
 from devcycle_python_sdk.models.eval_hook import EvalHook
 from devcycle_python_sdk.models.eval_hook_context import HookContext
-from devcycle_python_sdk.models.eval_reason import DefaultReasonDetails, EvalReason, EvalReasons
+from devcycle_python_sdk.models.eval_reason import (
+    DefaultReasonDetails,
+    EvalReason,
+    EvalReasons,
+)
 from devcycle_python_sdk.models.event import DevCycleEvent, EventType
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.platform_data import default_platform_data
@@ -139,7 +143,9 @@ class DevCycleLocalClient(AbstractDevCycleClient):
                 logger.warning(
                     f"DevCycle: Unable to track AggVariableDefaulted event for Variable {key}: {e}"
                 )
-            return Variable.create_default_variable(key, default_value, DefaultReasonDetails.MISSING_CONFIG)
+            return Variable.create_default_variable(
+                key, default_value, DefaultReasonDetails.MISSING_CONFIG
+            )
 
         context = HookContext(key, user, default_value)
         variable = Variable.create_default_variable(
@@ -162,7 +168,7 @@ class DevCycleLocalClient(AbstractDevCycleClient):
             else:
                 variable.eval = EvalReason(
                     reason=EvalReasons.DEFAULT,
-                    details=DefaultReasonDetails.USER_NOT_TARGETED
+                    details=DefaultReasonDetails.USER_NOT_TARGETED,
                 )
 
             if before_hook_error is None:
@@ -171,8 +177,7 @@ class DevCycleLocalClient(AbstractDevCycleClient):
                 raise before_hook_error
         except Exception as e:
             variable.eval = EvalReason(
-                reason=EvalReasons.DEFAULT,
-                details=DefaultReasonDetails.ERROR
+                reason=EvalReasons.DEFAULT, details=DefaultReasonDetails.ERROR
             )
 
             if isinstance(e, BeforeHookError):
@@ -180,8 +185,7 @@ class DevCycleLocalClient(AbstractDevCycleClient):
             elif isinstance(e, AfterHookError):
                 self.eval_hooks_manager.run_error(context, e)
             else:
-                logger.warning(
-                    f"DevCycle: Error retrieving variable for user: {e}")
+                logger.warning(f"DevCycle: Error retrieving variable for user: {e}")
 
             return variable
         finally:
