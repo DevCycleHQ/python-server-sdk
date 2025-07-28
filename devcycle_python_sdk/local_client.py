@@ -6,7 +6,6 @@ from typing import Any, Dict, Union, Optional
 
 from devcycle_python_sdk import DevCycleLocalOptions, AbstractDevCycleClient
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
-from devcycle_python_sdk.exceptions import VariableTypeMismatchError
 from devcycle_python_sdk.managers.config_manager import EnvironmentConfigManager
 from devcycle_python_sdk.managers.eval_hooks_manager import (
     EvalHooksManager,

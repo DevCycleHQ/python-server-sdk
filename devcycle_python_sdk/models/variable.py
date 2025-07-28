@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from typing import Optional, Any
 
-from .eval_reason import EvalReason, EvalReasons, DefaultReasonDetails
+from .eval_reason import EvalReason, EvalReasons
 
 
 class TypeEnum:

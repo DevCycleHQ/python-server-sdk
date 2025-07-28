@@ -34,4 +34,4 @@ class EvalReason:
             reason=data["reason"],
             details=data.get("details"),
             target_id=data.get("target_id"),
-        ) 
+        )
