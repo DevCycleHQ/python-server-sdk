@@ -43,7 +43,7 @@ class SSEManager:
                 elif isinstance(event, ld_eventsource.actions.Event):
                     handle_message(event)
         except Exception as e:
-            logger.exception(f"DevCycle: failed to read SSE message: {e}")
+            logger.debug(f"DevCycle: failed to read SSE message: {e}")
 
     def update(self, config: dict):
         if self.use_new_config(config["sse"]):
