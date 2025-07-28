@@ -2,7 +2,7 @@ name: Run Test Harness
 
 on:
   pull_request:
-    branches: [main]
+    branches: [feat/eval-reasons, main]
 
 permissions:
   contents: read
