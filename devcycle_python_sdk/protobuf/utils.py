@@ -5,6 +5,7 @@ import math
 from typing import Any, Optional
 
 from devcycle_python_sdk.models.variable import TypeEnum, Variable
+from devcycle_python_sdk.models.eval_reason import EvalReason
 from devcycle_python_sdk.models.user import DevCycleUser
 
 import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
@@ -82,7 +83,20 @@ def create_dvcuser_pb(user: DevCycleUser) -> pb2.DVCUser_PB:  # type: ignore
     )
 
 
+def create_eval_reason_from_pb(eval_reason_pb: pb2.EvalReason_PB) -> EvalReason:  # type: ignore
+    """Convert EvalReason_PB protobuf message to EvalReason object"""
+    return EvalReason(
+        reason=eval_reason_pb.reason,
+        details=eval_reason_pb.details if eval_reason_pb.details else None,
+        target_id=eval_reason_pb.target_id if eval_reason_pb.target_id else None,
+    )
+
+
 def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Variable:  # type: ignore
+    eval_reason_obj = None
+    if sdk_variable.HasField('eval'):
+        eval_reason_obj = create_eval_reason_from_pb(sdk_variable.eval)
+
     if sdk_variable.type == pb2.VariableType_PB.Boolean:  # type: ignore
         return Variable(
             _id=None,
@@ -91,6 +105,7 @@ def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Var
             type=TypeEnum.BOOLEAN,
             isDefaulted=False,
             defaultValue=default_value,
+            eval=eval_reason_obj,
         )
 
     elif sdk_variable.type == pb2.VariableType_PB.String:  # type: ignore
@@ -101,6 +116,7 @@ def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Var
             type=TypeEnum.STRING,
             isDefaulted=False,
             defaultValue=default_value,
+            eval=eval_reason_obj,
         )
 
     elif sdk_variable.type == pb2.VariableType_PB.Number:  # type: ignore
@@ -111,6 +127,7 @@ def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Var
             type=TypeEnum.NUMBER,
             isDefaulted=False,
             defaultValue=default_value,
+            eval=eval_reason_obj,
         )
 
     elif sdk_variable.type == pb2.VariableType_PB.JSON:  # type: ignore
@@ -123,6 +140,7 @@ def create_variable(sdk_variable: pb2.SDKVariable_PB, default_value: Any) -> Var
             type=TypeEnum.JSON,
             isDefaulted=False,
             defaultValue=default_value,
+            eval=eval_reason_obj,
         )
 
     else:

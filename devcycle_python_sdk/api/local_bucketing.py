@@ -323,14 +323,7 @@ class LocalBucketing:
                 var_bytes = self._read_assembly_script_byte_array(variable_addr)
                 sdk_variable = pb2.SDKVariable_PB()
                 sdk_variable.ParseFromString(var_bytes)
-
-                if sdk_variable.type != pb_variable_type:
-                    # this situation should never actually happen because the WASM handles
-                    # it internally and returns a null value from the WASM function
-                    # This check is here just in case that logic changes in the future
-                    raise VariableTypeMismatchError(
-                        f"Variable returned does not match requested type: {pb_variable_type}"
-                    )
+             
                 return pb_utils.create_variable(sdk_variable, default_value)
 
     def generate_bucketed_config(self, user: DevCycleUser) -> BucketedConfig:
