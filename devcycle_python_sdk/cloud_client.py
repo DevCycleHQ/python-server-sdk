@@ -16,8 +16,6 @@ from devcycle_python_sdk.managers.eval_hooks_manager import (
 )
 from devcycle_python_sdk.models.eval_reason import (
     DefaultReasonDetails,
-    EvalReason,
-    EvalReasons,
 )
 from devcycle_python_sdk.models.eval_hook import EvalHook
 from devcycle_python_sdk.models.eval_hook_context import HookContext

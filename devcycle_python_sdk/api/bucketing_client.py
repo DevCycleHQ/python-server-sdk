@@ -111,6 +111,11 @@ class BucketingAPIClient:
                 type=str(value.get("type")),
                 value=value.get("value"),
                 isDefaulted=None,
+                eval=(
+                    EvalReason.from_json(value.get("eval"))
+                    if value.get("eval")
+                    else None
+                ),
             )
 
         return result
