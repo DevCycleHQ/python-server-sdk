@@ -209,6 +209,8 @@ class DevCycleLocalClientTest(unittest.TestCase):
             self.assertEqual(result.defaultValue, test_value)
             self.assertEqual(result.value, test_value)
             self.assertEqual(result.type, value_type)
+            self.assertEqual(result.eval.reason, "DEFAULT")
+            self.assertEqual(result.eval.details, "User Not Targeted")
 
     @responses.activate
     def test_variable_with_bucketing(self):
@@ -242,6 +244,9 @@ class DevCycleLocalClientTest(unittest.TestCase):
                 self.assertDictEqual(result.value, expected, msg="Test key: " + key)
             else:
                 self.assertEqual(result.value, expected, msg="Test key: " + key)
+            self.assertEqual(result.eval.reason, "TARGETING_MATCH")
+            self.assertEqual(result.eval.details, "All Users")
+            self.assertEqual(result.eval.target_id, "63125321d31c601f992288bc")
 
     @responses.activate
     def test_variable_with_events(self):
