@@ -2,6 +2,8 @@
 from dataclasses import dataclass
 from typing import Optional, Any
 
+from .eval_reason import EvalReason, EvalReasons
+
 
 class TypeEnum:
     BOOLEAN = "Boolean"
@@ -32,16 +34,26 @@ class Variable:
     isDefaulted: Optional[bool] = False
     defaultValue: Any = None
     evalReason: Optional[str] = None
+    eval: Optional[EvalReason] = None
 
     def to_json(self):
-        return {
-            key: getattr(self, key)
-            for key in self.__dataclass_fields__
-            if getattr(self, key) is not None
-        }
+        result = {}
+        for key in self.__dataclass_fields__:
+            value = getattr(self, key)
+            if value is not None:
+                if key == "eval" and isinstance(value, EvalReason):
+                    result[key] = value.to_json()
+                else:
+                    result[key] = value
+        return result
 
     @classmethod
     def from_json(cls, data: dict) -> "Variable":
+        eval_data = data.get("eval")
+        eval_reason = None
+        if eval_data:
+            eval_reason = EvalReason.from_json(eval_data)
+
         return cls(
             _id=data["_id"],
             key=data["key"],
@@ -50,11 +62,20 @@ class Variable:
             isDefaulted=data.get("isDefaulted", None),
             defaultValue=data.get("defaultValue"),
             evalReason=data.get("evalReason"),
+            eval=eval_reason,
         )
 
     @staticmethod
-    def create_default_variable(key: str, default_value: Any) -> "Variable":
+    def create_default_variable(
+        key: str, default_value: Any, default_reason_detail: Optional[str] = None
+    ) -> "Variable":
         var_type = determine_variable_type(default_value)
+        if default_reason_detail is not None:
+            eval_reason = EvalReason(
+                reason=EvalReasons.DEFAULT, details=default_reason_detail
+            )
+        else:
+            eval_reason = None
         return Variable(
             _id=None,
             key=key,
@@ -62,4 +83,5 @@ class Variable:
             value=default_value,
             defaultValue=default_value,
             isDefaulted=True,
+            eval=eval_reason,
         )

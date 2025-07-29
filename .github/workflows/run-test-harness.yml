@@ -13,8 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: DevCycleHQ/test-harness@main
-        env:
-          SDK_CAPABILITIES: '["clientCustomData","v2Config","EdgeDB","CloudBucketing"]'
         with:
           sdks-to-test: python
           sdk-github-sha: ${{github.event.pull_request.head.sha}}
+          sdk-capabilities: '["cloud", "edgeDB", "clientCustomData","v2Config", "allVariables", "allFeatures", "evalReason", "cloudEvalReason"]'

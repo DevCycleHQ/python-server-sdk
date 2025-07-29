@@ -14,6 +14,9 @@ from devcycle_python_sdk.managers.eval_hooks_manager import (
     BeforeHookError,
     AfterHookError,
 )
+from devcycle_python_sdk.models.eval_reason import (
+    DefaultReasonDetails,
+)
 from devcycle_python_sdk.models.eval_hook import EvalHook
 from devcycle_python_sdk.models.eval_hook_context import HookContext
 from devcycle_python_sdk.models.user import DevCycleUser
@@ -121,7 +124,9 @@ class DevCycleCloudClient(AbstractDevCycleClient):
         except NotFoundError:
             logger.warning(f"DevCycle: Variable not found: {key}")
             return Variable.create_default_variable(
-                key=key, default_value=default_value
+                key=key,
+                default_value=default_value,
+                default_reason_detail=DefaultReasonDetails.MISSING_VARIABLE,
             )
         except BeforeHookError as e:
             self.eval_hooks_manager.run_error(context, e)
@@ -130,7 +135,9 @@ class DevCycleCloudClient(AbstractDevCycleClient):
         except Exception as e:
             logger.error(f"DevCycle: Error evaluating variable: {e}")
             return Variable.create_default_variable(
-                key=key, default_value=default_value
+                key=key,
+                default_value=default_value,
+                default_reason_detail=DefaultReasonDetails.ERROR,
             )
         finally:
             self.eval_hooks_manager.run_finally(context, variable)
@@ -143,7 +150,9 @@ class DevCycleCloudClient(AbstractDevCycleClient):
                 f"DevCycle: Variable {key} is type {type(variable.value)}, but default value is type {type(default_value)}",
             )
             return Variable.create_default_variable(
-                key=key, default_value=default_value
+                key=key,
+                default_value=default_value,
+                default_reason_detail=DefaultReasonDetails.TYPE_MISMATCH,
             )
 
         return variable

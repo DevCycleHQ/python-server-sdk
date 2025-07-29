@@ -10,6 +10,7 @@ from devcycle_python_sdk import DevCycleLocalClient, DevCycleLocalOptions
 from devcycle_python_sdk.local_client import _validate_user, _validate_sdk_key
 from devcycle_python_sdk.exceptions import MalformedConfigError
 from devcycle_python_sdk.models.eval_hook import EvalHook
+from devcycle_python_sdk.models.eval_reason import EvalReason
 from devcycle_python_sdk.models.event import DevCycleEvent
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
@@ -208,6 +209,8 @@ class DevCycleLocalClientTest(unittest.TestCase):
             self.assertEqual(result.defaultValue, test_value)
             self.assertEqual(result.value, test_value)
             self.assertEqual(result.type, value_type)
+            self.assertEqual(result.eval.reason, "DEFAULT")
+            self.assertEqual(result.eval.details, "User Not Targeted")
 
     @responses.activate
     def test_variable_with_bucketing(self):
@@ -241,6 +244,9 @@ class DevCycleLocalClientTest(unittest.TestCase):
                 self.assertDictEqual(result.value, expected, msg="Test key: " + key)
             else:
                 self.assertEqual(result.value, expected, msg="Test key: " + key)
+            self.assertEqual(result.eval.reason, "TARGETING_MATCH")
+            self.assertEqual(result.eval.details, "All Users")
+            self.assertEqual(result.eval.target_id, "63125321d31c601f992288bc")
 
     @responses.activate
     def test_variable_with_events(self):
@@ -294,7 +300,11 @@ class DevCycleLocalClientTest(unittest.TestCase):
         user = DevCycleUser(user_id="1234")
 
         result = self.client.all_variables(user)
-
+        expected_eval = EvalReason(
+            reason="TARGETING_MATCH",
+            details="All Users",
+            target_id="63125321d31c601f992288bc",
+        )
         expected_variables = {
             "a-cool-new-feature": Variable(
                 _id="62fbf6566f1ba302829f9e34",
@@ -304,6 +314,7 @@ class DevCycleLocalClientTest(unittest.TestCase):
                 isDefaulted=None,
                 defaultValue=None,
                 evalReason=None,
+                eval=expected_eval,
             ),
             "string-var": Variable(
                 _id="63125320a4719939fd57cb2b",
@@ -313,6 +324,7 @@ class DevCycleLocalClientTest(unittest.TestCase):
                 isDefaulted=None,
                 defaultValue=None,
                 evalReason=None,
+                eval=expected_eval,
             ),
             "json-var": Variable(
                 _id="64372363125123fca69d3f7b",
@@ -326,6 +338,7 @@ class DevCycleLocalClientTest(unittest.TestCase):
                 isDefaulted=None,
                 defaultValue=None,
                 evalReason=None,
+                eval=expected_eval,
             ),
             "num-var": Variable(
                 _id="65272363125123fca69d3a7d",
@@ -335,6 +348,7 @@ class DevCycleLocalClientTest(unittest.TestCase):
                 isDefaulted=None,
                 defaultValue=None,
                 evalReason=None,
+                eval=expected_eval,
             ),
             "float-var": Variable(
                 _id="61200363125123fca69d3a7a",
@@ -344,6 +358,7 @@ class DevCycleLocalClientTest(unittest.TestCase):
                 isDefaulted=None,
                 defaultValue=None,
                 evalReason=None,
+                eval=expected_eval,
             ),
         }
         self.assertEqual(result, expected_variables)

@@ -5,6 +5,7 @@ import uuid
 from time import time
 from unittest.mock import patch
 
+
 from devcycle_python_sdk import DevCycleCloudClient, DevCycleCloudOptions
 from devcycle_python_sdk.models.eval_hook import EvalHook
 from devcycle_python_sdk.models.user import DevCycleUser
@@ -97,6 +98,8 @@ class DevCycleCloudClientTest(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(result.value, "default_value")
         self.assertTrue(result.isDefaulted)
+        self.assertEqual(result.eval.reason, "DEFAULT")
+        self.assertEqual(result.eval.details, "Missing Variable")
 
         # other exception - return default
         mock_variable_call.reset_mock()
@@ -105,6 +108,8 @@ class DevCycleCloudClientTest(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(result.value, "default_value")
         self.assertTrue(result.isDefaulted)
+        self.assertEqual(result.eval.reason, "DEFAULT")
+        self.assertEqual(result.eval.details, "Error")
 
     @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.variable")
     def test_variable_type_mismatch(self, mock_variable_call):
@@ -116,6 +121,8 @@ class DevCycleCloudClientTest(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(result.value, "default_value")
         self.assertTrue(result.isDefaulted)
+        self.assertEqual(result.eval.reason, "DEFAULT")
+        self.assertEqual(result.eval.details, "Variable Type Mismatch")
 
     @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.variable")
     def test_variable_value_defaults(self, mock_variable_call):

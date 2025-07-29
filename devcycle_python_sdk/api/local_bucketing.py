@@ -22,7 +22,6 @@ from wasmtime import (
 import devcycle_python_sdk.protobuf.utils as pb_utils
 import devcycle_python_sdk.protobuf.variableForUserParams_pb2 as pb2
 from devcycle_python_sdk.exceptions import (
-    VariableTypeMismatchError,
     MalformedConfigError,
 )
 from devcycle_python_sdk.models.bucketed_config import BucketedConfig
@@ -324,13 +323,6 @@ class LocalBucketing:
                 sdk_variable = pb2.SDKVariable_PB()
                 sdk_variable.ParseFromString(var_bytes)
 
-                if sdk_variable.type != pb_variable_type:
-                    # this situation should never actually happen because the WASM handles
-                    # it internally and returns a null value from the WASM function
-                    # This check is here just in case that logic changes in the future
-                    raise VariableTypeMismatchError(
-                        f"Variable returned does not match requested type: {pb_variable_type}"
-                    )
                 return pb_utils.create_variable(sdk_variable, default_value)
 
     def generate_bucketed_config(self, user: DevCycleUser) -> BucketedConfig:

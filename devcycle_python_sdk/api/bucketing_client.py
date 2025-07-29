@@ -15,6 +15,7 @@ from devcycle_python_sdk.models.event import DevCycleEvent
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.variable import Variable
+from devcycle_python_sdk.models.eval_reason import EvalReason
 from devcycle_python_sdk.util.strings import slash_join
 
 logger = logging.getLogger(__name__)
@@ -91,11 +92,17 @@ class BucketingAPIClient:
     def variable(self, key: str, user: DevCycleUser) -> Variable:
         data = self.request("POST", self._url("variables", key), json=user.to_json())
 
+        eval_data = data.get("eval")
+        eval_reason = None
+        if eval_data is not None and isinstance(eval_data, dict):
+            eval_reason = EvalReason.from_json(eval_data)
+
         return Variable(
             _id=data.get("_id"),
             key=data.get("key", ""),
             type=data.get("type", ""),
             value=data.get("value"),
+            eval=eval_reason,
         )
 
     def variables(self, user: DevCycleUser) -> Dict[str, Variable]:
@@ -109,6 +116,11 @@ class BucketingAPIClient:
                 type=str(value.get("type")),
                 value=value.get("value"),
                 isDefaulted=None,
+                eval=(
+                    EvalReason.from_json(value.get("eval"))
+                    if value.get("eval")
+                    else None
+                ),
             )
 
         return result
