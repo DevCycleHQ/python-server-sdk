@@ -99,7 +99,7 @@ class DevCycleCloudClientTest(unittest.TestCase):
         self.assertEqual(result.value, "default_value")
         self.assertTrue(result.isDefaulted)
         self.assertEqual(result.eval.reason, "DEFAULT")
-        self.assertEqual(result.eval.details, "Missing Variable")
+        self.assertEqual(result.eval.details, "Error")
 
         # other exception - return default
         mock_variable_call.reset_mock()
