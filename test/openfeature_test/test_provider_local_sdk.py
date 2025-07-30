@@ -66,6 +66,11 @@ class DevCycleProviderWithLocalSDKTest(unittest.TestCase):
         self.assertIsNotNone(details)
         self.assertEqual(details.value, expected_value)
         self.assertEqual(details.reason, Reason.TARGETING_MATCH)
+        self.assertIsNotNone(details.flag_metadata)
+        self.assertEqual(details.flag_metadata["evalReasonDetails"], "All Users")
+        self.assertEqual(
+            details.flag_metadata["evalReasonTargetId"], "63125321d31c601f992288bc"
+        )
 
     @responses.activate
     def test_resolve_integer_details(self):
@@ -82,6 +87,11 @@ class DevCycleProviderWithLocalSDKTest(unittest.TestCase):
         self.assertIsNotNone(details)
         self.assertEqual(details.value, expected_value)
         self.assertEqual(details.reason, Reason.TARGETING_MATCH)
+        self.assertIsNotNone(details.flag_metadata)
+        self.assertEqual(details.flag_metadata["evalReasonDetails"], "All Users")
+        self.assertEqual(
+            details.flag_metadata["evalReasonTargetId"], "63125321d31c601f992288bc"
+        )
 
     @responses.activate
     def test_resolve_float_details(self):
@@ -98,6 +108,11 @@ class DevCycleProviderWithLocalSDKTest(unittest.TestCase):
         self.assertIsNotNone(details)
         self.assertEqual(details.value, expected_value)
         self.assertEqual(details.reason, Reason.TARGETING_MATCH)
+        self.assertIsNotNone(details.flag_metadata)
+        self.assertEqual(details.flag_metadata["evalReasonDetails"], "All Users")
+        self.assertEqual(
+            details.flag_metadata["evalReasonTargetId"], "63125321d31c601f992288bc"
+        )
 
     @responses.activate
     def test_resolve_string_details(self):
@@ -114,6 +129,11 @@ class DevCycleProviderWithLocalSDKTest(unittest.TestCase):
         self.assertIsNotNone(details)
         self.assertEqual(details.value, expected_value)
         self.assertEqual(details.reason, Reason.TARGETING_MATCH)
+        self.assertIsNotNone(details.flag_metadata)
+        self.assertEqual(details.flag_metadata["evalReasonDetails"], "All Users")
+        self.assertEqual(
+            details.flag_metadata["evalReasonTargetId"], "63125321d31c601f992288bc"
+        )
 
     @responses.activate
     def test_resolve_object_details(self):
@@ -134,3 +154,8 @@ class DevCycleProviderWithLocalSDKTest(unittest.TestCase):
         self.assertIsNotNone(details)
         self.assertEqual(details.value, expected_value)
         self.assertEqual(details.reason, Reason.TARGETING_MATCH)
+        self.assertIsNotNone(details.flag_metadata)
+        self.assertEqual(details.flag_metadata["evalReasonDetails"], "All Users")
+        self.assertEqual(
+            details.flag_metadata["evalReasonTargetId"], "63125321d31c601f992288bc"
+        )

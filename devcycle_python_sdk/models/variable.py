@@ -85,3 +85,19 @@ class Variable:
             isDefaulted=True,
             eval=eval_reason,
         )
+
+    def get_flag_meta_data(self) -> dict:
+        """
+        Returns metadata dictionary for OpenFeature flag resolution.
+
+        Returns:
+            dict: Dictionary containing evalReasonDetails and evalReasonTargetId
+                  if they exist, empty dict otherwise.
+        """
+        meta_data = {}
+        if self.eval:
+            if self.eval.details:
+                meta_data["evalReasonDetails"] = self.eval.details
+            if self.eval.target_id:
+                meta_data["evalReasonTargetId"] = self.eval.target_id
+        return meta_data
