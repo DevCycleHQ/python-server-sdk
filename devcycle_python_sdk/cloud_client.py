@@ -126,7 +126,7 @@ class DevCycleCloudClient(AbstractDevCycleClient):
             return Variable.create_default_variable(
                 key=key,
                 default_value=default_value,
-                default_reason_detail=DefaultReasonDetails.MISSING_VARIABLE,
+                default_reason_detail=DefaultReasonDetails.ERROR,
             )
         except BeforeHookError as e:
             self.eval_hooks_manager.run_error(context, e)

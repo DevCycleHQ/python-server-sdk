@@ -14,7 +14,6 @@ class DefaultReasonDetails:
     MISSING_CONFIG = "Missing Config"
     USER_NOT_TARGETED = "User Not Targeted"
     TYPE_MISMATCH = "Variable Type Mismatch"
-    MISSING_VARIABLE = "Missing Variable"
     ERROR = "Error"
 
 
