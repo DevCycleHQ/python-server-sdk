@@ -150,7 +150,9 @@ class DevCycleLocalClient(AbstractDevCycleClient):
                 key, default_value, DefaultReasonDetails.MISSING_CONFIG
             )
 
-        context = HookContext(key, user, default_value)
+        config_metadata = self.local_bucketing.get_config_metadata()
+
+        context = HookContext(key, user, default_value, config_metadata)
         variable = Variable.create_default_variable(
             key=key, default_value=default_value
         )

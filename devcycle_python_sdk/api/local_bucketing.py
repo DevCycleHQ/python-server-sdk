@@ -28,6 +28,7 @@ from devcycle_python_sdk.models.bucketed_config import BucketedConfig
 from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.variable import Variable, determine_variable_type
 from devcycle_python_sdk.models.event import FlushPayload
+from devcycle_python_sdk.models.config_metadata import ConfigMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -140,6 +141,7 @@ class LocalBucketing:
             "generateBucketedConfigForUserUTF8"
         )
         self.VariableForUserProtobuf = self._get_export("variableForUser_PB")
+        self.getConfigMetadata = self._get_export("getConfigMetadata")
 
         # Extract variable type enum values from WASM
         self.variable_type_map = {
@@ -356,6 +358,14 @@ class LocalBucketing:
             data = config_json.encode("utf-8")
             config_addr = self._new_assembly_script_byte_array(data)
             self.setConfigDataUTF8(self.wasm_store, self.sdk_key_addr, config_addr)
+
+    def get_config_metadata(self) -> dict:
+        with self.wasm_lock:
+            config_addr = self.getConfigMetadata(self.wasm_store, self.sdk_key_addr)
+            config_bytes = self._read_assembly_script_string(config_addr)
+            config_data = json.loads(config_bytes.encode("utf-8"))
+
+            return ConfigMetadata.from_json(config_data)
 
     def set_platform_data(self, platform_json: str) -> None:
         with self.wasm_lock:

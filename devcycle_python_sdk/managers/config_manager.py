@@ -108,6 +108,9 @@ class EnvironmentConfigManager(threading.Thread):
             )
             self._polling_enabled = False
 
+    def get_config_metadata(self) -> dict:
+        return self._local_bucketing.get_config_metadata()
+
     def run(self):
         while self._polling_enabled:
             try:
