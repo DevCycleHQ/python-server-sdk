@@ -7,14 +7,14 @@ from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Opti
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class VariableType_PB(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-    __slots__ = ()
+    __slots__ = []
     Boolean: _ClassVar[VariableType_PB]
     Number: _ClassVar[VariableType_PB]
     String: _ClassVar[VariableType_PB]
     JSON: _ClassVar[VariableType_PB]
 
 class CustomDataType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-    __slots__ = ()
+    __slots__ = []
     Bool: _ClassVar[CustomDataType]
     Num: _ClassVar[CustomDataType]
     Str: _ClassVar[CustomDataType]
@@ -29,7 +29,7 @@ Str: CustomDataType
 Null: CustomDataType
 
 class NullableString(_message.Message):
-    __slots__ = ("value", "isNull")
+    __slots__ = ["value", "isNull"]
     VALUE_FIELD_NUMBER: _ClassVar[int]
     ISNULL_FIELD_NUMBER: _ClassVar[int]
     value: str
@@ -37,7 +37,7 @@ class NullableString(_message.Message):
     def __init__(self, value: _Optional[str] = ..., isNull: bool = ...) -> None: ...
 
 class NullableDouble(_message.Message):
-    __slots__ = ("value", "isNull")
+    __slots__ = ["value", "isNull"]
     VALUE_FIELD_NUMBER: _ClassVar[int]
     ISNULL_FIELD_NUMBER: _ClassVar[int]
     value: float
@@ -45,7 +45,7 @@ class NullableDouble(_message.Message):
     def __init__(self, value: _Optional[float] = ..., isNull: bool = ...) -> None: ...
 
 class CustomDataValue(_message.Message):
-    __slots__ = ("type", "boolValue", "doubleValue", "stringValue")
+    __slots__ = ["type", "boolValue", "doubleValue", "stringValue"]
     TYPE_FIELD_NUMBER: _ClassVar[int]
     BOOLVALUE_FIELD_NUMBER: _ClassVar[int]
     DOUBLEVALUE_FIELD_NUMBER: _ClassVar[int]
@@ -57,9 +57,9 @@ class CustomDataValue(_message.Message):
     def __init__(self, type: _Optional[_Union[CustomDataType, str]] = ..., boolValue: bool = ..., doubleValue: _Optional[float] = ..., stringValue: _Optional[str] = ...) -> None: ...
 
 class NullableCustomData(_message.Message):
-    __slots__ = ("value", "isNull")
+    __slots__ = ["value", "isNull"]
     class ValueEntry(_message.Message):
-        __slots__ = ("key", "value")
+        __slots__ = ["key", "value"]
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -72,7 +72,7 @@ class NullableCustomData(_message.Message):
     def __init__(self, value: _Optional[_Mapping[str, CustomDataValue]] = ..., isNull: bool = ...) -> None: ...
 
 class VariableForUserParams_PB(_message.Message):
-    __slots__ = ("sdkKey", "variableKey", "variableType", "user", "shouldTrackEvent")
+    __slots__ = ["sdkKey", "variableKey", "variableType", "user", "shouldTrackEvent"]
     SDKKEY_FIELD_NUMBER: _ClassVar[int]
     VARIABLEKEY_FIELD_NUMBER: _ClassVar[int]
     VARIABLETYPE_FIELD_NUMBER: _ClassVar[int]
@@ -86,7 +86,7 @@ class VariableForUserParams_PB(_message.Message):
     def __init__(self, sdkKey: _Optional[str] = ..., variableKey: _Optional[str] = ..., variableType: _Optional[_Union[VariableType_PB, str]] = ..., user: _Optional[_Union[DVCUser_PB, _Mapping]] = ..., shouldTrackEvent: bool = ...) -> None: ...
 
 class DVCUser_PB(_message.Message):
-    __slots__ = ("user_id", "email", "name", "language", "country", "appBuild", "appVersion", "deviceModel", "customData", "privateCustomData")
+    __slots__ = ["user_id", "email", "name", "language", "country", "appBuild", "appVersion", "deviceModel", "customData", "privateCustomData"]
     USER_ID_FIELD_NUMBER: _ClassVar[int]
     EMAIL_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
@@ -110,7 +110,7 @@ class DVCUser_PB(_message.Message):
     def __init__(self, user_id: _Optional[str] = ..., email: _Optional[_Union[NullableString, _Mapping]] = ..., name: _Optional[_Union[NullableString, _Mapping]] = ..., language: _Optional[_Union[NullableString, _Mapping]] = ..., country: _Optional[_Union[NullableString, _Mapping]] = ..., appBuild: _Optional[_Union[NullableDouble, _Mapping]] = ..., appVersion: _Optional[_Union[NullableString, _Mapping]] = ..., deviceModel: _Optional[_Union[NullableString, _Mapping]] = ..., customData: _Optional[_Union[NullableCustomData, _Mapping]] = ..., privateCustomData: _Optional[_Union[NullableCustomData, _Mapping]] = ...) -> None: ...
 
 class SDKVariable_PB(_message.Message):
-    __slots__ = ("_id", "type", "key", "boolValue", "doubleValue", "stringValue", "evalReason", "_feature", "eval")
+    __slots__ = ["_id", "type", "key", "boolValue", "doubleValue", "stringValue", "evalReason", "_feature", "eval"]
     _ID_FIELD_NUMBER: _ClassVar[int]
     TYPE_FIELD_NUMBER: _ClassVar[int]
     KEY_FIELD_NUMBER: _ClassVar[int]
@@ -132,7 +132,7 @@ class SDKVariable_PB(_message.Message):
     def __init__(self, _id: _Optional[str] = ..., type: _Optional[_Union[VariableType_PB, str]] = ..., key: _Optional[str] = ..., boolValue: bool = ..., doubleValue: _Optional[float] = ..., stringValue: _Optional[str] = ..., evalReason: _Optional[_Union[NullableString, _Mapping]] = ..., _feature: _Optional[_Union[NullableString, _Mapping]] = ..., eval: _Optional[_Union[EvalReason_PB, _Mapping]] = ...) -> None: ...
 
 class EvalReason_PB(_message.Message):
-    __slots__ = ("reason", "details", "target_id")
+    __slots__ = ["reason", "details", "target_id"]
     REASON_FIELD_NUMBER: _ClassVar[int]
     DETAILS_FIELD_NUMBER: _ClassVar[int]
     TARGET_ID_FIELD_NUMBER: _ClassVar[int]

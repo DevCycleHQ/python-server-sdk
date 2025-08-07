@@ -16,6 +16,7 @@ from devcycle_python_sdk.exceptions import (
 from wsgiref.handlers import format_date_time
 from devcycle_python_sdk.options import DevCycleLocalOptions
 from devcycle_python_sdk.managers.sse_manager import SSEManager
+from devcycle_python_sdk.models.config_metadata import ConfigMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -107,6 +108,9 @@ class EnvironmentConfigManager(threading.Thread):
                 "DevCycle: Unauthorized to get config. Aborting config polling."
             )
             self._polling_enabled = False
+
+    def get_config_metadata(self) -> Optional[ConfigMetadata]:
+        return self._local_bucketing.get_config_metadata()
 
     def run(self):
         while self._polling_enabled:
