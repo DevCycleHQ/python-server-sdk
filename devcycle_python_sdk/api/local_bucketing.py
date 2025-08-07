@@ -359,7 +359,7 @@ class LocalBucketing:
             config_addr = self._new_assembly_script_byte_array(data)
             self.setConfigDataUTF8(self.wasm_store, self.sdk_key_addr, config_addr)
 
-    def get_config_metadata(self) -> dict:
+    def get_config_metadata(self) -> Optional[ConfigMetadata]:
         with self.wasm_lock:
             config_addr = self.getConfigMetadata(self.wasm_store, self.sdk_key_addr)
             config_bytes = self._read_assembly_script_string(config_addr)

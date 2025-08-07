@@ -375,9 +375,9 @@ class DevCycleCloudClientTest(unittest.TestCase):
         mock_variable_call.return_value = Variable(
             _id="123", key="strKey", value=999, type=TypeEnum.NUMBER
         )
-        
+
         context_received = None
-        
+
         def before_hook(context):
             nonlocal context_received
             context_received = context
@@ -398,9 +398,11 @@ class DevCycleCloudClientTest(unittest.TestCase):
 
         # Test that context has config_metadata field but it's null for cloud client
         variable = self.test_client.variable(self.test_user, "strKey", 42)
-        
+
+        # Verify the variable evaluation worked
+        self.assertIsNotNone(variable)
         self.assertIsNotNone(context_received)
-        self.assertTrue(hasattr(context_received, 'config_metadata'))
+        self.assertTrue(hasattr(context_received, "config_metadata"))
         # Cloud client should have null config_metadata since it's not implemented
         self.assertIsNone(context_received.config_metadata)
 

@@ -90,7 +90,7 @@ class DevCycleLocalOptions:
 
         if self.event_request_chunk_size > self.max_event_queue_size:
             logger.warning(
-                f"DevCycle: event_request_chunk_size: {self.event_request_chunk_size} must be smaller than max_event_queue_size: { self.max_event_queue_size}"
+                f"DevCycle: event_request_chunk_size: {self.event_request_chunk_size} must be smaller than max_event_queue_size: {self.max_event_queue_size}"
             )
             self.event_request_chunk_size = 100
 

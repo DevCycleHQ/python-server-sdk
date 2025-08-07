@@ -34,11 +34,17 @@ def create_nullable_custom_data(val: Optional[dict]) -> pb2.NullableCustomData: 
             if value is None:
                 values[key] = pb2.CustomDataValue(type=pb2.CustomDataType.Null)  # type: ignore
             elif isinstance(value, bool):
-                values[key] = pb2.CustomDataValue(type=pb2.CustomDataType.Bool, boolValue=value)  # type: ignore
+                values[key] = pb2.CustomDataValue(
+                    type=pb2.CustomDataType.Bool, boolValue=value
+                )  # type: ignore
             elif isinstance(value, str):
-                values[key] = pb2.CustomDataValue(type=pb2.CustomDataType.Str, stringValue=value)  # type: ignore
+                values[key] = pb2.CustomDataValue(
+                    type=pb2.CustomDataType.Str, stringValue=value
+                )  # type: ignore
             elif isinstance(value, (int, float)):
-                values[key] = pb2.CustomDataValue(type=pb2.CustomDataType.Num, doubleValue=value)  # type: ignore
+                values[key] = pb2.CustomDataValue(
+                    type=pb2.CustomDataType.Num, doubleValue=value
+                )  # type: ignore
             else:
                 logger.warning(
                     f"Custom Data contains data type that can't be written, will be ignored. Key: {key}, Type: {str(type(value))}"

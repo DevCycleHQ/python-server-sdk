@@ -1,3 +1,6 @@
+from typing import Dict, Any, Optional
+
+
 class EnvironmentMetadata:
     def __init__(
         self,
@@ -8,10 +11,12 @@ class EnvironmentMetadata:
         self.key = key
 
     @staticmethod
-    def from_json(json_str: str) -> "EnvironmentMetadata":
-        if json_str is None:
+    def from_json(
+        json_obj: Optional[Dict[str, Any]],
+    ) -> Optional["EnvironmentMetadata"]:
+        if json_obj is None:
             return None
         return EnvironmentMetadata(
-            id=json_str["id"],
-            key=json_str["key"],
+            id=json_obj["id"],
+            key=json_obj["key"],
         )
