@@ -1,20 +1,28 @@
 from devcycle_python_sdk.models.environment_metadata import EnvironmentMetadata
 from devcycle_python_sdk.models.project_metadata import ProjectMetadata
 from typing import Dict, Any, Optional
-import json
+from dataclasses import dataclass
 
 
+@dataclass
 class ConfigMetadata:
-    def __init__(
-        self,
-        project: ProjectMetadata,
-        environment: EnvironmentMetadata,
-    ):
-        self.project = project
-        self.environment = environment
+    project: ProjectMetadata
+    environment: EnvironmentMetadata
 
-    def to_json(self) -> str:
-        return json.dumps(self, default=lambda o: o.__dict__)
+    def to_json(self):
+        result = {}
+        for field_name in self.__dataclass_fields__:
+            value = getattr(self, field_name)
+            if value is not None:
+                if field_name == "project" and isinstance(value, ProjectMetadata):
+                    result[field_name] = value.to_json()
+                elif field_name == "environment" and isinstance(
+                    value, EnvironmentMetadata
+                ):
+                    result[field_name] = value.to_json()
+                else:
+                    result[field_name] = value
+        return result
 
     @staticmethod
     def from_json(json_obj: Optional[Dict[str, Any]]) -> Optional["ConfigMetadata"]:

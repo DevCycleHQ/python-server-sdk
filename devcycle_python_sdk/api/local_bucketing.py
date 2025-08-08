@@ -5,7 +5,7 @@ import json
 
 from pathlib import Path
 from threading import Lock
-from typing import Any, cast, Optional, List
+from typing import Any, cast, Optional, List, Tuple
 
 import wasmtime
 from wasmtime import (
@@ -300,7 +300,7 @@ class LocalBucketing:
 
     def get_variable_for_user_protobuf(
         self, user: DevCycleUser, key: str, default_value: Any
-    ) -> Optional[Variable]:
+    ) -> Tuple[Optional[Variable], Optional[str]]:
         var_type = determine_variable_type(default_value)
         pb_variable_type = pb_utils.convert_type_enum_to_variable_type(var_type)
 
@@ -319,13 +319,18 @@ class LocalBucketing:
             variable_addr = self.VariableForUserProtobuf(self.wasm_store, params_addr)
 
             if variable_addr == 0:
-                return None
+                return None, None
             else:
                 var_bytes = self._read_assembly_script_byte_array(variable_addr)
                 sdk_variable = pb2.SDKVariable_PB()
                 sdk_variable.ParseFromString(var_bytes)
+                feature_id = (
+                    sdk_variable._feature.value
+                    if sdk_variable._feature.value is not None
+                    else None
+                )
 
-                return pb_utils.create_variable(sdk_variable, default_value)
+                return pb_utils.create_variable(sdk_variable, default_value), feature_id
 
     def generate_bucketed_config(self, user: DevCycleUser) -> BucketedConfig:
         user_json = json.dumps(user.to_json())

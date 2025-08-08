@@ -1,2 +1,2 @@
 django >= 4.2
-devcycle-python-server-sdk >= 3.0.1
+-e ../../

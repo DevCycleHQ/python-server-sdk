@@ -3,17 +3,15 @@ from dataclasses import dataclass
 
 
 @dataclass
-class ProjectMetadata:
-    id: str
-    key: str
+class VariableMetadata:
+    feature_id: str
 
     @staticmethod
-    def from_json(json_obj: Optional[Dict[str, Any]]) -> Optional["ProjectMetadata"]:
+    def from_json(json_obj: Optional[Dict[str, Any]]) -> Optional["VariableMetadata"]:
         if json_obj is None:
             return None
-        return ProjectMetadata(
-            id=json_obj["id"],
-            key=json_obj["key"],
+        return VariableMetadata(
+            feature_id=json_obj["feature_id"],
         )
 
     def to_json(self):

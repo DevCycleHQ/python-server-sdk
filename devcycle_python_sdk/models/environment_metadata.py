@@ -1,14 +1,11 @@
 from typing import Dict, Any, Optional
+from dataclasses import dataclass
 
 
+@dataclass
 class EnvironmentMetadata:
-    def __init__(
-        self,
-        id: str,
-        key: str,
-    ):
-        self.id = id
-        self.key = key
+    id: str
+    key: str
 
     @staticmethod
     def from_json(
@@ -20,3 +17,10 @@ class EnvironmentMetadata:
             id=json_obj["id"],
             key=json_obj["key"],
         )
+
+    def to_json(self):
+        result = {}
+        for field_name in self.__dataclass_fields__:
+            value = getattr(self, field_name)
+            result[field_name] = value
+        return result

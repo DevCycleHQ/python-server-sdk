@@ -19,7 +19,6 @@ from devcycle_python_sdk.models.event import (
 from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.bucketed_config import BucketedConfig
 
-
 logger = logging.getLogger(__name__)
 
 

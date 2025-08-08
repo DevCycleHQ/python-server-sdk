@@ -98,7 +98,7 @@ class LocalBucketingTest(unittest.TestCase):
         self.local_bucketing.set_platform_data(platform_json)
         self.local_bucketing.init_event_queue(self.client_uuid, "{}")
         user = DevCycleUser(user_id="test_user_id")
-        result = self.local_bucketing.get_variable_for_user_protobuf(
+        result, feature_id = self.local_bucketing.get_variable_for_user_protobuf(
             user=user, key="string-var", default_value="default value"
         )
         self.assertIsNotNone(result)
@@ -106,6 +106,7 @@ class LocalBucketingTest(unittest.TestCase):
         self.assertEqual(result.type, TypeEnum.STRING)
         self.assertEqual(result.value, "variationOn")
         self.assertFalse(result.isDefaulted)
+        self.assertIsNotNone(feature_id)
 
     def test_get_variable_for_user_protobuf_special_characters(self):
         self.local_bucketing.store_config(special_character_config())
@@ -113,7 +114,7 @@ class LocalBucketingTest(unittest.TestCase):
         self.local_bucketing.set_platform_data(platform_json)
         self.local_bucketing.init_event_queue(self.client_uuid, "{}")
         user = DevCycleUser(user_id="test_user_id")
-        result = self.local_bucketing.get_variable_for_user_protobuf(
+        result, feature_id = self.local_bucketing.get_variable_for_user_protobuf(
             user=user, key="string-var", default_value="default value"
         )
         self.assertIsNotNone(result)
@@ -121,6 +122,7 @@ class LocalBucketingTest(unittest.TestCase):
         self.assertEqual(result.type, TypeEnum.STRING)
         self.assertEqual(result.value, "öé 🐍 ¥ variationOn")
         self.assertFalse(result.isDefaulted)
+        self.assertIsNotNone(feature_id)
 
     def test_get_variable_for_user_protobuf_type_mismatch(self):
         self.local_bucketing.store_config(small_config())
@@ -131,10 +133,11 @@ class LocalBucketingTest(unittest.TestCase):
 
         # type mismatch is handled inside the WASM and will return
         # no data if the type is not correct
-        result = self.local_bucketing.get_variable_for_user_protobuf(
+        result, feature_id = self.local_bucketing.get_variable_for_user_protobuf(
             user=user, key="string-var", default_value=9999
         )
         self.assertIsNone(result)
+        self.assertIsNone(feature_id)
 
     def test_generate_bucketed_config(self):
         self.local_bucketing.store_config(small_config())

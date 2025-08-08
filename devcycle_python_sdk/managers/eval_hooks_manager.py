@@ -3,6 +3,7 @@ from typing import List, Optional
 from devcycle_python_sdk.models.eval_hook import EvalHook
 from devcycle_python_sdk.models.eval_hook_context import HookContext
 from devcycle_python_sdk.models.variable import Variable
+from devcycle_python_sdk.models.variable_metadata import VariableMetadata
 from devcycle_python_sdk.options import logger
 
 
@@ -48,19 +49,29 @@ class EvalHooksManager:
                 raise BeforeHookError(f"Before hook failed: {e}", e)
         return modified_context
 
-    def run_after(self, context: HookContext, variable: Variable) -> None:
+    def run_after(
+        self,
+        context: HookContext,
+        variable: Variable,
+        variable_metadata: Optional[VariableMetadata],
+    ) -> None:
         """Run after hooks with the evaluation result"""
         for hook in self.hooks:
             try:
-                hook.after(context, variable)
+                hook.after(context, variable, variable_metadata)
             except Exception as e:
                 raise AfterHookError(f"After hook failed: {e}", e)
 
-    def run_finally(self, context: HookContext, variable: Optional[Variable]) -> None:
+    def run_finally(
+        self,
+        context: HookContext,
+        variable: Optional[Variable],
+        variable_metadata: Optional[VariableMetadata],
+    ) -> None:
         """Run finally hooks after evaluation completes"""
         for hook in self.hooks:
             try:
-                hook.on_finally(context, variable)
+                hook.on_finally(context, variable, variable_metadata)
             except Exception as e:
                 logger.error(f"Error running finally hook: {e}")
 
