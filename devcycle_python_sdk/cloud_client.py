@@ -115,7 +115,7 @@ class DevCycleCloudClient(AbstractDevCycleClient):
                 before_hook_error = e
             variable = self.bucketing_api.variable(key, context.user)
             if before_hook_error is None:
-                self.eval_hooks_manager.run_after(context, variable)
+                self.eval_hooks_manager.run_after(context, variable, None)
             else:
                 raise before_hook_error
         except CloudClientUnauthorizedError as e:
@@ -140,7 +140,7 @@ class DevCycleCloudClient(AbstractDevCycleClient):
                 default_reason_detail=DefaultReasonDetails.ERROR,
             )
         finally:
-            self.eval_hooks_manager.run_finally(context, variable)
+            self.eval_hooks_manager.run_finally(context, variable, None)
 
         variable.defaultValue = default_value
 
