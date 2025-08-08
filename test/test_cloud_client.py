@@ -306,10 +306,10 @@ class DevCycleCloudClientTest(unittest.TestCase):
             hook_called["before"] = True
             return context
 
-        def after_hook(context, variable):
+        def after_hook(context, variable, variable_metadata):
             hook_called["after"] = True
 
-        def finally_hook(context, variable):
+        def finally_hook(context, variable, variable_metadata):
             hook_called["finally"] = True
 
         def error_hook(context, error):
@@ -346,10 +346,10 @@ class DevCycleCloudClientTest(unittest.TestCase):
             hook_called["before"] = True
             raise Exception("Before hook failed")
 
-        def after_hook(context, variable):
+        def after_hook(context, variable, variable_metadata):
             hook_called["after"] = True
 
-        def finally_hook(context, variable):
+        def finally_hook(context, variable, variable_metadata):
             hook_called["finally"] = True
 
         def error_hook(context, error):
@@ -382,10 +382,10 @@ class DevCycleCloudClientTest(unittest.TestCase):
             context_received = context
             return context
 
-        def after_hook(context, variable):
+        def after_hook(context, variable, variable_metadata):
             pass
 
-        def finally_hook(context, variable):
+        def finally_hook(context, variable, variable_metadata):
             pass
 
         def error_hook(context, error):

@@ -432,7 +432,7 @@ class DevCycleLocalClientTest(unittest.TestCase):
             hook_called["before"] = True
             raise Exception("Before hook failed")
 
-        def after_hook(context, variable):
+        def after_hook(context, variable, variable_metadata):
             hook_called["after"] = True
 
         def finally_hook(context, variable):
