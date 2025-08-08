@@ -26,6 +26,7 @@ from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.models.platform_data import default_platform_data
 from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.variable import Variable
+from devcycle_python_sdk.models.variable_metadata import VariableMetadata
 from devcycle_python_sdk.open_feature_provider.provider import DevCycleProvider
 from openfeature.provider import AbstractProvider
 
@@ -151,6 +152,7 @@ class DevCycleLocalClient(AbstractDevCycleClient):
             )
 
         config_metadata = self.local_bucketing.get_config_metadata()
+        variable_metadata = None
 
         context = HookContext(key, user, default_value, config_metadata)
         variable = Variable.create_default_variable(
@@ -165,9 +167,11 @@ class DevCycleLocalClient(AbstractDevCycleClient):
                     context = changed_context
             except BeforeHookError as e:
                 before_hook_error = e
-            bucketed_variable = self.local_bucketing.get_variable_for_user_protobuf(
+            bucketed_variable, feature_id = self.local_bucketing.get_variable_for_user_protobuf(
                 user, key, default_value
             )
+            if feature_id is not None:
+                variable_metadata = VariableMetadata(feature_id=feature_id)
             if bucketed_variable is not None:
                 variable = bucketed_variable
             else:
@@ -177,7 +181,7 @@ class DevCycleLocalClient(AbstractDevCycleClient):
                 )
 
             if before_hook_error is None:
-                self.eval_hooks_manager.run_after(context, variable)
+                self.eval_hooks_manager.run_after(context, variable, variable_metadata)
             else:
                 raise before_hook_error
         except Exception as e:
@@ -194,7 +198,7 @@ class DevCycleLocalClient(AbstractDevCycleClient):
 
             return variable
         finally:
-            self.eval_hooks_manager.run_finally(context, variable)
+            self.eval_hooks_manager.run_finally(context, variable, variable_metadata)
         return variable
 
     def _generate_bucketed_config(self, user: DevCycleUser) -> BucketedConfig:
