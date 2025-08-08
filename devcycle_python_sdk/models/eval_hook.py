@@ -10,7 +10,9 @@ class EvalHook:
         self,
         before: Callable[[HookContext], Optional[HookContext]],
         after: Callable[[HookContext, Variable, Optional[VariableMetadata]], None],
-        on_finally: Callable[[HookContext, Optional[Variable], Optional[VariableMetadata]], None],
+        on_finally: Callable[
+            [HookContext, Optional[Variable], Optional[VariableMetadata]], None
+        ],
         error: Callable[[HookContext, Exception], None],
     ):
         self.before = before

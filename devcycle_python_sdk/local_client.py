@@ -167,8 +167,10 @@ class DevCycleLocalClient(AbstractDevCycleClient):
                     context = changed_context
             except BeforeHookError as e:
                 before_hook_error = e
-            bucketed_variable, feature_id = self.local_bucketing.get_variable_for_user_protobuf(
-                user, key, default_value
+            bucketed_variable, feature_id = (
+                self.local_bucketing.get_variable_for_user_protobuf(
+                    user, key, default_value
+                )
             )
             if feature_id is not None:
                 variable_metadata = VariableMetadata(feature_id=feature_id)

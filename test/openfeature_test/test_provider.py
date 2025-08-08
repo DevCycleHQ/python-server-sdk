@@ -21,7 +21,6 @@ from devcycle_python_sdk.open_feature_provider.provider import (
     DevCycleProvider,
 )
 
-
 logger = logging.getLogger(__name__)
 
 

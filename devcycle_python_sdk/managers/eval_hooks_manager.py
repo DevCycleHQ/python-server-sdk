@@ -49,7 +49,12 @@ class EvalHooksManager:
                 raise BeforeHookError(f"Before hook failed: {e}", e)
         return modified_context
 
-    def run_after(self, context: HookContext, variable: Variable, variable_metadata: Optional[VariableMetadata]) -> None:
+    def run_after(
+        self,
+        context: HookContext,
+        variable: Variable,
+        variable_metadata: Optional[VariableMetadata],
+    ) -> None:
         """Run after hooks with the evaluation result"""
         for hook in self.hooks:
             try:
@@ -57,7 +62,12 @@ class EvalHooksManager:
             except Exception as e:
                 raise AfterHookError(f"After hook failed: {e}", e)
 
-    def run_finally(self, context: HookContext, variable: Optional[Variable], variable_metadata: Optional[VariableMetadata]) -> None:
+    def run_finally(
+        self,
+        context: HookContext,
+        variable: Optional[Variable],
+        variable_metadata: Optional[VariableMetadata],
+    ) -> None:
         """Run finally hooks after evaluation completes"""
         for hook in self.hooks:
             try:

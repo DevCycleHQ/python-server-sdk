@@ -17,7 +17,9 @@ class HookContext:
         for field_name in self.__dataclass_fields__:
             value = getattr(self, field_name)
             if value is not None:
-                if field_name == "config_metadata" and isinstance(value, ConfigMetadata):
+                if field_name == "config_metadata" and isinstance(
+                    value, ConfigMetadata
+                ):
                     result[field_name] = value.to_json()
                 elif field_name == "user" and isinstance(value, DevCycleUser):
                     result[field_name] = value.to_json()

@@ -5,7 +5,6 @@ import uuid
 from time import time
 from unittest.mock import patch
 
-
 from devcycle_python_sdk import DevCycleCloudClient, DevCycleCloudOptions
 from devcycle_python_sdk.models.eval_hook import EvalHook
 from devcycle_python_sdk.models.user import DevCycleUser

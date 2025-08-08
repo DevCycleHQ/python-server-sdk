@@ -16,7 +16,9 @@ class ConfigMetadata:
             if value is not None:
                 if field_name == "project" and isinstance(value, ProjectMetadata):
                     result[field_name] = value.to_json()
-                elif field_name == "environment" and isinstance(value, EnvironmentMetadata):
+                elif field_name == "environment" and isinstance(
+                    value, EnvironmentMetadata
+                ):
                     result[field_name] = value.to_json()
                 else:
                     result[field_name] = value

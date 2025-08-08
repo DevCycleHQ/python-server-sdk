@@ -324,7 +324,11 @@ class LocalBucketing:
                 var_bytes = self._read_assembly_script_byte_array(variable_addr)
                 sdk_variable = pb2.SDKVariable_PB()
                 sdk_variable.ParseFromString(var_bytes)
-                feature_id = sdk_variable._feature.value if sdk_variable._feature.value is not None else None
+                feature_id = (
+                    sdk_variable._feature.value
+                    if sdk_variable._feature.value is not None
+                    else None
+                )
 
                 return pb_utils.create_variable(sdk_variable, default_value), feature_id
 

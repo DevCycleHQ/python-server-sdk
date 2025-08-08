@@ -6,7 +6,6 @@ from devcycle_python_sdk.models.user import DevCycleUser
 from openfeature.provider import EvaluationContext
 from openfeature.exception import TargetingKeyMissingError, InvalidContextError
 
-
 logger = logging.getLogger(__name__)
 
 
