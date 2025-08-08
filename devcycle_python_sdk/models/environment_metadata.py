@@ -24,3 +24,4 @@ class EnvironmentMetadata:
             value = getattr(self, field_name)
             result[field_name] = value
         return result
+    

@@ -2,7 +2,6 @@ from devcycle_python_sdk.models.environment_metadata import EnvironmentMetadata
 from devcycle_python_sdk.models.project_metadata import ProjectMetadata
 from typing import Dict, Any, Optional
 from dataclasses import dataclass
-import json
 
 
 @dataclass
