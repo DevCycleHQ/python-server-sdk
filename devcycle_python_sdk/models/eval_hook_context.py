@@ -24,9 +24,3 @@ class HookContext:
                 else:
                     result[field_name] = value
         return result
-
-    def __str__(self):
-        return f"HookContext(key={self.key}, user={self.user}, default_value={self.default_value}, config_metadata={self.config_metadata})"
-
-    def __repr__(self):
-        return self.__str__()
