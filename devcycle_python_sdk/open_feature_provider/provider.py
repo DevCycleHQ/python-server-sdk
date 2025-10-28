@@ -143,12 +143,12 @@ class DevCycleProvider(AbstractProvider):
     ) -> FlagResolutionDetails[
         Union[Mapping[str, FlagValueType], Sequence[FlagValueType]]
     ]:
-        if not isinstance(default_value, dict):
+        if not isinstance(default_value, Mapping):
             raise TypeMismatchError("Default value must be a flat dictionary")
 
         if default_value:
             for k, v in default_value.items():
-                if not isinstance(v, (str, int, float, bool)) or v is None:
+                if not isinstance(v, (str, int, float, bool)) and v is not None:
                     raise TypeMismatchError(
                         "Default value must be a flat dictionary containing only strings, numbers, booleans or None values"
                     )
