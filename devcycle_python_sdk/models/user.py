@@ -1,7 +1,7 @@
 # ruff: noqa: N815
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, cast
 from openfeature.evaluation_context import EvaluationContext
 from openfeature.exception import TargetingKeyMissingError, InvalidContextError
 
@@ -114,10 +114,10 @@ class DevCycleUser:
                 user_id = context.targeting_key
                 user_id_source = "targeting_key"
             elif context.attributes and "user_id" in context.attributes.keys():
-                user_id = context.attributes["user_id"]
+                user_id = cast(str, context.attributes["user_id"])
                 user_id_source = "user_id"
             elif context.attributes and "userId" in context.attributes.keys():
-                user_id = context.attributes["userId"]
+                user_id = cast(str, context.attributes["userId"])
                 user_id_source = "userId"
 
         if not user_id:
