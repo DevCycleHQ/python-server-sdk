@@ -140,7 +140,9 @@ class DevCycleProvider(AbstractProvider):
         flag_key: str,
         default_value: Union[Mapping[str, FlagValueType], Sequence[FlagValueType]],
         evaluation_context: Optional[EvaluationContext] = None,
-    ) -> FlagResolutionDetails[Union[Mapping[str, FlagValueType], Sequence[FlagValueType]]]:
+    ) -> FlagResolutionDetails[
+        Union[Mapping[str, FlagValueType], Sequence[FlagValueType]]
+    ]:
         if not isinstance(default_value, dict):
             raise TypeMismatchError("Default value must be a flat dictionary")
 
