@@ -148,7 +148,7 @@ class DevCycleProvider(AbstractProvider):
 
         if default_value:
             for k, v in default_value.items():
-                if not isinstance(v, (str, int, float, bool)) and v is not None:
+                if not isinstance(v, (str, int, float, bool)) or v is None:
                     raise TypeMismatchError(
                         "Default value must be a flat dictionary containing only strings, numbers, booleans or None values"
                     )
