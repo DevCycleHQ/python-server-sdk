@@ -76,9 +76,9 @@ def main():
     boolean_details = open_feature_client.get_boolean_details(
         "test-boolean-variable", False, context
     )
-    logger.info(f"Variable Key: test-boolean-variable")
-    logger.info(f"Value: {boolean_details.value}")
-    logger.info(f"Reason: {boolean_details.reason}")
+    logger.info("Variable Key: test-boolean-variable")
+    logger.info("Value: {boolean_details.value}")
+    logger.info("Reason: {boolean_details.reason}")
     if boolean_details.value:
         logger.info("✓ Boolean variable is ENABLED")
     else:
@@ -92,9 +92,9 @@ def main():
     string_details = open_feature_client.get_string_details(
         "test-string-variable", "default string", context
     )
-    logger.info(f"Variable Key: test-string-variable")
-    logger.info(f"Value: {string_details.value}")
-    logger.info(f"Reason: {string_details.reason}")
+    logger.info("Variable Key: test-string-variable")
+    logger.info("Value: {string_details.value}")
+    logger.info("Reason: {string_details.reason}")
 
     logger.info("\n" + "=" * 60)
     logger.info("Testing Number Variable (Integer)")
@@ -104,9 +104,9 @@ def main():
     integer_details = open_feature_client.get_integer_details(
         "test-number-variable", 0, context
     )
-    logger.info(f"Variable Key: test-number-variable")
-    logger.info(f"Value: {integer_details.value}")
-    logger.info(f"Reason: {integer_details.reason}")
+    logger.info("Variable Key: test-number-variable")
+    logger.info("Value: {integer_details.value}")
+    logger.info("Reason: {integer_details.reason}")
 
     logger.info("\n" + "=" * 60)
     logger.info("Testing Number Variable (Float)")
@@ -117,8 +117,8 @@ def main():
     float_value = open_feature_client.get_float_value(
         "test-number-variable", 0.0, context
     )
-    logger.info(f"Variable Key: test-number-variable (as float)")
-    logger.info(f"Value: {float_value}")
+    logger.info("Variable Key: test-number-variable (as float)")
+    logger.info("Value: {float_value}")
 
     logger.info("\n" + "=" * 60)
     logger.info("Testing JSON Object Variable")
@@ -128,9 +128,9 @@ def main():
     json_details = open_feature_client.get_object_details(
         "test-json-variable", {"default": "value"}, context
     )
-    logger.info(f"Variable Key: test-json-variable")
-    logger.info(f"Value: {json_details.value}")
-    logger.info(f"Reason: {json_details.reason}")
+    logger.info("Variable Key: test-json-variable")
+    logger.info("Value: {json_details.value}")
+    logger.info("Reason: {json_details.reason}")
 
     logger.info("\n" + "=" * 60)
     logger.info("Testing Object Variable - Empty Dictionary")
@@ -140,8 +140,8 @@ def main():
     empty_dict_result = open_feature_client.get_object_value(
         "test-json-variable", {}, context
     )
-    logger.info(f"Variable Key: test-json-variable (with empty default)")
-    logger.info(f"Value: {empty_dict_result}")
+    logger.info("Variable Key: test-json-variable (with empty default)")
+    logger.info("Value: {empty_dict_result}")
 
     logger.info("\n" + "=" * 60)
     logger.info("Testing Object Variable - Mixed Types")
@@ -159,8 +159,8 @@ def main():
     mixed_result = open_feature_client.get_object_value(
         "test-json-variable", mixed_default, context
     )
-    logger.info(f"Variable Key: test-json-variable (with mixed types)")
-    logger.info(f"Value: {mixed_result}")
+    logger.info("Variable Key: test-json-variable (with mixed types)")
+    logger.info("Value: {mixed_result}")
     logger.info(
         f"Value types: {[(k, type(v).__name__) for k, v in mixed_result.items()]}"
     )
@@ -178,8 +178,8 @@ def main():
     string_dict_result = open_feature_client.get_object_value(
         "test-json-variable", string_dict_default, context
     )
-    logger.info(f"Variable Key: test-json-variable (all strings)")
-    logger.info(f"Value: {string_dict_result}")
+    logger.info("Variable Key: test-json-variable (all strings)")
+    logger.info("Value: {string_dict_result}")
 
     logger.info("\n" + "=" * 60)
     logger.info("Testing Object Variable - Numeric Values")
@@ -190,8 +190,8 @@ def main():
     numeric_dict_result = open_feature_client.get_object_value(
         "test-json-variable", numeric_dict_default, context
     )
-    logger.info(f"Variable Key: test-json-variable (numeric)")
-    logger.info(f"Value: {numeric_dict_result}")
+    logger.info("Variable Key: test-json-variable (numeric)")
+    logger.info("Value: {numeric_dict_result}")
 
     logger.info("\n" + "=" * 60)
     logger.info("Testing Object Variable - Boolean Flags")
@@ -202,8 +202,8 @@ def main():
     bool_dict_result = open_feature_client.get_object_value(
         "test-json-variable", bool_dict_default, context
     )
-    logger.info(f"Variable Key: test-json-variable (booleans)")
-    logger.info(f"Value: {bool_dict_result}")
+    logger.info("Variable Key: test-json-variable (booleans)")
+    logger.info("Value: {bool_dict_result}")
 
     logger.info("\n" + "=" * 60)
     logger.info("Testing Object Variable - With None Values")
@@ -218,8 +218,8 @@ def main():
     none_dict_result = open_feature_client.get_object_value(
         "test-json-variable", none_dict_default, context
     )
-    logger.info(f"Variable Key: test-json-variable (with None)")
-    logger.info(f"Value: {none_dict_result}")
+    logger.info("Variable Key: test-json-variable (with None)")
+    logger.info("Value: {none_dict_result}")
 
     logger.info("\n" + "=" * 60)
     logger.info("Testing Non-Existent Variable (Should Return Default)")
@@ -229,9 +229,9 @@ def main():
     nonexistent_details = open_feature_client.get_string_details(
         "doesnt-exist", "default fallback value", context
     )
-    logger.info(f"Variable Key: doesnt-exist")
-    logger.info(f"Value: {nonexistent_details.value}")
-    logger.info(f"Reason: {nonexistent_details.reason}")
+    logger.info("Variable Key: doesnt-exist")
+    logger.info("Value: {nonexistent_details.value}")
+    logger.info("Reason: {nonexistent_details.reason}")
 
     logger.info("\n" + "=" * 60)
     logger.info("All tests completed!")
