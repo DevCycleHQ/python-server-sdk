@@ -101,9 +101,7 @@ def main():
     logger.info("=" * 60)
 
     # Test Number Variable (Integer)
-    open_feature_client.get_integer_details(
-        "test-number-variable", 0, context
-    )
+    open_feature_client.get_integer_details("test-number-variable", 0, context)
     logger.info("Variable Key: test-number-variable")
     logger.info("Value: {integer_details.value}")
     logger.info("Reason: {integer_details.reason}")
@@ -114,9 +112,7 @@ def main():
 
     # Test Number Variable as Float
     # Note: If the DevCycle variable is an integer, it will be cast to float
-    open_feature_client.get_float_value(
-        "test-number-variable", 0.0, context
-    )
+    open_feature_client.get_float_value("test-number-variable", 0.0, context)
     logger.info("Variable Key: test-number-variable (as float)")
     logger.info("Value: {float_value}")
 
@@ -137,9 +133,7 @@ def main():
     logger.info("=" * 60)
 
     # Test with empty dictionary default (valid per OpenFeature spec)
-    open_feature_client.get_object_value(
-        "test-json-variable", {}, context
-    )
+    open_feature_client.get_object_value("test-json-variable", {}, context)
     logger.info("Variable Key: test-json-variable (with empty default)")
     logger.info("Value: {empty_dict_result}")
 
