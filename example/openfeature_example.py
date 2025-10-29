@@ -89,7 +89,7 @@ def main():
     logger.info("=" * 60)
 
     # Test String Variable
-    string_details = open_feature_client.get_string_details(
+    open_feature_client.get_string_details(
         "test-string-variable", "default string", context
     )
     logger.info("Variable Key: test-string-variable")
@@ -101,7 +101,7 @@ def main():
     logger.info("=" * 60)
 
     # Test Number Variable (Integer)
-    integer_details = open_feature_client.get_integer_details(
+    open_feature_client.get_integer_details(
         "test-number-variable", 0, context
     )
     logger.info("Variable Key: test-number-variable")
@@ -114,7 +114,7 @@ def main():
 
     # Test Number Variable as Float
     # Note: If the DevCycle variable is an integer, it will be cast to float
-    float_value = open_feature_client.get_float_value(
+    open_feature_client.get_float_value(
         "test-number-variable", 0.0, context
     )
     logger.info("Variable Key: test-number-variable (as float)")
@@ -125,7 +125,7 @@ def main():
     logger.info("=" * 60)
 
     # Test JSON Object Variable
-    json_details = open_feature_client.get_object_details(
+    open_feature_client.get_object_details(
         "test-json-variable", {"default": "value"}, context
     )
     logger.info("Variable Key: test-json-variable")
@@ -137,7 +137,7 @@ def main():
     logger.info("=" * 60)
 
     # Test with empty dictionary default (valid per OpenFeature spec)
-    empty_dict_result = open_feature_client.get_object_value(
+    open_feature_client.get_object_value(
         "test-json-variable", {}, context
     )
     logger.info("Variable Key: test-json-variable (with empty default)")
@@ -175,7 +175,7 @@ def main():
         "email": "john@example.com",
         "status": "active",
     }
-    string_dict_result = open_feature_client.get_object_value(
+    open_feature_client.get_object_value(
         "test-json-variable", string_dict_default, context
     )
     logger.info("Variable Key: test-json-variable (all strings)")
@@ -187,7 +187,7 @@ def main():
 
     # Test with numeric values (integers and floats)
     numeric_dict_default = {"count": 100, "percentage": 85.5, "threshold": 0}
-    numeric_dict_result = open_feature_client.get_object_value(
+    open_feature_client.get_object_value(
         "test-json-variable", numeric_dict_default, context
     )
     logger.info("Variable Key: test-json-variable (numeric)")
@@ -199,7 +199,7 @@ def main():
 
     # Test with boolean values
     bool_dict_default = {"feature_a": True, "feature_b": False, "feature_c": True}
-    bool_dict_result = open_feature_client.get_object_value(
+    open_feature_client.get_object_value(
         "test-json-variable", bool_dict_default, context
     )
     logger.info("Variable Key: test-json-variable (booleans)")
@@ -215,7 +215,7 @@ def main():
         "required_field": "value",
         "nullable_count": None,
     }
-    none_dict_result = open_feature_client.get_object_value(
+    open_feature_client.get_object_value(
         "test-json-variable", none_dict_default, context
     )
     logger.info("Variable Key: test-json-variable (with None)")
@@ -226,7 +226,7 @@ def main():
     logger.info("=" * 60)
 
     # Test non-existent variable to demonstrate default handling
-    nonexistent_details = open_feature_client.get_string_details(
+    open_feature_client.get_string_details(
         "doesnt-exist", "default fallback value", context
     )
     logger.info("Variable Key: doesnt-exist")
