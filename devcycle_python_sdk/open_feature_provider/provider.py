@@ -1,7 +1,7 @@
 import logging
 import time
 
-from typing import Any, Optional, Union, List
+from typing import Any, Optional, Union, List, Mapping, Sequence
 
 from devcycle_python_sdk import AbstractDevCycleClient
 from devcycle_python_sdk.models.user import DevCycleUser
@@ -9,7 +9,7 @@ from devcycle_python_sdk.models.user import DevCycleUser
 from openfeature.provider import AbstractProvider
 from openfeature.provider.metadata import Metadata
 from openfeature.evaluation_context import EvaluationContext
-from openfeature.flag_evaluation import FlagResolutionDetails, Reason
+from openfeature.flag_evaluation import FlagResolutionDetails, Reason, FlagValueType
 from openfeature.exception import (
     ErrorCode,
     InvalidContextError,
@@ -138,10 +138,12 @@ class DevCycleProvider(AbstractProvider):
     def resolve_object_details(
         self,
         flag_key: str,
-        default_value: Union[dict, list],
+        default_value: Union[Mapping[str, FlagValueType], Sequence[FlagValueType]],
         evaluation_context: Optional[EvaluationContext] = None,
-    ) -> FlagResolutionDetails[Union[dict, list]]:
-        if not isinstance(default_value, dict):
+    ) -> FlagResolutionDetails[
+        Union[Mapping[str, FlagValueType], Sequence[FlagValueType]]
+    ]:
+        if not isinstance(default_value, Mapping):
             raise TypeMismatchError("Default value must be a flat dictionary")
 
         if default_value:
