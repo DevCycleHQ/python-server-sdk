@@ -10,8 +10,8 @@ import ld_eventsource.actions
 from devcycle_python_sdk.api.config_client import ConfigAPIClient
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
 from devcycle_python_sdk.exceptions import (
-    CloudClientUnauthorizedError,
-    CloudClientError,
+    APIClientError,
+    APIClientUnauthorizedError,
 )
 from wsgiref.handlers import format_date_time
 from devcycle_python_sdk.options import DevCycleLocalOptions
@@ -101,11 +101,11 @@ class EnvironmentConfigManager(threading.Thread):
                     logger.warning(
                         f"DevCycle: Error received from on_client_initialized callback: {str(e)}"
                     )
-        except CloudClientError as e:
+        except APIClientError as e:
             logger.warning(f"DevCycle: Config fetch failed. Status: {str(e)}")
-        except CloudClientUnauthorizedError:
+        except APIClientUnauthorizedError:
             logger.error(
-                "DevCycle: Unauthorized to get config. Aborting config polling."
+                "DevCycle: Error initializing DevCycle: Invalid SDK key provided."
             )
             self._polling_enabled = False
 
