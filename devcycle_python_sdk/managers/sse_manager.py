@@ -43,7 +43,7 @@ class SSEManager:
                 elif isinstance(event, ld_eventsource.actions.Event):
                     handle_message(event)
                 elif isinstance(event, ld_eventsource.actions.Comment):
-                    handle_message(event)
+                    handle_state(None)
         except Exception as e:
             logger.debug(f"DevCycle: failed to read SSE message: {e}")
 
