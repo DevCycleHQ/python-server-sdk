@@ -37,7 +37,7 @@ class DevCycleLocalOptions:
         self,
         config_cdn_uri: str = "https://config-cdn.devcycle.com/",
         config_request_timeout_ms: int = 5000,
-        config_polling_interval_ms: int = 1000,
+        config_polling_interval_ms: int = 30000,
         config_retry_delay_ms: int = 200,  # milliseconds
         on_client_initialized: Optional[Callable] = None,
         events_api_uri: str = "https://events.devcycle.com/",
