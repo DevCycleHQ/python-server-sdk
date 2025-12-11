@@ -82,7 +82,10 @@ class EnvironmentConfigManager(threading.Thread):
             json_config = json.dumps(self._config)
             self._local_bucketing.store_config(json_config)
             if not self._options.disable_realtime_updates:
-                if self._sse_manager is None:
+                if (
+                    self._sse_manager is None
+                    or not self._sse_manager.client.is_connected()
+                ):
                     self._sse_manager = SSEManager(
                         self.sse_state,
                         self.sse_error,
@@ -128,9 +131,9 @@ class EnvironmentConfigManager(threading.Thread):
                 time.sleep(self._options.config_polling_interval_ms / 1000.0)
 
     def sse_message(self, message: ld_eventsource.actions.Event):
-        if self._sse_connected is False:
-            self._sse_connected = True
-            logger.info("DevCycle: Connected to SSE stream")
+        # Received a message from the SSE stream but our sse_connected is False, so we need to set it to True
+        if not self._sse_connected:
+            self.sse_state(None)
         logger.info(f"DevCycle: Received message: {message.data}")
         sse_message = json.loads(message.data)
         dvc_data = json.loads(sse_message.get("data"))
@@ -143,11 +146,13 @@ class EnvironmentConfigManager(threading.Thread):
             self._get_config(dvc_data["lastModified"] / 1000.0)
 
     def sse_error(self, error: ld_eventsource.actions.Fault):
+        self._sse_connected = False
         logger.debug(f"DevCycle: Received SSE error: {error}")
 
-    def sse_state(self, state: ld_eventsource.actions.Start):
-        self._sse_connected = True
-        logger.info("DevCycle: Connected to SSE stream")
+    def sse_state(self, state: Optional[ld_eventsource.actions.Start]):
+        if not self._sse_connected:
+            self._sse_connected = True
+            logger.info("DevCycle: Connected to SSE stream")
 
     def close(self):
         self._polling_enabled = False
