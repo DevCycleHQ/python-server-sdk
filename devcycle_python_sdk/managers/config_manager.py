@@ -84,7 +84,8 @@ class EnvironmentConfigManager(threading.Thread):
             if not self._options.disable_realtime_updates:
                 if (
                     self._sse_manager is None
-                    or not self._sse_manager.client.is_connected()
+                    or self._sse_manager.client is None
+                    or not self._sse_manager.read_thread.is_alive()
                 ):
                     self._sse_manager = SSEManager(
                         self.sse_state,
