@@ -40,7 +40,7 @@ class EnvironmentConfigManager(threading.Thread):
         self._config_etag: Optional[str] = None
         self._config_lastmodified: Optional[str] = None
 
-         # Exponential backoff configuration
+        # Exponential backoff configuration
         self._sse_reconnect_attempts = 0
         self._min_reconnect_interval = 5.0  # Start at 5 seconds
         self._max_reconnect_interval = 300.0  # Cap at 5 minutes
@@ -60,13 +60,15 @@ class EnvironmentConfigManager(threading.Thread):
         """Recreate the SSE connection with the current config."""
         with self._sse_reconnect_lock:
             if self._config is None or self._options.disable_realtime_updates:
-                logger.debug("Skipping SSE recreation - no config or updates disabled")
+                logger.debug("Devcycle: Skipping SSE recreation - no config or updates disabled")
                 return
 
             try:
                 # Close existing connection if present
-                if self._sse_manager is not None and self._sse_manager.client is not None:
-                    logger.debug("Closing existing SSE connection before recreating")
+                if (
+                    self._sse_manager is not None
+                    and self._sse_manager.client is not None
+                ):
                     self._sse_manager.client.close()
                     if self._sse_manager.read_thread.is_alive():
                         self._sse_manager.read_thread.join(timeout=1.0)
@@ -78,23 +80,21 @@ class EnvironmentConfigManager(threading.Thread):
                     self.sse_message,
                 )
                 self._sse_manager.update(self._config)
-                logger.info("SSE connection recreated successfully")
+                logger.info("Devcyle: SSE connection created successfully")
             except Exception as e:
-                logger.error(f"Devcycle: Failed to recreate SSE connection: {e}")
+                logger.debug(f"Devcycle: Failed to recreate SSE connection: {e}")
 
     def _delayed_sse_reconnect(self, delay_seconds: float):
         """Delayed SSE reconnection with configurable backoff."""
         try:
-            logger.debug(f"Waiting {delay_seconds}s before reconnecting SSE...")
-            time.sleep(delay_seconds) 
-            logger.debug("Delay complete, attempting to recreate SSE connection")
+            logger.debug(f"Devcycle: Waiting {delay_seconds}s before reconnecting SSE...")
+            time.sleep(delay_seconds)
             self._recreate_sse_connection()
         except Exception as e:
-            logger.error(f"Error during delayed SSE reconnection: {e}")
+            logger.error(f"Devcycle: Error during delayed SSE reconnection: {e}")
         finally:
             with self._sse_reconnect_lock:
                 self._sse_reconnecting = False
-                logger.debug("Reconnection attempt completed")
 
     def _get_config(self, last_modified: Optional[float] = None):
         try:
@@ -134,7 +134,9 @@ class EnvironmentConfigManager(threading.Thread):
                     or self._sse_manager.client is None
                     or not self._sse_manager.read_thread.is_alive()
                 ):
-                    logger.info("DevCycle: SSE connection not active, creating new connection")
+                    logger.info(
+                        "DevCycle: SSE connection not active, creating new connection"
+                    )
                     self._recreate_sse_connection()
 
             if (
@@ -178,8 +180,7 @@ class EnvironmentConfigManager(threading.Thread):
             self.sse_state(None)
         logger.info(f"DevCycle: Received message: {message.data}")
         sse_message = json.loads(message.data)
-    
-      
+
         dvc_data = json.loads(sse_message.get("data"))
         if (
             dvc_data.get("type") == "refetchConfig"
@@ -188,61 +189,51 @@ class EnvironmentConfigManager(threading.Thread):
         ):
             logger.info("DevCycle: Received refetchConfig message - updating config")
             self._get_config(dvc_data["lastModified"] / 1000.0)
-        # Succesfully maintained connection and received ping, reset our connect attempts.
-        if(dvc_data.get("type") == 'ping'):
+        # SSE connection healthy, reconnect attempts reset.
+        if dvc_data.get("type") == "ping" or dvc_data.get("type") == "refetchConfig" :
             self._sse_reconnect_attempts = 0
 
     def sse_error(self, error: ld_eventsource.actions.Fault):
-        """
-        Handle SSE connection errors with exponential backoff reconnection.
-        
-        Switches to polling mode (10s intervals) and attempts reconnection with backoff:
-        5s → 10s → 20s → 40s → 80s → 160s → 300s (capped at 5 min).
-        Backoff resets on successful reconnection.
-        
-        Thread-safe with _sse_reconnect_lock to prevent concurrent reconnection attempts.
-        """
-        """Handle SSE connection errors with exponential backoff."""
         self._sse_connected = False
-        logger.debug(f"SSE connection error: {error.error}")
-        current_time = time.time()            
-        
+        logger.debug(f"Devcyle: SSE connection error: {error.error}")
+        current_time = time.time()
+
         # Calculate exponential backoff interval (capped at max)
         backoff_interval = min(
-            self._min_reconnect_interval * (2 ** self._sse_reconnect_attempts),
-            self._max_reconnect_interval
+            self._min_reconnect_interval * (2**self._sse_reconnect_attempts),
+            self._max_reconnect_interval,
         )
 
         with self._sse_reconnect_lock:
-            # Check if we're already reconnecting
             if self._sse_reconnecting:
-                logger.debug("Reconnection already in progress, skipping")
+                logger.debug("Devcyle: Reconnection already in progress, skipping")
                 return
-            
+
             # Check if we need to wait for backoff
-            if (self._last_reconnect_attempt_time is not None and
-                current_time - self._last_reconnect_attempt_time < backoff_interval):
-                time_remaining = backoff_interval - (current_time - self._last_reconnect_attempt_time)
+            if (
+                self._last_reconnect_attempt_time is not None
+                and current_time - self._last_reconnect_attempt_time < backoff_interval
+            ):
+                time_remaining = backoff_interval - (
+                    current_time - self._last_reconnect_attempt_time
+                )
                 logger.debug(
-                    f"Skipping reconnection attempt, waiting for backoff period "
+                    f"Devcyle: Skipping reconnection attempt, waiting for backoff period "
                     f"({time_remaining:.1f}s remaining of {backoff_interval:.1f}s)"
                 )
                 return
-            
-            # Mark that we're now reconnecting
+
             self._sse_reconnecting = True
             self._last_reconnect_attempt_time = current_time
             self._sse_reconnect_attempts += 1
-        
-        logger.info(
-            f"Attempting SSE reconnection (attempt #{self._sse_reconnect_attempts}, "
+
+        logger.debug(
+            f"Devcyle: Attempting SSE reconnection (attempt #{self._sse_reconnect_attempts}, "
             f"next backoff: {backoff_interval:.1f}s)"
         )
-        
+
         reconnect_thread = threading.Thread(
-            target=self._delayed_sse_reconnect,
-            args=(backoff_interval,),
-            daemon=True
+            target=self._delayed_sse_reconnect, args=(backoff_interval,), daemon=True
         )
         reconnect_thread.start()
 
@@ -250,13 +241,13 @@ class EnvironmentConfigManager(threading.Thread):
         if not self._sse_connected:
             self._sse_connected = True
             logger.info("DevCycle: Connected to SSE stream")
-            
-            # Clear reconnection state on successful connection
+
+            # Clear reconnection state
             with self._sse_reconnect_lock:
                 self._sse_reconnecting = False
                 self._last_reconnect_attempt_time = None
         else:
-            logger.debug("SSE keepalive received")
+            logger.debug("Devcyle: SSE keepalive received")
 
     def close(self):
         self._polling_enabled = False
