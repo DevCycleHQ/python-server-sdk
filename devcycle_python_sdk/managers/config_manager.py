@@ -58,6 +58,7 @@ class EnvironmentConfigManager(threading.Thread):
 
     def _recreate_sse_connection(self):
         """Recreate the SSE connection with the current config."""
+        # Acquire lock to check state and save references to old connection
         with self._sse_reconnect_lock:
             if self._config is None or self._options.disable_realtime_updates:
                 logger.debug(
@@ -65,26 +66,33 @@ class EnvironmentConfigManager(threading.Thread):
                 )
                 return
 
-            try:
-                # Close existing connection if present
-                if (
-                    self._sse_manager is not None
-                    and self._sse_manager.client is not None
-                ):
-                    self._sse_manager.client.close()
-                    if self._sse_manager.read_thread.is_alive():
-                        self._sse_manager.read_thread.join(timeout=1.0)
+            # Save references to old SSE manager and config while holding the lock
+            old_sse_manager = self._sse_manager
+            current_config = self._config
 
+        # Perform potentially blocking operations outside the lock to avoid deadlock
+        # The SSE read thread may call sse_error/sse_state which need the lock
+        try:
+            if old_sse_manager is not None and old_sse_manager.client is not None:
+                old_sse_manager.client.close()
+                if old_sse_manager.read_thread.is_alive():
+                    old_sse_manager.read_thread.join(timeout=1.0)
+        except Exception as e:
+            logger.debug(f"Devcycle: Error closing old SSE connection: {e}")
+
+        # Re-acquire lock to create new connection and update state
+        try:
+            with self._sse_reconnect_lock:
                 # Create new SSE manager
                 self._sse_manager = SSEManager(
                     self.sse_state,
                     self.sse_error,
                     self.sse_message,
                 )
-                self._sse_manager.update(self._config)
+                self._sse_manager.update(current_config)
                 logger.info("Devcyle: SSE connection created successfully")
-            except Exception as e:
-                logger.debug(f"Devcycle: Failed to recreate SSE connection: {e}")
+        except Exception as e:
+            logger.debug(f"Devcycle: Failed to recreate SSE connection: {e}")
 
     def _delayed_sse_reconnect(self, delay_seconds: float):
         """Delayed SSE reconnection with configurable backoff."""
