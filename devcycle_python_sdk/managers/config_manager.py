@@ -39,6 +39,9 @@ class EnvironmentConfigManager(threading.Thread):
         self._config: Optional[dict] = None
         self._config_etag: Optional[str] = None
         self._config_lastmodified: Optional[str] = None
+        self._sse_reconnecting = False
+        self._last_reconnect_attempt_time: Optional[float] = None
+        self._sse_reconnect_lock = threading.Lock()
 
         self._config_api_client = ConfigAPIClient(self._sdk_key, self._options)
 
@@ -48,6 +51,46 @@ class EnvironmentConfigManager(threading.Thread):
 
     def is_initialized(self) -> bool:
         return self._config is not None
+
+    def _recreate_sse_connection(self):
+        """Recreate the SSE connection with the current config."""
+        with self._sse_reconnect_lock:
+            if self._config is None or self._options.disable_realtime_updates:
+                logger.debug("Skipping SSE recreation - no config or updates disabled")
+                return
+
+            try:
+                # Close existing connection if present
+                if self._sse_manager is not None and self._sse_manager.client is not None:
+                    logger.debug("Closing existing SSE connection before recreating")
+                    self._sse_manager.client.close()
+                    if self._sse_manager.read_thread.is_alive():
+                        self._sse_manager.read_thread.join(timeout=1.0)
+
+                # Create new SSE manager
+                self._sse_manager = SSEManager(
+                    self.sse_state,
+                    self.sse_error,
+                    self.sse_message,
+                )
+                self._sse_manager.update(self._config)
+                logger.info("SSE connection recreated successfully")
+            except Exception as e:
+                logger.error(f"Devcycle: Failed to recreate SSE connection: {e}")
+
+    def _delayed_sse_reconnect(self):
+        """Delayed SSE reconnection to allow error state to settle."""
+        try:
+            logger.debug("Waiting 2 seconds before reconnecting SSE...")
+            time.sleep(2.0)
+            logger.debug("Attempting to recreate SSE connection")
+            self._recreate_sse_connection()
+        except Exception as e:
+            logger.error(f"Devcycle: Error during delayed SSE reconnection: {e}")
+        finally:
+            # Always clear the reconnecting flag when done (success or failure)
+            with self._sse_reconnect_lock:
+                self._sse_reconnecting = False
 
     def _get_config(self, last_modified: Optional[float] = None):
         try:
@@ -87,12 +130,8 @@ class EnvironmentConfigManager(threading.Thread):
                     or self._sse_manager.client is None
                     or not self._sse_manager.read_thread.is_alive()
                 ):
-                    self._sse_manager = SSEManager(
-                        self.sse_state,
-                        self.sse_error,
-                        self.sse_message,
-                    )
-                self._sse_manager.update(self._config)
+                    logger.info("DevCycle: SSE connection not active, creating new connection")
+                    self._recreate_sse_connection()
 
             if (
                 trigger_on_client_initialized
@@ -101,7 +140,6 @@ class EnvironmentConfigManager(threading.Thread):
                 try:
                     self._options.on_client_initialized()
                 except Exception as e:
-                    # consume any error
                     logger.warning(
                         f"DevCycle: Error received from on_client_initialized callback: {str(e)}"
                     )
@@ -122,7 +160,6 @@ class EnvironmentConfigManager(threading.Thread):
                 self._get_config()
             except Exception as e:
                 if self._polling_enabled:
-                    # Only log a warning if we're still polling
                     logger.warning(
                         f"DevCycle: Error polling for config changes: {str(e)}"
                     )
@@ -148,12 +185,51 @@ class EnvironmentConfigManager(threading.Thread):
 
     def sse_error(self, error: ld_eventsource.actions.Fault):
         self._sse_connected = False
-        logger.debug(f"DevCycle: Received SSE error: {error}")
+        logger.debug(f"SSE connection error: {error.error}")
+
+        current_time = time.time()
+        min_reconnect_interval = 5.0
+
+        with self._sse_reconnect_lock:
+            # Check if we're already reconnecting
+            if self._sse_reconnecting:
+                logger.debug("Reconnection already in progress, skipping")
+                return
+            
+            # Check if we need to wait for backoff
+            if (self._last_reconnect_attempt_time is not None and
+                current_time - self._last_reconnect_attempt_time < min_reconnect_interval):
+                logger.debug(
+                    f"Skipping reconnection, waiting for backoff period ({min_reconnect_interval}s)"
+                )
+                return
+            
+            # Mark that we're now reconnecting
+            self._sse_reconnecting = True
+            self._last_reconnect_attempt_time = current_time
+        
+        logger.info("Attempting SSE reconnection...")
+        
+        # Schedule reconnection in a separate thread
+        reconnect_thread = threading.Thread(
+            target=self._delayed_sse_reconnect,
+            daemon=True
+        )
+        reconnect_thread.start()
 
     def sse_state(self, state: Optional[ld_eventsource.actions.Start]):
         if not self._sse_connected:
             self._sse_connected = True
             logger.info("DevCycle: Connected to SSE stream")
+            
+            # Clear reconnection state on successful connection
+            with self._sse_reconnect_lock:
+                self._sse_reconnecting = False
+                self._last_reconnect_attempt_time = None
+        else:
+            logger.debug("SSE keepalive received")
 
     def close(self):
         self._polling_enabled = False
+        if self._sse_manager is not None and self._sse_manager.client is not None:
+            self._sse_manager.client.close()
