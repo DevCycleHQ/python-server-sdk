@@ -35,6 +35,7 @@ class SSEManager:
     ):
         try:
             self.client.start()
+            logger.info("DevCycle: SSE connection created successfully")
             for event in self.client.all:
                 if isinstance(event, ld_eventsource.actions.Start):
                     handle_state(event)
