@@ -67,6 +67,9 @@ class EnvironmentConfigManager(threading.Thread):
                 return
 
             # Save references to old SSE manager and config while holding the lock
+            # Note: current_config may become stale if another thread updates _config
+            # between releasing and reacquiring the lock, but this is acceptable as
+            # the SSE stream will receive updates to sync to the latest config
             old_sse_manager = self._sse_manager
             current_config = self._config
 
@@ -90,7 +93,7 @@ class EnvironmentConfigManager(threading.Thread):
                     self.sse_message,
                 )
                 self._sse_manager.update(current_config)
-                logger.info("Devcyle: SSE connection created successfully")
+                logger.info("DevCycle: SSE connection created successfully")
         except Exception as e:
             logger.debug(f"DevCycle: Failed to recreate SSE connection: {e}")
 
@@ -146,10 +149,21 @@ class EnvironmentConfigManager(threading.Thread):
                     or self._sse_manager.client is None
                     or not self._sse_manager.read_thread.is_alive()
                 ):
-                    logger.info(
-                        "DevCycle: SSE connection not active, creating new connection"
-                    )
-                    self._recreate_sse_connection()
+                    # Only recreate if not already reconnecting from error handler
+                    with self._sse_reconnect_lock:
+                        if not self._sse_reconnecting:
+                            logger.info(
+                                "DevCycle: SSE connection not active, creating new connection"
+                            )
+                            should_recreate = True
+                        else:
+                            logger.debug(
+                                "DevCycle: SSE reconnection already scheduled, skipping"
+                            )
+                            should_recreate = False
+
+                    if should_recreate:
+                        self._recreate_sse_connection()
 
             if (
                 trigger_on_client_initialized
