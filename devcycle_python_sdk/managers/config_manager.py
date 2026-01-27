@@ -66,12 +66,9 @@ class EnvironmentConfigManager(threading.Thread):
                 )
                 return
 
-            # Save references to old SSE manager and config while holding the lock
-            # Note: current_config may become stale if another thread updates _config
-            # between releasing and reacquiring the lock, but this is acceptable as
-            # the SSE stream will receive updates to sync to the latest config
+            # Save reference to old SSE manager and clear it to prevent concurrent access
             old_sse_manager = self._sse_manager
-            current_config = self._config
+            self._sse_manager = None
 
         # Perform potentially blocking operations outside the lock to avoid deadlock
         # The SSE read thread may call sse_error/sse_state which need the lock
@@ -86,13 +83,20 @@ class EnvironmentConfigManager(threading.Thread):
         # Re-acquire lock to create new connection and update state
         try:
             with self._sse_reconnect_lock:
-                # Create new SSE manager
+                # Re-read config to ensure we use the latest version
+                if self._config is None:
+                    logger.debug(
+                        "DevCycle: Config was cleared during SSE reconnection, skipping"
+                    )
+                    return
+
+                # Create new SSE manager with the current config
                 self._sse_manager = SSEManager(
                     self.sse_state,
                     self.sse_error,
                     self.sse_message,
                 )
-                self._sse_manager.update(current_config)
+                self._sse_manager.update(self._config)
                 logger.info("DevCycle: SSE connection created successfully")
         except Exception as e:
             logger.debug(f"DevCycle: Failed to recreate SSE connection: {e}")
