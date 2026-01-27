@@ -61,7 +61,7 @@ def main():
         client.track(user, event)
 
     except Exception as e:
-        logger.exception(f"Exception when calling Devcycle API: {e}\n")
+        logger.exception(f"Exception when calling DevCycle API: {e}\n")
 
 
 if __name__ == "__main__":

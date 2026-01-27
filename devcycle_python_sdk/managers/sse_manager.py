@@ -33,8 +33,9 @@ class SSEManager:
         handle_error: Callable[[ld_eventsource.actions.Fault], None],
         handle_message: Callable[[ld_eventsource.actions.Event], None],
     ):
-        self.client.start()
         try:
+            self.client.start()
+            logger.info("DevCycle: SSE connection created successfully")
             for event in self.client.all:
                 if isinstance(event, ld_eventsource.actions.Start):
                     handle_state(event)
@@ -45,7 +46,11 @@ class SSEManager:
                 elif isinstance(event, ld_eventsource.actions.Comment):
                     handle_state(None)
         except Exception as e:
-            logger.debug(f"DevCycle: failed to read SSE message: {e}")
+            logger.debug(f"DevCycle SSE: Error in read loop: {e}")
+            fault_event = ld_eventsource.actions.Fault(error=e)
+            handle_error(fault_event)
+        finally:
+            logger.debug("DevCycle SSE: Connection closed")
 
     def update(self, config: dict):
         if self.use_new_config(config["sse"]):
@@ -66,6 +71,6 @@ class SSEManager:
 
     def use_new_config(self, config: dict) -> bool:
         new_url = config["hostname"] + config["path"]
-        if self.url == "" or self.url is None and new_url != "":
+        if (self.url == "" or self.url is None) and new_url != "":
             return True
         return self.url != new_url
