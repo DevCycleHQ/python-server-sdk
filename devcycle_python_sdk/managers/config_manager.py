@@ -62,7 +62,7 @@ class EnvironmentConfigManager(threading.Thread):
         with self._sse_reconnect_lock:
             if self._config is None or self._options.disable_realtime_updates:
                 logger.debug(
-                    "Devcycle: Skipping SSE recreation - no config or updates disabled"
+                    "DevCycle: Skipping SSE recreation - no config or updates disabled"
                 )
                 return
 
@@ -78,7 +78,7 @@ class EnvironmentConfigManager(threading.Thread):
                 if old_sse_manager.read_thread.is_alive():
                     old_sse_manager.read_thread.join(timeout=1.0)
         except Exception as e:
-            logger.debug(f"Devcycle: Error closing old SSE connection: {e}")
+            logger.debug(f"DevCycle: Error closing old SSE connection: {e}")
 
         # Re-acquire lock to create new connection and update state
         try:
@@ -92,18 +92,18 @@ class EnvironmentConfigManager(threading.Thread):
                 self._sse_manager.update(current_config)
                 logger.info("Devcyle: SSE connection created successfully")
         except Exception as e:
-            logger.debug(f"Devcycle: Failed to recreate SSE connection: {e}")
+            logger.debug(f"DevCycle: Failed to recreate SSE connection: {e}")
 
     def _delayed_sse_reconnect(self, delay_seconds: float):
         """Delayed SSE reconnection with configurable backoff."""
         try:
             logger.debug(
-                f"Devcycle: Waiting {delay_seconds}s before reconnecting SSE..."
+                f"DevCycle: Waiting {delay_seconds}s before reconnecting SSE..."
             )
             time.sleep(delay_seconds)
             self._recreate_sse_connection()
         except Exception as e:
-            logger.error(f"Devcycle: Error during delayed SSE reconnection: {e}")
+            logger.error(f"DevCycle: Error during delayed SSE reconnection: {e}")
         finally:
             with self._sse_reconnect_lock:
                 self._sse_reconnecting = False
