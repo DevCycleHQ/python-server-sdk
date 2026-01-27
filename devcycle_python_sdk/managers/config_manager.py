@@ -60,7 +60,9 @@ class EnvironmentConfigManager(threading.Thread):
         """Recreate the SSE connection with the current config."""
         with self._sse_reconnect_lock:
             if self._config is None or self._options.disable_realtime_updates:
-                logger.debug("Devcycle: Skipping SSE recreation - no config or updates disabled")
+                logger.debug(
+                    "Devcycle: Skipping SSE recreation - no config or updates disabled"
+                )
                 return
 
             try:
@@ -87,7 +89,9 @@ class EnvironmentConfigManager(threading.Thread):
     def _delayed_sse_reconnect(self, delay_seconds: float):
         """Delayed SSE reconnection with configurable backoff."""
         try:
-            logger.debug(f"Devcycle: Waiting {delay_seconds}s before reconnecting SSE...")
+            logger.debug(
+                f"Devcycle: Waiting {delay_seconds}s before reconnecting SSE..."
+            )
             time.sleep(delay_seconds)
             self._recreate_sse_connection()
         except Exception as e:
@@ -190,7 +194,7 @@ class EnvironmentConfigManager(threading.Thread):
             logger.info("DevCycle: Received refetchConfig message - updating config")
             self._get_config(dvc_data["lastModified"] / 1000.0)
         # SSE connection healthy, reconnect attempts reset.
-        if dvc_data.get("type") == "ping" or dvc_data.get("type") == "refetchConfig" :
+        if dvc_data.get("type") == "ping" or dvc_data.get("type") == "refetchConfig":
             self._sse_reconnect_attempts = 0
 
     def sse_error(self, error: ld_eventsource.actions.Fault):
