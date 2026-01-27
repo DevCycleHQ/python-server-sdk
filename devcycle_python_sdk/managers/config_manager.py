@@ -200,7 +200,7 @@ class EnvironmentConfigManager(threading.Thread):
         current_time = time.time()
 
         if self._sse_reconnecting:
-            logger.debug("DevCylce: Reconnection already in progress, skipping")
+            logger.debug("DevCycle: Reconnection already in progress, skipping")
             return
 
         # Calculate exponential backoff interval (capped at max)
