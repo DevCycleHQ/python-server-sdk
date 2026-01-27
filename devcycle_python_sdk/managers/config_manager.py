@@ -216,14 +216,14 @@ class EnvironmentConfigManager(threading.Thread):
             if time_since_last_attempt < backoff_interval:
                 delay_seconds = backoff_interval - time_since_last_attempt
                 logger.debug(
-                    f"DevCyle: Within backoff period, scheduling reconnection in {delay_seconds:.1f}s"
+                    f"DevCycle: Within backoff period, scheduling reconnection in {delay_seconds:.1f}s"
                 )
 
         self._sse_reconnecting = True
         self._sse_reconnect_attempts += 1
 
         logger.debug(
-            f"DevCyle: Attempting SSE reconnection (attempt #{self._sse_reconnect_attempts}, "
+            f"DevCycle: Attempting SSE reconnection (attempt #{self._sse_reconnect_attempts}, "
             f"backoff: {delay_seconds:.1f}s)"
         )
 
@@ -241,7 +241,7 @@ class EnvironmentConfigManager(threading.Thread):
             self._sse_reconnecting = False
             self._last_reconnect_attempt_time = None
         else:
-            logger.debug("DevCyle: SSE keepalive received")
+            logger.debug("DevCycle: SSE keepalive received")
 
     def close(self):
         self._polling_enabled = False
