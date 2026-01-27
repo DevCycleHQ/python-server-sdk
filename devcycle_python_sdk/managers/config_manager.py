@@ -196,11 +196,11 @@ class EnvironmentConfigManager(threading.Thread):
 
     def sse_error(self, error: ld_eventsource.actions.Fault):
         self._sse_connected = False
-        logger.debug(f"DevCyle: SSE connection error: {error.error}")
+        logger.debug(f"DevCycle: SSE connection error: {error.error}")
         current_time = time.time()
 
         if self._sse_reconnecting:
-            logger.debug("DevCyle: Reconnection already in progress, skipping")
+            logger.debug("DevCylce: Reconnection already in progress, skipping")
             return
 
         # Calculate exponential backoff interval (capped at max)
