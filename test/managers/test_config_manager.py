@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 from email.utils import formatdate
 from time import mktime
-from unittest.mock import patch, MagicMock, Mock
+from unittest.mock import patch, MagicMock
 
 import ld_eventsource.actions
 
@@ -319,7 +319,9 @@ class SSEReconnectionBackoffTest(unittest.TestCase):
 
         # Simulate reconnect completing and updating timestamp
         config_manager._sse_reconnecting = False
-        config_manager._last_reconnect_attempt_time = 1005.0  # Simulates reconnect at t=1005
+        config_manager._last_reconnect_attempt_time = (
+            1005.0  # Simulates reconnect at t=1005
+        )
 
         # Second error at t=1008 (3s after reconnect, within 10s backoff)
         mock_time.return_value = 1008.0
@@ -388,7 +390,6 @@ class SSEReconnectionBackoffTest(unittest.TestCase):
         self.assertTrue(config_manager._sse_connected)
 
         config_manager.close()
-
 
 
 if __name__ == "__main__":
