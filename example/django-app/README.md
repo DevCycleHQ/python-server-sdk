@@ -5,7 +5,7 @@ To find Python SDK usage documentation, visit our [docs](https://docs.devcycle.c
 
 ## Requirements.
 
-Python 3.7+ and Django 4.2+
+Python 3.7+ and Django 6.0.4+
 
 ## Installation
 
