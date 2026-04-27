@@ -1,6 +1,6 @@
 # pytest options
 [tool.pytest.ini_options]
-minversion = "7.0"
+minversion = "9.0"
 addopts = "--benchmark-skip --showlocals"
 
 # black options
