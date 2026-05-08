@@ -148,6 +148,24 @@ class EventQueueManagerTest(unittest.TestCase):
         self.test_local_bucketing.on_event_payload_success.assert_not_called()
 
     @patch("devcycle_python_sdk.api.event_client.EventAPIClient.publish_events")
+    def test_flush_events_wasm_error_does_not_raise(self, mock_publish_events):
+        self.test_local_bucketing.flush_event_queue.side_effect = Exception(
+            "WASMAbortError: Request Payload has not finished sending"
+        )
+
+        manager = EventQueueManager(
+            self.sdk_key,
+            self.client_uuid,
+            self.test_options_no_thread,
+            self.test_local_bucketing,
+        )
+        # Must not raise UnboundLocalError; must return 0
+        result = manager._flush_events()
+
+        self.assertEqual(result, 0)
+        mock_publish_events.assert_not_called()
+
+    @patch("devcycle_python_sdk.api.event_client.EventAPIClient.publish_events")
     def test_flush_events_no_events(self, mock_publish_events):
         self.test_local_bucketing.flush_event_queue = MagicMock()
         self.test_local_bucketing.flush_event_queue.return_value = []

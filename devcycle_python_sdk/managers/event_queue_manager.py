@@ -88,6 +88,7 @@ class EventQueueManager(threading.Thread):
             return 0
 
         with self._flush_lock:
+            payloads = []
             try:
                 payloads = self._local_bucketing.flush_event_queue()
             except Exception as e:
