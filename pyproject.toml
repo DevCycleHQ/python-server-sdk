@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=21.0.0"]
+build-backend = "setuptools.build_meta"
+
 # pytest options
 [tool.pytest.ini_options]
 minversion = "9.0"
