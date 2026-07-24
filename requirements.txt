@@ -4,4 +4,3 @@ wasmtime ~= 30.0.0
 protobuf >= 4.23.3
 openfeature-sdk ~= 0.8
 launchdarkly-eventsource >= 1.2.1
-responses >= 0.23.1
