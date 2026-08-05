@@ -48,8 +48,10 @@ This SDK provides an alpha implementation of the [OpenFeature](https://openfeatu
 from openfeature import api
 
 devcycle_client = DevCycleLocalClient('DEVCYCLE_SERVER_SDK_KEY', options)
-api.set_provider(devcycle_client.get_openfeature_provider())
+api.set_provider_and_wait(devcycle_client.get_openfeature_provider())
 ```
+
+Use `set_provider_and_wait()` so that initialization failures are raised to the caller. `set_provider()` returns before the provider is ready, which means a failed initialization is only reported as a background `PROVIDER_ERROR` event while evaluations return their default values.
 
 More details are in the [DevCycle Python SDK OpenFeature Provider](OpenFeature.md) guide.
 
