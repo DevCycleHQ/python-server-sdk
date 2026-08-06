@@ -24,7 +24,7 @@ from devcycle_python_sdk import DevCycleLocalClient, DevCycleLocalOptions
 devcycle_client = DevCycleLocalClient("DEVCYCLE_SERVER_SDK_KEY", DevCycleLocalOptions())
 
 # Set the initialzed DevCycle client as the provider for OpenFeature
-api.set_provider(devcycle_client.get_openfeature_provider())
+api.set_provider_and_wait(devcycle_client.get_openfeature_provider())
 
 # Get the OpenFeature client
 open_feature_client = api.get_client()
@@ -35,6 +35,25 @@ api.set_evaluation_context(EvaluationContext(targeting_key="test-1234"))
 
 # Retrieve a boolean flag from the OpenFeature client
 bool_flag = open_feature_client.get_boolean_value("bool-flag", False)
+```
+
+#### Provider Initialization
+
+Use `api.set_provider_and_wait()` rather than `api.set_provider()`. The DevCycle provider waits for the
+underlying DevCycle client to finish initializing and raises a `GeneralError` if it does not become ready
+in time. `set_provider_and_wait()` blocks until initialization completes and surfaces that error to the
+caller, so a failed startup is visible immediately.
+
+`api.set_provider()` returns before the provider is ready. Initialization failures are reported only as a
+`PROVIDER_ERROR` event on a background thread, and until the provider is ready every evaluation returns
+your default value with the `PROVIDER_NOT_READY` error code. If you use `set_provider()`, register an error
+handler so those failures are not silently discarded:
+
+```python
+from openfeature.event import ProviderEvent
+
+api.add_handler(ProviderEvent.PROVIDER_ERROR, lambda details: logger.error(details.message))
+api.set_provider(devcycle_client.get_openfeature_provider())
 ```
 
 #### Required Targeting Key

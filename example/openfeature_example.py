@@ -6,6 +6,7 @@ from devcycle_python_sdk import DevCycleLocalClient, DevCycleLocalOptions
 
 from openfeature import api
 from openfeature.evaluation_context import EvaluationContext
+from openfeature.exception import GeneralError
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +49,14 @@ def main():
     logger.info("DevCycle initialized successfully!\n")
 
     # set the provider for OpenFeature
-    api.set_provider(devcycle_client.get_openfeature_provider())
+    # set_provider_and_wait blocks until the provider is ready and raises if it fails to
+    # initialize. set_provider would return immediately and evaluations would silently
+    # fall back to their default values until the provider became ready.
+    try:
+        api.set_provider_and_wait(devcycle_client.get_openfeature_provider())
+    except GeneralError as e:
+        logger.error(f"DevCycle OpenFeature provider failed to initialize: {e}")
+        exit(1)
 
     # get the OpenFeature client
     open_feature_client = api.get_client()
