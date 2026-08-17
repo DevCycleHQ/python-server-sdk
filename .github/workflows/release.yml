@@ -39,7 +39,7 @@ jobs:
 
     steps:
       # Check out the repo with credentials that can bypass branch protection, and fetch git history instead of just latest commit
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           token: ${{ secrets.AUTOMATION_USER_TOKEN }}
           fetch-depth: 0
@@ -69,7 +69,7 @@ jobs:
         if: inputs.draft != true
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
