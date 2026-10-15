@@ -111,6 +111,15 @@ class EnvironmentConfigManagerTest(unittest.TestCase):
         mock_callback.assert_called_once()
 
     @patch("devcycle_python_sdk.api.config_client.ConfigAPIClient.get_config")
+    def test_sse_polling_interval_is_15_minutes(self, mock_get_config):
+        mock_get_config.return_value = (self.test_config_json, self.test_etag, None)
+        config_manager = EnvironmentConfigManager(
+            self.sdk_key, self.test_options, self.test_local_bucketing
+        )
+        self.assertEqual(config_manager._sse_polling_interval, 15 * 60 * 1000)
+        config_manager.close()
+
+    @patch("devcycle_python_sdk.api.config_client.ConfigAPIClient.get_config")
     def test_close(self, mock_get_config):
         mock_get_config.return_value = (self.test_config_json, self.test_etag)
         self.test_options.config_polling_interval_ms = 500

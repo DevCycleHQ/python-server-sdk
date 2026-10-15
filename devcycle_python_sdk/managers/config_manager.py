@@ -34,7 +34,7 @@ class EnvironmentConfigManager(threading.Thread):
         self._options = options
         self._local_bucketing = local_bucketing
         self._sse_manager: Optional[SSEManager] = None
-        self._sse_polling_interval = 1000 * 60 * 15 * 60
+        self._sse_polling_interval = 1000 * 60 * 15  # 15 minutes
         self._sse_connected = False
         self._config: Optional[dict] = None
         self._config_etag: Optional[str] = None
