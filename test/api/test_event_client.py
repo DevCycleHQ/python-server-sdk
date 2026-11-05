@@ -66,6 +66,24 @@ class EventAPIClientTest(unittest.TestCase):
         message = self.test_client.publish_events([])
         self.assertEqual(message, "Successfully received 1 event batches.")
 
+    @responses.activate
+    def test_publish_events_timeout_in_seconds(self):
+        responses.add(responses.POST, self.test_batch_url, json={"message": "ok"})
+        self.test_client.publish_events(self.test_batch)
+        self.assertEqual(responses.calls[0].request.req_kwargs["timeout"], 10.0)
+
+    @responses.activate
+    def test_publish_events_custom_timeout_in_seconds(self):
+        client = EventAPIClient(
+            self.sdk_key,
+            DevCycleLocalOptions(
+                events_api_uri="http://localhost:8080", event_request_timeout_ms=250
+            ),
+        )
+        responses.add(responses.POST, self.test_batch_url, json={"message": "ok"})
+        client.publish_events(self.test_batch)
+        self.assertEqual(responses.calls[0].request.req_kwargs["timeout"], 0.25)
+
     @responses.activate(registry=OrderedRegistry)
     def test_publish_events_retries_exceeded(self):
         for i in range(2):

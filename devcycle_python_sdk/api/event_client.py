@@ -36,7 +36,7 @@ class EventAPIClient:
         Attempts to send a batch of events to the server
         """
         retries_remaining = self.max_batch_retries + 1
-        timeout = self.options.event_request_timeout_ms
+        timeout = self.options.event_request_timeout_ms / 1000.0
 
         payload_json = json.dumps(
             {
