@@ -401,5 +401,79 @@ class SSEReconnectionBackoffTest(unittest.TestCase):
         config_manager.close()
 
 
+class StaleConfigRefetchTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.sdk_key = "dvc_server_" + str(uuid.uuid4())
+        self.test_local_bucketing = MagicMock()
+        self.test_options = DevCycleLocalOptions(
+            config_polling_interval_ms=500, disable_realtime_updates=True
+        )
+        self.test_config_json = small_config_json()
+
+    def _refetch_message(self):
+        return ld_eventsource.actions.Event(
+            event="message",
+            data='{"data": "{\\"type\\": \\"refetchConfig\\", \\"lastModified\\": 1234567890000}"}',
+        )
+
+    @patch("devcycle_python_sdk.api.config_client.ConfigAPIClient.get_config")
+    @patch("threading.Thread")
+    def test_stale_sse_fetch_schedules_refetch(self, mock_thread, mock_get_config):
+        mock_get_config.return_value = (None, None, None)
+        with patch.object(EnvironmentConfigManager, "start"):
+            config_manager = EnvironmentConfigManager(
+                self.sdk_key, self.test_options, self.test_local_bucketing
+            )
+
+        config_manager.sse_message(self._refetch_message())
+
+        mock_thread.assert_called_once()
+        self.assertEqual(
+            mock_thread.call_args[1]["target"], config_manager._refetch_stale_config
+        )
+        self.assertEqual(config_manager._stale_refetch_last_modified, 1234567890.0)
+
+    @patch("devcycle_python_sdk.api.config_client.ConfigAPIClient.get_config")
+    @patch("time.sleep")
+    def test_refetch_stops_when_cdn_returns_new_config(
+        self, mock_sleep, mock_get_config
+    ):
+        with patch.object(EnvironmentConfigManager, "start"):
+            config_manager = EnvironmentConfigManager(
+                self.sdk_key, self.test_options, self.test_local_bucketing
+            )
+        mock_get_config.side_effect = [
+            (None, None, None),
+            (self.test_config_json, "new-etag", "Wed, 21 Oct 2015 07:28:00 GMT"),
+        ]
+        config_manager._stale_refetching = True
+        config_manager._stale_refetch_last_modified = 1234567890.0
+
+        config_manager._refetch_stale_config()
+
+        self.assertEqual(mock_get_config.call_count, 2)
+        self.assertEqual(config_manager._config, self.test_config_json)
+        self.assertFalse(config_manager._stale_refetching)
+
+    @patch("devcycle_python_sdk.api.config_client.ConfigAPIClient.get_config")
+    @patch("time.sleep")
+    def test_refetch_gives_up_after_max_attempts(self, mock_sleep, mock_get_config):
+        with patch.object(EnvironmentConfigManager, "start"):
+            config_manager = EnvironmentConfigManager(
+                self.sdk_key, self.test_options, self.test_local_bucketing
+            )
+        mock_get_config.return_value = (None, None, None)
+        config_manager._stale_refetching = True
+        config_manager._stale_refetch_last_modified = 1234567890.0
+
+        config_manager._refetch_stale_config()
+
+        self.assertEqual(
+            mock_get_config.call_count, config_manager._stale_refetch_max_attempts
+        )
+        self.assertIsNone(config_manager._config)
+        self.assertFalse(config_manager._stale_refetching)
+
+
 if __name__ == "__main__":
     unittest.main()

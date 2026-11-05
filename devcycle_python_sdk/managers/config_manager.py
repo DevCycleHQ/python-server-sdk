@@ -46,6 +46,12 @@ class EnvironmentConfigManager(threading.Thread):
         self._max_reconnect_interval = 300.0  # Cap at 5 minutes
         self._last_reconnect_attempt_time: Optional[float] = None
         self._sse_reconnecting = False
+        # Retry when the CDN returns a config older than an SSE update
+        self._stale_refetch_max_attempts = 5
+        self._stale_refetch_max_delay = 30.0
+        self._stale_refetch_lock = threading.Lock()
+        self._stale_refetching = False
+        self._stale_refetch_last_modified: Optional[float] = None
         self._config_api_client = ConfigAPIClient(self._sdk_key, self._options)
 
         self._polling_enabled = True
@@ -97,7 +103,8 @@ class EnvironmentConfigManager(threading.Thread):
         finally:
             self._sse_reconnecting = False
 
-    def _get_config(self, last_modified: Optional[float] = None):
+    def _get_config(self, last_modified: Optional[float] = None) -> bool:
+        """Fetch the config. Returns False if the CDN returned a config older than last_modified."""
         try:
             lm_header = self._config_lastmodified
             if last_modified is not None:
@@ -110,16 +117,16 @@ class EnvironmentConfigManager(threading.Thread):
 
             # Abort early if the last modified is before the sent one.
             if new_config is None and new_etag is None and new_lastmodified is None:
-                return
+                return False
             if new_config is None and new_etag == self._config_etag:
                 # api not returning data and the etag is the same
                 # no change to the config since last request
-                return
+                return True
             elif new_config is None:
                 logger.warning(
                     "DevCycle: Config CDN fetch returned no data with a different etag"
                 )
-                return
+                return True
 
             trigger_on_client_initialized = self._config is None
 
@@ -157,6 +164,38 @@ class EnvironmentConfigManager(threading.Thread):
                 "DevCycle: Error initializing DevCycle: Invalid SDK key provided."
             )
             self._polling_enabled = False
+        return True
+
+    def _schedule_stale_refetch(self, last_modified: float):
+        """Retry the config fetch in the background until the CDN has the config from the SSE update."""
+        with self._stale_refetch_lock:
+            if (
+                self._stale_refetch_last_modified is None
+                or last_modified > self._stale_refetch_last_modified
+            ):
+                self._stale_refetch_last_modified = last_modified
+            if self._stale_refetching:
+                return
+            self._stale_refetching = True
+        threading.Thread(target=self._refetch_stale_config, daemon=True).start()
+
+    def _refetch_stale_config(self):
+        try:
+            delay = 1.0
+            for _ in range(self._stale_refetch_max_attempts):
+                time.sleep(delay)
+                if not self._polling_enabled:
+                    return
+                if self._get_config(self._stale_refetch_last_modified):
+                    return
+                delay = min(delay * 2, self._stale_refetch_max_delay)
+            logger.warning(
+                "DevCycle: Config CDN still returned an older config after retries"
+            )
+        finally:
+            with self._stale_refetch_lock:
+                self._stale_refetching = False
+                self._stale_refetch_last_modified = None
 
     def get_config_metadata(self) -> Optional[ConfigMetadata]:
         return self._local_bucketing.get_config_metadata()
@@ -189,7 +228,9 @@ class EnvironmentConfigManager(threading.Thread):
             or dvc_data.get("type") is None
         ):
             logger.info("DevCycle: Received refetchConfig message - updating config")
-            self._get_config(dvc_data["lastModified"] / 1000.0)
+            last_modified = dvc_data["lastModified"] / 1000.0
+            if not self._get_config(last_modified):
+                self._schedule_stale_refetch(last_modified)
         # SSE connection healthy, reconnect attempts reset.
         if dvc_data.get("type") == "ping" or dvc_data.get("type") == "refetchConfig":
             self._sse_reconnect_attempts = 0
