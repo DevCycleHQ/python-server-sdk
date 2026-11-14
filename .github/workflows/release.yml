@@ -1,78 +1,53 @@
 name: Release
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
-    inputs:
-      prerelease:
-        description: "Prerelease"
-        required: true
-        default: false
-        type: boolean
-      draft:
-        description: "Draft"
-        required: true
-        default: false
-        type: boolean
-      version-increment-type:
-          description: 'Which part of the version to increment:'
-          required: true
-          type: choice
-          options:
-            - major
-            - minor
-            - patch
-          default: 'patch'
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
-  release:
+  release-please:
+    name: Release Please
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      id-token: write
-
-    strategy:
-      matrix:
-        python-version: [ "3.12" ]
-
+      issues: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
-      # Check out the repo with credentials that can bypass branch protection, and fetch git history instead of just latest commit
+      # Uses GITHUB_TOKEN, so CI does not run on the release PR by itself.
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        id: release
+
+  # PyPI trusted publishing is tied to this workflow file, so publish stays here.
+  publish:
+    name: Publish to PyPI
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
       - uses: actions/checkout@v7
         with:
-          token: ${{ secrets.AUTOMATION_USER_TOKEN }}
-          fetch-depth: 0
-
-      - uses: DevCycleHQ/release-action/prepare-release@v2.3.0
-        id: prepare-release
-        with:
-          github-token: ${{ secrets.AUTOMATION_USER_TOKEN }}
-          prerelease: ${{ github.event.inputs.prerelease }}
-          draft: ${{ github.event.inputs.draft }}
-          version-increment-type: ${{ github.event.inputs.version-increment-type }}
-
-      - name: Update version in code
-        run: |
-          echo "${{steps.prepare-release.outputs.next-release-tag}}" > devcycle_python_sdk/VERSION.txt
-
-      - name: Commit version change
-        run: |
-          git config --global user.email "foundation-admin@devcycle.com"
-          git config --global user.name "DevCycle Automation"
-          git add ./devcycle_python_sdk/VERSION.txt
-          git commit -m "Release ${{steps.prepare-release.outputs.next-release-tag}}"
-
-      - name: Push version change
-        run: |
-          git push origin HEAD:main
-        if: inputs.draft != true
+          ref: ${{ needs.release-please.outputs.tag_name }}
 
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
+          python-version: "3.12"
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -86,21 +61,3 @@ jobs:
 
       - name: Upload build package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        if: inputs.prerelease != true && inputs.draft != true
-
-      - uses: DevCycleHQ/release-action/create-release@v2.3.0
-        id: create-release
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ steps.prepare-release.outputs.next-release-tag }}
-          target: main
-          prerelease: ${{ github.event.inputs.prerelease }}
-          draft: ${{ github.event.inputs.draft }}
-          changelog: ${{ steps.prepare-release.outputs.changelog }}
-
-      # TODO: upload python release artifacts
-
-      - name: Display link to release
-        run: |
-          echo "::notice title=Release ID::${{ steps.create-release.outputs.release-id }}"
-          echo "::notice title=Release URL::${{ steps.create-release.outputs.release-url }}"
