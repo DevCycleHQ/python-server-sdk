@@ -169,7 +169,7 @@ class DevCycleLocalClient(AbstractDevCycleClient):
                 before_hook_error = e
             bucketed_variable, feature_id = (
                 self.local_bucketing.get_variable_for_user_protobuf(
-                    user, key, default_value
+                    context.user, key, default_value
                 )
             )
             if feature_id is not None:
