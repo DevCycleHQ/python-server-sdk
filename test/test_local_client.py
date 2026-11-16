@@ -10,13 +10,14 @@ from devcycle_python_sdk import DevCycleLocalClient, DevCycleLocalOptions
 from devcycle_python_sdk.local_client import _validate_user, _validate_sdk_key
 from devcycle_python_sdk.exceptions import MalformedConfigError
 from devcycle_python_sdk.models.eval_hook import EvalHook
+from devcycle_python_sdk.models.eval_hook_context import HookContext
 from devcycle_python_sdk.models.eval_reason import EvalReason
 from devcycle_python_sdk.models.event import DevCycleEvent
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.api.local_bucketing import LocalBucketing
 from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.variable import Variable, TypeEnum
-from test.fixture.data import small_config_json
+from test.fixture.data import small_config_json, small_config
 
 logger = logging.getLogger(__name__)
 
@@ -416,6 +417,51 @@ class DevCycleLocalClientTest(unittest.TestCase):
         self.assertTrue(hook_called["after"])
         self.assertTrue(hook_called["finally"])
         self.assertFalse(hook_called["error"])
+
+    @responses.activate
+    def test_before_hook_replaces_user(self):
+        self.setup_client()
+        self.client.local_bucketing.store_config(small_config())
+        key = "string-var"
+        default_value = "default"
+        replacement_user = DevCycleUser(
+            user_id=self.test_user.user_id, email="giveMeVariationOff@email.com"
+        )
+        self.assertEqual(
+            self.client.variable_value(self.test_user, key, default_value),
+            "variationOn",
+        )
+        self.assertEqual(
+            self.client.variable_value(replacement_user, key, default_value),
+            "variationOff",
+        )
+
+        def before_hook(context):
+            return HookContext(
+                context.key,
+                replacement_user,
+                context.default_value,
+                context.config_metadata,
+            )
+
+        def after_hook(context, variable, variable_metadata):
+            self.assertIs(context.user, replacement_user)
+            self.assertEqual(variable.value, "variationOff")
+
+        def finally_hook(context, variable, variable_metadata):
+            self.assertIs(context.user, replacement_user)
+
+        def error_hook(context, error):
+            self.fail(str(error))
+
+        self.client.add_hook(
+            EvalHook(before_hook, after_hook, finally_hook, error_hook)
+        )
+        self.assertEqual(
+            self.client.variable_value(self.test_user, key, default_value),
+            "variationOff",
+        )
+        self.assertIsNone(self.test_user.email)
 
     @responses.activate
     def test_hook_exceptions(self):
