@@ -1,8 +1,6 @@
 name: Semantic PR
 on:
-  # pull_request, not pull_request_target: GitHub never starts pull_request_target
-  # runs for PRs opened with GITHUB_TOKEN (release-please), but it does start
-  # pull_request runs, which wait for approval like the other checks.
+  # pull_request_target never runs on release-please PRs (opened with GITHUB_TOKEN)
   pull_request:
     types:
       - opened
