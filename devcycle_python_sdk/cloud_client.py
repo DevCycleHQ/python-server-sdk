@@ -21,7 +21,7 @@ from devcycle_python_sdk.models.eval_hook import EvalHook
 from devcycle_python_sdk.models.eval_hook_context import HookContext
 from devcycle_python_sdk.models.user import DevCycleUser
 from devcycle_python_sdk.models.event import DevCycleEvent
-from devcycle_python_sdk.models.variable import Variable
+from devcycle_python_sdk.models.variable import Variable, determine_variable_type
 from devcycle_python_sdk.models.feature import Feature
 from devcycle_python_sdk.util.version import sdk_version
 from devcycle_python_sdk.open_feature_provider.provider import DevCycleProvider
@@ -144,8 +144,8 @@ class DevCycleCloudClient(AbstractDevCycleClient):
 
         variable.defaultValue = default_value
 
-        # Allow default value to be a subclass of the same type as the variable
-        if not isinstance(default_value, type(variable.value)):
+        # Compare SDK types so integers and floats share Number, excluding booleans.
+        if determine_variable_type(default_value) != variable.type:
             logger.warning(
                 f"DevCycle: Variable {key} is type {type(variable.value)}, but default value is type {type(default_value)}",
             )

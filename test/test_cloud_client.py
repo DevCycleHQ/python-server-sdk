@@ -124,6 +124,37 @@ class DevCycleCloudClientTest(unittest.TestCase):
         self.assertEqual(result.eval.details, "Variable Type Mismatch")
 
     @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.variable")
+    def test_variable_number_types(self, mock_variable_call):
+        for value, default in ((1.5, 0), (2, 0.0), (2, 0), (1.5, 0.0)):
+            with self.subTest(value=value, default=default):
+                variable = Variable(
+                    _id="123", key="numKey", value=value, type=TypeEnum.NUMBER
+                )
+                mock_variable_call.return_value = variable
+                result = self.test_client.variable(self.test_user, "numKey", default)
+                self.assertIs(result, variable)
+                self.assertEqual(result.value, value)
+                self.assertFalse(result.isDefaulted)
+                self.assertEqual(result.defaultValue, default)
+
+    @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.variable")
+    def test_variable_number_boolean_mismatch(self, mock_variable_call):
+        for value, default, var_type in (
+            (2, False, TypeEnum.NUMBER),
+            (1.5, True, TypeEnum.NUMBER),
+            (True, 0, TypeEnum.BOOLEAN),
+            (False, 0.0, TypeEnum.BOOLEAN),
+        ):
+            with self.subTest(value=value, default=default):
+                mock_variable_call.return_value = Variable(
+                    _id="123", key="key", value=value, type=var_type
+                )
+                result = self.test_client.variable(self.test_user, "key", default)
+                self.assertIs(result.value, default)
+                self.assertTrue(result.isDefaulted)
+                self.assertEqual(result.eval.details, "Variable Type Mismatch")
+
+    @patch("devcycle_python_sdk.api.bucketing_client.BucketingAPIClient.variable")
     def test_variable_value_defaults(self, mock_variable_call):
         mock_variable_call.return_value = Variable.create_default_variable(
             "strKey", "default_value"
